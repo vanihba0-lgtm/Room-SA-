@@ -1,0 +1,49 @@
+@import './tokens.css';
+@import './reset.css';
+
+body {
+  background-color: var(--color-bg-abyss);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-base);
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Custom Scrollbar for Terminals and Logs */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-muted);
+  border-radius: var(--radius-xs);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-amber-muted);
+}
+
+/* Text Selection */
+::selection {
+  background: var(--color-amber-muted);
+  color: var(--color-bg-abyss);
+}
+
+/* Screen Reader Only Utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

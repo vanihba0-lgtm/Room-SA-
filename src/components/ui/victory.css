@@ -1,0 +1,169 @@
+.victory-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-overlay);
+  background-color: rgba(5, 7, 10, 0.92);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  animation: victory-fade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes victory-fade {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(16px);
+  }
+}
+
+.victory-frame {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-amber-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  box-shadow: 0 0 60px var(--color-amber-glow), 0 20px 40px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-6);
+  animation: frame-scale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes frame-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.victory-halo {
+  position: absolute;
+  top: -50px;
+  width: 300px;
+  height: 200px;
+  background: radial-gradient(circle, var(--color-amber-glow) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+.victory-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: rgba(16, 185, 129, 0.15);
+  border: 1px solid var(--color-success-green);
+  color: #6ee7b7;
+  padding: 4px 12px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  font-weight: var(--font-weight-semibold);
+}
+
+.victory-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.victory-title .title-accent {
+  color: var(--color-amber-bright);
+  text-shadow: 0 0 30px var(--color-amber-glow);
+}
+
+.victory-tagline {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-loose);
+  max-width: 500px;
+  margin: 0;
+}
+
+.victory-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  padding: var(--space-3);
+}
+
+.stat-label {
+  font-family: var(--font-family-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+}
+
+.stat-value {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.stat-value-highlight {
+  color: var(--color-amber-bright);
+}
+
+.victory-actions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.btn-restart {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: var(--color-amber-primary);
+  color: #080a0d;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-restart:hover {
+  background-color: var(--color-amber-bright);
+  box-shadow: 0 0 24px var(--color-amber-glow);
+  transform: translateY(-2px);
+}
+
+.victory-footer-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-amber-muted);
+}

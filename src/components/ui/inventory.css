@@ -1,0 +1,111 @@
+.inventory-hud {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--color-bg-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family-mono);
+}
+
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.inventory-count {
+  color: var(--color-amber-primary);
+}
+
+.inventory-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.inventory-slot {
+  height: 64px;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.slot-empty {
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.slot-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-disabled);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.slot-occupied {
+  cursor: pointer;
+  border-color: var(--color-amber-muted);
+  background-color: var(--color-bg-surface-elevated);
+}
+
+.slot-occupied:hover,
+.slot-occupied:focus-visible {
+  border-color: var(--color-amber-bright);
+  background-color: var(--color-bg-surface-hover);
+  box-shadow: 0 0 12px var(--color-amber-glow);
+  outline: none;
+}
+
+.slot-item-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-3);
+  width: 100%;
+}
+
+.item-icon-wrapper {
+  color: var(--color-amber-bright);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(245, 158, 11, 0.12);
+  padding: 6px;
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.item-name {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-category-tag {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: var(--color-amber-muted);
+  margin-left: auto;
+  border: 1px solid var(--color-border-subtle);
+  padding: 2px 4px;
+  border-radius: 2px;
+}
