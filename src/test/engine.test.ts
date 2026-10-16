@@ -131,8 +131,8 @@ describe('ROOM S A — Authoritative Engine & Puzzle Mechanics (Chamber 101)', (
     ).toBe(true);
   });
 
-  // 8. Successful escape after satisfying both prerequisites
-  it('8. permits escape when player has the brass key AND rule allows brass keys', () => {
+  // 8. Successful Chamber 101 exit unlocks door and transitions to Chamber 102
+  it('8. unlocks blast door and transitions to Chamber 102 when prerequisites are met', () => {
     // Step A: Collect Key
     let s = engineReducer(state, {
       type: 'COLLECT_ITEM',
@@ -145,17 +145,21 @@ describe('ROOM S A — Authoritative Engine & Puzzle Mechanics (Chamber 101)', (
       payload: { proposal: CHAMBER_101_SOLUTION_PROPOSAL },
     }).nextState;
 
-    // Step C: Attempt Exit
-    const exitResult = engineReducer(s, { type: 'ATTEMPT_EXIT' });
+    // Step C: First ATTEMPT_EXIT unlocks the blast door
+    const unlockResult = engineReducer(s, { type: 'ATTEMPT_EXIT' });
+    expect(unlockResult.success).toBe(true);
+    expect(unlockResult.nextState.exit.isLocked).toBe(false);
+    expect(unlockResult.message).toContain('Hydraulic clamps hiss and disengage');
 
-    expect(exitResult.success).toBe(true);
-    expect(exitResult.nextState.status).toBe('escaped');
-    expect(exitResult.nextState.exit.isLocked).toBe(false);
-    expect(exitResult.message).toContain('Hydraulic clamps hiss and disengage');
+    // Step D: Second ATTEMPT_EXIT transitions to Chamber 102
+    const transitionResult = engineReducer(unlockResult.nextState, { type: 'ATTEMPT_EXIT' });
+    expect(transitionResult.success).toBe(true);
+    expect(transitionResult.nextState.currentRoomId).toBe('chamber_102');
+    expect(transitionResult.nextState.status).toBe('playing');
   });
 
-  // 9. Correct victory state
-  it('9. records victory event and sets status to escaped', () => {
+  // 9. Chamber 101 unlock records correct events
+  it('9. records unlock event when Chamber 101 blast door is opened', () => {
     let s = engineReducer(state, {
       type: 'COLLECT_ITEM',
       payload: { itemId: 'brass_key' },
@@ -164,16 +168,17 @@ describe('ROOM S A — Authoritative Engine & Puzzle Mechanics (Chamber 101)', (
       type: 'SUBMIT_RULE_PROPOSAL',
       payload: { proposal: CHAMBER_101_SOLUTION_PROPOSAL },
     }).nextState;
-    const winResult = engineReducer(s, { type: 'ATTEMPT_EXIT' });
+    const unlockResult = engineReducer(s, { type: 'ATTEMPT_EXIT' });
 
-    expect(winResult.nextState.status).toBe('escaped');
+    expect(unlockResult.nextState.exit.isLocked).toBe(false);
     expect(
-      winResult.nextState.eventLog.some((e) => e.type === 'CHAMBER_ESCAPED')
+      unlockResult.nextState.eventLog.some((e) => e.type === 'CHAMBER_101_UNLOCKED')
     ).toBe(true);
   });
 
-  // 10. Prevention of ordinary state changes after victory
-  it('10. prevents ordinary gameplay actions once chamber is escaped', () => {
+  // 10. Prevention of ordinary state changes after full campaign escape
+  it('10. prevents ordinary gameplay actions once campaign is escaped', () => {
+    // Directly create an escaped state to test the guard
     let s = engineReducer(state, {
       type: 'COLLECT_ITEM',
       payload: { itemId: 'brass_key' },
@@ -182,8 +187,8 @@ describe('ROOM S A — Authoritative Engine & Puzzle Mechanics (Chamber 101)', (
       type: 'SUBMIT_RULE_PROPOSAL',
       payload: { proposal: CHAMBER_101_SOLUTION_PROPOSAL },
     }).nextState;
-    s = engineReducer(s, { type: 'ATTEMPT_EXIT' }).nextState;
-    expect(s.status).toBe('escaped');
+    // Simulate reaching escaped status by setting it directly
+    s = { ...s, status: 'escaped' };
 
     // Attempt to inspect or collect again
     const inspectResult = engineReducer(s, {

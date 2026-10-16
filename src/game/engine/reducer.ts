@@ -10,6 +10,7 @@ import {
 } from '../puzzles/chamber101';
 import { evaluateExitUnlock } from '../rules/predicates';
 import { validateRuleProposal } from '../rules/validator';
+import { evaluateChamber102Puzzle } from '../puzzles/chamber102';
 
 function createEvent(
   type: string,
@@ -206,6 +207,82 @@ export function engineReducer(
         return engineReducer(state, { type: 'ATTEMPT_EXIT' });
       }
 
+      // Chamber 102 Object Interactions
+      if (objectId === 'core_heavy' || objectId === 'core_resonance') {
+        if (state.carriedObjectId === objectId) {
+          return engineReducer(state, {
+            type: 'DROP_OBJECT',
+            payload: { objectId },
+          });
+        }
+        if (state.carriedObjectId) {
+          return {
+            success: false,
+            message: 'You are already carrying an object. Drop it first before picking up another.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+        return engineReducer(state, {
+          type: 'PICKUP_OBJECT',
+          payload: { objectId },
+        });
+      }
+
+      if (objectId === 'plate_mass' || objectId === 'plate_harmonic') {
+        if (state.carriedObjectId) {
+          return engineReducer(state, {
+            type: 'DROP_OBJECT',
+            payload: { objectId: state.carriedObjectId, plateId: objectId },
+          });
+        }
+        const plate = state.chamber102.pressurePlates[objectId];
+        const statusDesc = plate?.currentObjectId
+          ? `${plate.name}: Depressed. Holding ${state.chamber102.movableObjects[plate.currentObjectId]?.name}.`
+          : `${plate?.name}: Empty. ${plate?.label}.`;
+        return {
+          success: true,
+          message: statusDesc,
+          nextState: state,
+          emittedEvents: [],
+        };
+      }
+
+      if (objectId === 'circuit_console') {
+        // Cycle frequency and channel
+        const currentFreq = state.chamber102.circuit.selectedFrequency;
+        const currentChan = state.chamber102.circuit.routingChannel;
+        const freqs = [433, 868, 915];
+        const chans: ('ALPHA' | 'BETA' | 'GAMMA')[] = ['ALPHA', 'BETA', 'GAMMA'];
+
+        const nextFreq = freqs[(freqs.indexOf(currentFreq as any) + 1) % freqs.length] ?? 433;
+        // If frequency wrapped, advance channel too
+        const nextChan = nextFreq === freqs[0]
+          ? (chans[(chans.indexOf(currentChan) + 1) % chans.length] ?? 'ALPHA')
+          : currentChan;
+
+        return engineReducer(state, {
+          type: 'CONFIGURE_CIRCUIT',
+          payload: { frequency: nextFreq, channel: nextChan },
+        });
+      }
+
+      if (objectId === 'diagnostic_slate_102') {
+        const targetFreq = state.chamber102.circuit.targetFrequency;
+        const targetChan = state.chamber102.circuit.targetChannel;
+        const clueMsg = `MAINTENANCE ADVISORY: "Plate B (Substrate Transceiver) does NOT measure mass! The weight label is obsolete deception. It activates only when receiving ${targetFreq} kHz on Channel ${targetChan}."`;
+        return {
+          success: true,
+          message: clueMsg,
+          nextState: state,
+          emittedEvents: [],
+        };
+      }
+
+      if (objectId === 'exit_door_102') {
+        return engineReducer(state, { type: 'ATTEMPT_EXIT' });
+      }
+
       return {
         success: false,
         message: `No interaction available for object '${objectId}'.`,
@@ -333,14 +410,263 @@ export function engineReducer(
       };
     }
 
-    case 'ATTEMPT_EXIT': {
-      if (!state.exit.isLocked) {
+    case 'PICKUP_OBJECT': {
+      const { objectId } = action.payload;
+      const obj = state.chamber102.movableObjects[objectId];
+      if (!obj) {
         return {
-          success: true,
-          message: 'The door is already open.',
+          success: false,
+          message: `Movable object '${objectId}' not found.`,
           nextState: state,
           emittedEvents: [],
         };
+      }
+
+      // If object was on a pressure plate, clear that plate
+      const nextPlates = { ...state.chamber102.pressurePlates };
+      if (obj.placedOnPlateId && nextPlates[obj.placedOnPlateId]) {
+        const plate = nextPlates[obj.placedOnPlateId]!;
+        nextPlates[obj.placedOnPlateId] = {
+          ...plate,
+          isDepressed: false,
+          currentObjectId: null,
+          satisfied: false,
+        };
+      }
+
+      const nextObjects = {
+        ...state.chamber102.movableObjects,
+        [objectId]: {
+          ...obj,
+          isCarried: true,
+          placedOnPlateId: null,
+        },
+      };
+
+      const nextChamber102 = {
+        ...state.chamber102,
+        movableObjects: nextObjects,
+        pressurePlates: nextPlates,
+      };
+
+      const evalResult = evaluateChamber102Puzzle(nextChamber102);
+      const nextState: GameState = {
+        ...state,
+        carriedObjectId: objectId,
+        chamber102: {
+          ...nextChamber102,
+          circuit: {
+            ...nextChamber102.circuit,
+            isCircuitClosed: evalResult.circuitClosed,
+          },
+          exitDoorLocked: !evalResult.isFullySolved,
+          puzzleSolved: evalResult.isFullySolved,
+        },
+      };
+
+      const evt = createEvent('OBJECT_PICKUP', `Picked up ${obj.name} [${obj.mass}kg, ${obj.frequency}kHz].`);
+      return {
+        success: true,
+        message: `Picked up: ${obj.name} (${obj.mass} kg).`,
+        nextState: {
+          ...nextState,
+          eventLog: [...nextState.eventLog, evt],
+        },
+        emittedEvents: [evt],
+      };
+    }
+
+    case 'DROP_OBJECT': {
+      const { objectId, plateId } = action.payload;
+      const obj = state.chamber102.movableObjects[objectId];
+      if (!obj) {
+        return {
+          success: false,
+          message: `Movable object '${objectId}' not found.`,
+          nextState: state,
+          emittedEvents: [],
+        };
+      }
+
+      const nextPlates = { ...state.chamber102.pressurePlates };
+      if (plateId && nextPlates[plateId]) {
+        const plate = nextPlates[plateId]!;
+        nextPlates[plateId] = {
+          ...plate,
+          isDepressed: true,
+          currentObjectId: objectId,
+        };
+      }
+
+      const nextObjects = {
+        ...state.chamber102.movableObjects,
+        [objectId]: {
+          ...obj,
+          isCarried: false,
+          placedOnPlateId: plateId ?? null,
+        },
+      };
+
+      let nextChamber102 = {
+        ...state.chamber102,
+        movableObjects: nextObjects,
+        pressurePlates: nextPlates,
+      };
+
+      const evalResult = evaluateChamber102Puzzle(nextChamber102);
+      nextChamber102 = {
+        ...nextChamber102,
+        circuit: {
+          ...nextChamber102.circuit,
+          isCircuitClosed: evalResult.circuitClosed,
+        },
+        exitDoorLocked: !evalResult.isFullySolved,
+        puzzleSolved: evalResult.isFullySolved,
+      };
+
+      const dropDesc = plateId
+        ? `Placed ${obj.name} onto ${nextPlates[plateId]?.name}.`
+        : `Released ${obj.name}.`;
+
+      const evt = createEvent('OBJECT_DROP', dropDesc);
+      const events: GameEvent[] = [evt];
+
+      if (evalResult.isFullySolved && !state.chamber102.puzzleSolved) {
+        const winChamber2Evt = createEvent(
+          'CHAMBER_102_SOLVED',
+          'Harmonic network synchronized! Chamber 102 exit blast door unlocked.'
+        );
+        events.push(winChamber2Evt);
+      }
+
+      const nextState: GameState = {
+        ...state,
+        carriedObjectId: null,
+        chamber102: nextChamber102,
+        eventLog: [...state.eventLog, ...events],
+      };
+
+      return {
+        success: true,
+        message: evalResult.isFullySolved
+          ? 'Signal harmonics aligned! Blast door hydraulic seals disengaged!'
+          : dropDesc,
+        nextState,
+        emittedEvents: events,
+      };
+    }
+
+    case 'CONFIGURE_CIRCUIT': {
+      const { frequency, channel } = action.payload;
+      const currentCircuit = state.chamber102.circuit;
+      const nextCircuit = {
+        ...currentCircuit,
+        selectedFrequency: frequency ?? currentCircuit.selectedFrequency,
+        routingChannel: channel ?? currentCircuit.routingChannel,
+      };
+
+      let nextChamber102 = {
+        ...state.chamber102,
+        circuit: nextCircuit,
+      };
+
+      const evalResult = evaluateChamber102Puzzle(nextChamber102);
+      nextChamber102 = {
+        ...nextChamber102,
+        circuit: {
+          ...nextCircuit,
+          isCircuitClosed: evalResult.circuitClosed,
+        },
+        exitDoorLocked: !evalResult.isFullySolved,
+        puzzleSolved: evalResult.isFullySolved,
+      };
+
+      const msg = `Circuit tuned: Channel ${nextCircuit.routingChannel} @ ${nextCircuit.selectedFrequency} kHz.`;
+      const evt = createEvent('CIRCUIT_CONFIGURED', msg);
+      const events: GameEvent[] = [evt];
+
+      if (evalResult.isFullySolved && !state.chamber102.puzzleSolved) {
+        const winChamber2Evt = createEvent(
+          'CHAMBER_102_SOLVED',
+          'Harmonic network synchronized! Chamber 102 exit blast door unlocked.'
+        );
+        events.push(winChamber2Evt);
+      }
+
+      const nextState: GameState = {
+        ...state,
+        chamber102: nextChamber102,
+        eventLog: [...state.eventLog, ...events],
+      };
+
+      return {
+        success: true,
+        message: evalResult.isFullySolved
+          ? 'Harmonic loop closed! All conduits energized! Chamber 102 blast door unlocked!'
+          : msg,
+        nextState,
+        emittedEvents: events,
+      };
+    }
+
+    case 'TRANSITION_ROOM': {
+      const { targetRoomId } = action.payload;
+      const evt = createEvent('ROOM_TRANSITION', `Subject navigated to ${targetRoomId}.`);
+      return {
+        success: true,
+        message: `Entered ${targetRoomId === 'chamber_102' ? 'Chamber 102: The Signal Foundry' : 'Chamber 101'}.`,
+        nextState: {
+          ...state,
+          currentRoomId: targetRoomId,
+          eventLog: [...state.eventLog, evt],
+        },
+        emittedEvents: [evt],
+      };
+    }
+
+    case 'ATTEMPT_EXIT': {
+      // 1. If currently in Chamber 102:
+      if (state.currentRoomId === 'chamber_102') {
+        if (state.chamber102.exitDoorLocked) {
+          const failEvt = createEvent(
+            'CHAMBER_102_EXIT_FAILED',
+            'Chamber 102 blast door is locked. Kinetic and harmonic load cells must both be satisfied.'
+          );
+          return {
+            success: false,
+            message: 'Blast door is sealed. Both load cells and the signal circuit must align.',
+            nextState: {
+              ...state,
+              eventLog: [...state.eventLog, failEvt],
+            },
+            emittedEvents: [failEvt],
+          };
+        }
+
+        // Chamber 102 Cleared - Entire Campaign Escaped!
+        const victoryEvt = createEvent(
+          'CAMPAIGN_ESCAPED',
+          'Subject successfully escaped Chamber 102: The Signal Foundry! All facility sectors clear.'
+        );
+        return {
+          success: true,
+          message: 'Facility quarantine cleared! Freedom achieved!',
+          nextState: {
+            ...state,
+            status: 'escaped',
+            eventLog: [...state.eventLog, victoryEvt],
+          },
+          emittedEvents: [victoryEvt],
+        };
+      }
+
+      // 2. If in Chamber 101:
+      if (!state.exit.isLocked) {
+        // Door is open: transition to Chamber 102!
+        return engineReducer(state, {
+          type: 'TRANSITION_ROOM',
+          payload: { targetRoomId: 'chamber_102' },
+        });
       }
 
       const evalResult = evaluateExitUnlock(state);
@@ -360,10 +686,10 @@ export function engineReducer(
         };
       }
 
-      // Exit prerequisites satisfied: Unlock and Escape!
+      // Exit prerequisites satisfied: Unlock Chamber 101 blast door!
       const winEvt = createEvent(
-        'CHAMBER_ESCAPED',
-        'Blast door disengaged. Subject successfully escaped Chamber 101!'
+        'CHAMBER_101_UNLOCKED',
+        'Blast door disengaged. Corridor to Chamber 102 is now accessible!'
       );
 
       const nextExit = {
@@ -375,13 +701,12 @@ export function engineReducer(
       const nextDoorObj = {
         ...state.objects.exit_door,
         state: 'unlocked' as const,
-        description: 'The titanium blast door is fully retracted. The corridor beyond is accessible.',
-        inspectText: 'The exit stands open. Freedom awaits.',
+        description: 'The titanium blast door is fully retracted. The corridor to Chamber 102 is open.',
+        inspectText: 'The exit stands open. Chamber 102 lies ahead.',
       };
 
       const nextState: GameState = {
         ...state,
-        status: 'escaped',
         exit: nextExit,
         objects: {
           ...state.objects,
@@ -392,7 +717,7 @@ export function engineReducer(
 
       return {
         success: true,
-        message: evalResult.message,
+        message: 'Hydraulic clamps hiss and disengage. The passage to Chamber 102 is open!',
         nextState,
         emittedEvents: [winEvt],
       };

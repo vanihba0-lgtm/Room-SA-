@@ -114,10 +114,14 @@ describe('ROOM S A — 3D Systems & Interaction Math', () => {
     state = rewriteRes.nextState;
     expect(state.rules['RULE_01']?.isDeceptive).toBe(false);
 
-    // Step E: Walk up to blast door and unlock/escape
-    const finalEscape = engineReducer(state, { type: 'ATTEMPT_EXIT' });
-    expect(finalEscape.success).toBe(true);
-    expect(finalEscape.nextState.status).toBe('escaped');
-    expect(finalEscape.nextState.exit.isLocked).toBe(false);
+    // Step E: Walk up to blast door and unlock it
+    const unlockResult = engineReducer(state, { type: 'ATTEMPT_EXIT' });
+    expect(unlockResult.success).toBe(true);
+    expect(unlockResult.nextState.exit.isLocked).toBe(false);
+
+    // Step F: Walk through — transitions to Chamber 102
+    const transitionResult = engineReducer(unlockResult.nextState, { type: 'ATTEMPT_EXIT' });
+    expect(transitionResult.success).toBe(true);
+    expect(transitionResult.nextState.currentRoomId).toBe('chamber_102');
   });
 });

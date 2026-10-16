@@ -58,6 +58,29 @@ export function useGameState() {
     [dispatch]
   );
 
+  const pickupObject = useCallback(
+    (objectId: string) => dispatch({ type: 'PICKUP_OBJECT', payload: { objectId } }),
+    [dispatch]
+  );
+
+  const dropObject = useCallback(
+    (objectId: string, plateId?: string | null) =>
+      dispatch({ type: 'DROP_OBJECT', payload: { objectId, plateId } }),
+    [dispatch]
+  );
+
+  const configureCircuit = useCallback(
+    (frequency?: number, channel?: any) =>
+      dispatch({ type: 'CONFIGURE_CIRCUIT', payload: { frequency, channel } }),
+    [dispatch]
+  );
+
+  const transitionRoom = useCallback(
+    (targetRoomId: string) =>
+      dispatch({ type: 'TRANSITION_ROOM', payload: { targetRoomId } }),
+    [dispatch]
+  );
+
   const restartGame = useCallback(
     () => dispatch({ type: 'RESTART_GAME' }),
     [dispatch]
@@ -73,6 +96,10 @@ export function useGameState() {
     activateTerminal,
     submitRuleProposal,
     attemptExit,
+    pickupObject,
+    dropObject,
+    configureCircuit,
+    transitionRoom,
     restartGame,
   };
 }

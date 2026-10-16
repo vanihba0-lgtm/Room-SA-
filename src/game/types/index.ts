@@ -120,6 +120,50 @@ export interface AIInterpretationResponse {
 }
 
 // ==========================================
+// 5.5 Physics Objects & Signal Foundry (Chamber 102)
+// ==========================================
+
+export interface MovablePhysicsObject {
+  readonly id: string;
+  readonly name: string;
+  readonly mass: number; // in kg (e.g. 25kg vs 10kg)
+  readonly frequency: number; // in kHz (e.g. 433 vs 868)
+  readonly color: string;
+  readonly position: [number, number, number];
+  readonly isCarried: boolean;
+  readonly placedOnPlateId?: string | null;
+}
+
+export interface PressurePlateState {
+  readonly id: string;
+  readonly name: string;
+  readonly position: [number, number, number];
+  readonly label: string;
+  readonly isDepressed: boolean;
+  readonly currentObjectId?: string | null;
+  readonly satisfied: boolean;
+}
+
+export type SignalChannel = 'ALPHA' | 'BETA' | 'GAMMA';
+
+export interface SignalCircuitState {
+  readonly selectedFrequency: number;
+  readonly targetFrequency: number;
+  readonly routingChannel: SignalChannel;
+  readonly targetChannel: SignalChannel;
+  readonly isCircuitClosed: boolean;
+}
+
+export interface Chamber102State {
+  readonly movableObjects: Readonly<Record<string, MovablePhysicsObject>>;
+  readonly pressurePlates: Readonly<Record<string, PressurePlateState>>;
+  readonly circuit: SignalCircuitState;
+  readonly exitDoorLocked: boolean;
+  readonly puzzleSolved: boolean;
+  readonly seed: number;
+}
+
+// ==========================================
 // 6. Overall Game State (Immutable)
 // ==========================================
 
@@ -146,6 +190,8 @@ export interface GameState {
   readonly terminalOpen: boolean;
   readonly terminalLog: readonly string[];
   readonly realityShiftCount: number;
+  readonly carriedObjectId: string | null;
+  readonly chamber102: Chamber102State;
 }
 
 // ==========================================
@@ -160,6 +206,10 @@ export type GameAction =
   | { type: 'SUBMIT_RULE_PROPOSAL'; payload: { proposal: RuleProposal } }
   | { type: 'APPLY_VALIDATED_RULE'; payload: { proposal: RuleProposal } }
   | { type: 'ATTEMPT_EXIT' }
+  | { type: 'TRANSITION_ROOM'; payload: { targetRoomId: RoomId } }
+  | { type: 'PICKUP_OBJECT'; payload: { objectId: string } }
+  | { type: 'DROP_OBJECT'; payload: { objectId: string; position?: [number, number, number]; plateId?: string | null } }
+  | { type: 'CONFIGURE_CIRCUIT'; payload: { frequency?: number; channel?: SignalChannel } }
   | { type: 'RESTART_GAME' };
 
 export interface ActionResult {
@@ -168,3 +218,4 @@ export interface ActionResult {
   readonly nextState: GameState;
   readonly emittedEvents: readonly GameEvent[];
 }
+

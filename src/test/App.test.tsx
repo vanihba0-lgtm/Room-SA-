@@ -189,8 +189,8 @@ describe('ROOM S A — UI & Interactive Gameplay Integration (Milestones 1 & 2)'
     );
   });
 
-  // 8. Full playthrough from start to finish
-  it('8. allows full walkthrough to escape, displays victory overlay, and supports restart', () => {
+  // 8. Full walkthrough: solve Chamber 101 and unlock blast door, then restart
+  it('8. allows full Chamber 101 walkthrough to unlock blast door and supports restart', () => {
     render(<App />);
 
     // 1. Collect Brass Key
@@ -208,29 +208,21 @@ describe('ROOM S A — UI & Interactive Gameplay Integration (Milestones 1 & 2)'
     // Close terminal
     fireEvent.click(screen.getByRole('button', { name: /Close terminal/i }));
 
-    // 3. Click Blast Door to escape!
+    // 3. Click Blast Door to unlock (transitions to Chamber 102, not victory)
     const doorBtn = screen.getByRole('button', { name: /Reinforced Blast Door:/i });
     fireEvent.click(doorBtn);
 
-    // Victory overlay appears
-    const victoryDialog = screen.getByRole('dialog', {
-      name: /CHAMBER 101 CLEARED/i,
-    });
-    expect(victoryDialog).toBeInTheDocument();
-    expect(
-      within(victoryDialog).getByText(/ESCAPE PROTOCOL VERIFIED/i)
-    ).toBeInTheDocument();
-
-    // 4. Click Restart Chamber
-    const restartBtn = within(victoryDialog).getByRole('button', {
-      name: /Restart Chamber 101/i,
-    });
-    fireEvent.click(restartBtn);
-
-    // Game returns to initial state
+    // Chamber 101 is unlocked - feedback should indicate passage is open
+    // No victory overlay should appear since there's still Chamber 102
     expect(
       screen.queryByRole('dialog', { name: /CHAMBER 101 CLEARED/i })
     ).not.toBeInTheDocument();
+
+    // 4. Restart from wherever we are
+    const restartBtn = screen.getByRole('button', { name: /Restart Chamber/i });
+    fireEvent.click(restartBtn);
+
+    // Game returns to initial state
     expect(screen.getByText('0/3')).toBeInTheDocument();
     expect(screen.getByLabelText(/Active Rule/i)).toHaveTextContent(
       /Doors yield only to copper keys/i

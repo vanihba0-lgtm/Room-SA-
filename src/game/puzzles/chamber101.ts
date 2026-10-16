@@ -1,5 +1,6 @@
 import { GameState, InventoryItem, RoomObject } from '../types';
 import { CHAMBER_101_RULES } from '../rules/registry';
+import { createChamber102InitialState } from './chamber102';
 
 export const BRASS_KEY_ITEM: InventoryItem = {
   id: 'brass_key',
@@ -102,5 +103,7 @@ export function createChamber101InitialState(): GameState {
       '[SYS] TYPE "HELP" OR "RULES" FOR INSTRUCTIONS.',
     ],
     realityShiftCount: 0,
+    carriedObjectId: null,
+    chamber102: createChamber102InitialState(102),
   };
 }
