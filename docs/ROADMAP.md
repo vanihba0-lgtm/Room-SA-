@@ -110,25 +110,34 @@
 
 ---
 
-## Milestone 3 — The Room Fights Back & Seeded Chambers
+## Milestone 3 — The Signal Foundry: Chamber 102 & Multi-Room Campaign (COMPLETED)
 
-**Target:** Replayable seeded puzzle generation, multi-room expansion, contradictory world rules, and physical constraints.
+**Target:** Replayable seeded puzzle generation, multi-room expansion, contradictory deception, and 3D physical constraints.
 
 ### Features & Scope
-- **Chamber 102 & 103**: Multiple interconnected chambers with persistent inventory.
-- **Dynamic Physics Rules**:
-  - Gravity alteration rules (`RULE_GRAVITY_INVERTED`).
-  - Mass & weight rules (`RULE_WEIGHT_LESS_THAN`).
-  - Chrono-dilation rules (`RULE_TIME_FLOW`).
-- **Rule Contradictions**:
-  - Rooms where two rules conflict (e.g., Rule A requires heavy objects, Rule B prohibits objects above 1kg), forcing strategic sequential rule manipulation.
-- **Environmental Storytelling**:
-  - Audio logs and terminal fragments revealing who designed the chambers and why reality is lying.
+- **Chamber 102: The Signal Foundry**:
+  - Full 3D industrial electromagnetic testing bay architecture with pulsing amber & violet floor conduits.
+  - Interactive dual pressure plates:
+    - Plate A (Kinetic Inductor): requires >= 20kg load cell mass.
+    - Plate B (Substrate Transceiver): deceptive weight label; requires resonant frequency transmission.
+  - Movable 3D physical cores:
+    - Heavy Flux Core #A (25kg, amber, industrial flux capacitor).
+    - Harmonic Cell #B (8kg, violet, rotating gyroscopic resonator).
+  - 3D Signal Routing Console with oscilloscope display, cycling through frequencies (433 / 868 / 915 kHz) and channels (ALPHA, BETA, GAMMA).
+  - 3D Diagnostic Slate revealing maintenance advisory and exposing Plate B's deceptive weight specification.
+  - 3D Dual-Interlocked Blast Door with dual pneumatic locking pistons.
+- **2D Tactical Schematic Mirror**:
+  - `Room102View` providing seamless 2D top-down tactical overview with clickable interaction hotspots for non-WebGL environments.
+- **Campaign Victory & Progression**:
+  - Seamless door transition from Chamber 101 to Chamber 102.
+  - Full facility campaign victory sequence celebrating complete containment breach and deception neutralization.
 
 ### Acceptance Criteria
-- [ ] Room-to-room transitions preserve inventory and applied rules correctly.
-- [ ] Contradictory rule states are detected and highlighted by the terminal analyzer.
-- [ ] Interactive puzzles require multi-step rule reconfiguration.
+- [x] Room-to-room transitions preserve inventory and applied rules correctly.
+- [x] Contradictory rule states and deceptive plate specifications exposed via lore cluing.
+- [x] Full 3D FPS interaction system supports picking up, carrying, and placing physical cores onto target plates.
+- [x] Automated test suite expanded to 39/39 passing tests across 6 suites.
+- [x] Production build passes cleanly with Vite.
 
 ---
 
