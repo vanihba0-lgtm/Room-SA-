@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { PointerLockControls } from '@react-three/drei';
 import { Vector3 } from 'three';
 import { GameState } from '../../game/types';
+import { playFootstepSound, playHoverCue } from '../../services/audio/sound';
 
 export interface InteractionTargetInfo {
   id: string;
@@ -188,6 +189,9 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
       moveDir.normalize();
       const speed = keys.current.sprint ? 5.8 : 3.8;
       pos.current.addScaledVector(moveDir, speed * delta);
+      if (isGrounded.current) {
+        playFootstepSound();
+      }
     }
 
     // 2. Vertical gravity & jumping
@@ -326,6 +330,173 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
         inspectText: 'Inspect Dual Hydraulic Clamp Locks',
         pos: new Vector3(0, 2.0, -6.5),
       });
+    } else if (currentRoom === 'chamber_103' && state) {
+      const c103 = state.chamber103;
+      interactionObjects.push(
+        {
+          id: 'c103_ballast',
+          name: 'Buoyancy Ballast Coil',
+          actionText: c103?.ballastInverted ? 'Reset Gravity Ballast' : 'Invert Ballast Polarity [-9.81 m/s²]',
+          inspectText: 'Inspect Anti-Gravity Coil Matrix',
+          pos: new Vector3(0, 0.4, 0),
+        },
+        {
+          id: 'c103_log',
+          name: 'Archive Telemetry Datapad',
+          actionText: 'Read Gravity Telemetry Log',
+          inspectText: 'Inspect Archival Record #33',
+          pos: new Vector3(-6.4, 1.8, 0),
+        },
+        {
+          id: 'c103_terminal',
+          name: 'Archive Rule Terminal',
+          actionText: 'Rewrite Rule #03 (Buoyant Elevation)',
+          inspectText: 'Access Terminal Logic Matrix',
+          pos: new Vector3(6.4, 1.6, 0),
+        },
+        {
+          id: 'exit_door_103',
+          name: 'Archive Vault Door',
+          actionText: c103?.exitUnlocked ? 'Step Through to Sector 104' : 'Operate Vault Door [Sealed]',
+          inspectText: 'Inspect Ceiling Optical Receiver',
+          pos: new Vector3(0, 2.0, -6.5),
+        }
+      );
+    } else if (currentRoom === 'chamber_104' && state) {
+      const c104 = state.chamber104;
+      interactionObjects.push(
+        {
+          id: 'c104_monitor',
+          name: 'Security Telemetry Monitor',
+          actionText: 'Audit Security Clearance',
+          inspectText: 'Inspect Access Control Policy #04',
+          pos: new Vector3(-6.4, 1.8, 0),
+        },
+        {
+          id: 'c104_dispenser',
+          name: 'Guest Token Dispenser',
+          actionText: c104?.hasGuestToken ? 'Examine Card Dispenser' : 'Dispense Guest Token #404',
+          inspectText: 'Inspect Card Dispensing Tray',
+          pos: new Vector3(6.4, 1.6, 0),
+        },
+        {
+          id: 'c104_crypto',
+          name: 'Cryptographic Parity Console',
+          actionText: c104?.checksumMatched ? 'Parity Aligned (Root Elevated)' : 'Inject Parity Checksum 0x404',
+          inspectText: 'Inspect Checksum Verification Laser',
+          pos: new Vector3(0, 1.2, 0),
+        },
+        {
+          id: 'exit_door_104',
+          name: 'Cryptographic Vault Blast Door',
+          actionText: c104?.exitUnlocked ? 'Advance to Sector 105' : 'Operate Vault Door [Root Locked]',
+          inspectText: 'Inspect Vault Deadbolts',
+          pos: new Vector3(0, 2.0, -6.5),
+        }
+      );
+    } else if (currentRoom === 'chamber_105' && state) {
+      const c105 = state.chamber105;
+      interactionObjects.push(
+        {
+          id: 'c105_chronometer',
+          name: 'Reactor Chronometer Diagnostics',
+          actionText: 'Read Timestamp Telemetry',
+          inspectText: 'Inspect Reactor Timestamp Record',
+          pos: new Vector3(-6.4, 1.8, 0),
+        },
+        {
+          id: 'c105_relay_alpha',
+          name: 'Quantum Relay ALPHA',
+          actionText: 'Flip Relay ALPHA',
+          inspectText: 'Inspect Relay Contacts',
+          pos: new Vector3(-2.5, 1.0, 0),
+        },
+        {
+          id: 'c105_relay_omega',
+          name: 'Quantum Relay OMEGA',
+          actionText: 'Flip Relay OMEGA',
+          inspectText: 'Inspect Relay Contacts',
+          pos: new Vector3(0, 1.0, 0),
+        },
+        {
+          id: 'c105_relay_beta',
+          name: 'Quantum Relay BETA',
+          actionText: 'Flip Relay BETA',
+          inspectText: 'Inspect Relay Contacts',
+          pos: new Vector3(2.5, 1.0, 0),
+        },
+        {
+          id: 'c105_terminal',
+          name: 'Timeline State Terminal',
+          actionText: 'Rewrite Rule #05 (Temporal Order)',
+          inspectText: 'Access Causal State Machine',
+          pos: new Vector3(6.4, 1.6, 0),
+        },
+        {
+          id: 'exit_door_105',
+          name: 'Quantum Reactor Gate',
+          actionText: c105?.exitUnlocked ? 'Enter Sanctum 106' : 'Operate Temporal Gate [Locked]',
+          inspectText: 'Inspect Containment Barrier',
+          pos: new Vector3(0, 2.0, -6.5),
+        }
+      );
+    } else if (currentRoom === 'chamber_106' && state) {
+      const c106 = state.chamber106;
+      interactionObjects.push(
+        {
+          id: 'c106_prime_axiom',
+          name: 'The Architect\'s Prime Axiom',
+          actionText: 'Inspect Prime Axiom Core',
+          inspectText: 'Examine Floating Core Matrix',
+          pos: new Vector3(0, 2.0, 0),
+        },
+        {
+          id: 'c106_console_spectrometry',
+          name: 'Console 1: Spectrometry',
+          actionText: 'Synthesize Spectrometry Matrix',
+          inspectText: 'Inspect Spectrometric Sensor',
+          pos: new Vector3(-3.8, 1.2, -3.8),
+        },
+        {
+          id: 'c106_console_resonance',
+          name: 'Console 2: Resonance',
+          actionText: 'Synthesize Resonance Matrix',
+          inspectText: 'Inspect Harmonic Antenna',
+          pos: new Vector3(3.8, 1.2, -3.8),
+        },
+        {
+          id: 'c106_console_parity',
+          name: 'Console 3: Parity',
+          actionText: 'Synthesize Parity Matrix',
+          inspectText: 'Inspect Cryptographic Node',
+          pos: new Vector3(-3.8, 1.2, 3.8),
+        },
+        {
+          id: 'c106_console_chronology',
+          name: 'Console 4: Chronology',
+          actionText: 'Synthesize Chronology Matrix',
+          inspectText: 'Inspect Temporal Sequencer',
+          pos: new Vector3(3.8, 1.2, 3.8),
+        },
+        {
+          id: 'c106_master_terminal',
+          name: 'Master Compiler Terminal',
+          actionText: c106?.primeDirectiveOverridden
+            ? 'Prime Directive Overridden'
+            : c106?.matricesSynthesized
+            ? 'Rewrite Prime Directive (Dissolve Quarantine)'
+            : 'Access Compiler [Synthesize Matrices First]',
+          inspectText: 'Access Master Compiler',
+          pos: new Vector3(7.0, 1.6, 0),
+        },
+        {
+          id: 'exit_door_106',
+          name: 'The Reality Liberation Portal',
+          actionText: c106?.primeDirectiveOverridden ? 'Step Into Reality (Dissolve Simulation)' : 'Quarantine Portal [Sealed]',
+          inspectText: 'Inspect Liberation Threshold',
+          pos: new Vector3(0, 2.0, -7.0),
+        }
+      );
     } else {
       // Chamber 101 Objects
       interactionObjects.push(
@@ -402,6 +573,9 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
       bestTarget?.id !== currentHoverRef.current?.id ||
       bestTarget?.actionText !== currentHoverRef.current?.actionText
     ) {
+      if (bestTarget && bestTarget.id !== currentHoverRef.current?.id) {
+        playHoverCue(bestTarget.id);
+      }
       currentHoverRef.current = bestTarget;
       onHoverTarget(bestTarget);
     }

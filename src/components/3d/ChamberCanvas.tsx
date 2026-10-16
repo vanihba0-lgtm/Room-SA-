@@ -14,6 +14,7 @@ interface ChamberCanvasProps {
   onRestart: () => void;
   muted: boolean;
   onToggleMute: () => void;
+  isExternalModalOpen?: boolean;
 }
 
 export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
@@ -23,6 +24,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   onRestart,
   muted,
   onToggleMute,
+  isExternalModalOpen = false,
 }) => {
   const [isLocked, setIsLocked] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
@@ -73,7 +75,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
         >
           <ChamberScene
             state={state}
-            isPaused={isPaused || state.terminalOpen || state.status === 'escaped'}
+            isPaused={isPaused || state.terminalOpen || state.status === 'escaped' || isExternalModalOpen}
             onLockChange={handleLockChange}
             onInteract={onInteract}
             onInspect={onInspect}
@@ -83,11 +85,11 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
       </Suspense>
 
       {/* Crosshair & Contextual Target Prompts */}
-      <CrosshairHUD target={hoverTarget} isLocked={isLocked && !isPaused} />
+      <CrosshairHUD target={hoverTarget} isLocked={isLocked && !isPaused && !isExternalModalOpen} />
 
       {/* Pause / Controls Guide Modal */}
       <PauseControlsModal
-        isOpen={isPaused && !state.terminalOpen && state.status !== 'escaped'}
+        isOpen={isPaused && !state.terminalOpen && state.status !== 'escaped' && !isExternalModalOpen}
         onResume={handleResume}
         onRestart={onRestart}
         muted={muted}

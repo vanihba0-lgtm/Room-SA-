@@ -4,6 +4,7 @@ import { GameState, ObjectId } from '../../game/types';
 import './room.css';
 
 import { Room102View } from './Room102View';
+import { RoomGenericChamberView } from './RoomGenericChamberView';
 
 interface RoomViewProps {
   state: GameState;
@@ -20,6 +21,21 @@ export const RoomView: React.FC<RoomViewProps> = ({
 }) => {
   if (state.currentRoomId === 'chamber_102') {
     return <Room102View state={state} onInteract={onInteract} onInspect={onInspect} />;
+  }
+
+  if (
+    state.currentRoomId === 'chamber_103' ||
+    state.currentRoomId === 'chamber_104' ||
+    state.currentRoomId === 'chamber_105' ||
+    state.currentRoomId === 'chamber_106'
+  ) {
+    return (
+      <RoomGenericChamberView
+        state={state}
+        onInteract={onInteract}
+        onInspect={onInspect}
+      />
+    );
   }
 
   const [isShifting, setIsShifting] = useState(false);

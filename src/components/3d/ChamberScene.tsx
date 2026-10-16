@@ -7,6 +7,10 @@ import { Terminal3D } from './Terminal3D';
 import { ObservationSlate3D } from './ObservationSlate3D';
 import { PowerMechanism3D } from './PowerMechanism3D';
 import { Chamber102Scene } from './chamber102/Chamber102Scene';
+import { Chamber103Scene } from './chambers/Chamber103Scene';
+import { Chamber104Scene } from './chambers/Chamber104Scene';
+import { Chamber105Scene } from './chambers/Chamber105Scene';
+import { Chamber106Scene } from './chambers/Chamber106Scene';
 import { PlayerController, InteractionTargetInfo } from './PlayerController';
 import { GameState } from '../../game/types';
 
@@ -27,61 +31,55 @@ export const ChamberScene: React.FC<ChamberSceneProps> = ({
   onInspect,
   onHoverTarget,
 }) => {
-  const isChamber102 = state.currentRoomId === 'chamber_102';
+  const currentRoom = state.currentRoomId;
   const hasBrassKey = state.inventory.some((item) => item.id === 'brass_key');
   const isRuleDeceptive = state.rules['RULE_01']?.isDeceptive ?? true;
-  const isDoorLocked = isChamber102 ? state.chamber102.exitDoorLocked : state.exit.isLocked;
+
+  let isDoorLocked = state.exit.isLocked;
+  if (currentRoom === 'chamber_102') isDoorLocked = state.chamber102.exitDoorLocked;
+  else if (currentRoom === 'chamber_103') isDoorLocked = !state.chamber103?.exitUnlocked;
+  else if (currentRoom === 'chamber_104') isDoorLocked = !state.chamber104?.exitUnlocked;
+  else if (currentRoom === 'chamber_105') isDoorLocked = !state.chamber105?.exitUnlocked;
+  else if (currentRoom === 'chamber_106') isDoorLocked = !state.chamber106?.primeDirectiveOverridden;
+
   const powerRegulatorState = state.objects.power_regulator?.state ?? 'default';
 
-  return (
-    <>
-      {/* Subtle Depth Fog */}
-      <fog attach="fog" args={['#070d1a', 15, 35]} />
-
-      <Physics gravity={[0, -18, 0]}>
-        {isChamber102 ? (
-          /* Chamber 102: The Signal Foundry */
-          <Chamber102Scene
-            state={state}
-            onInteract={onInteract}
-            onInspect={onInspect}
-          />
-        ) : (
-          /* Chamber 101: The Obvious Lie */
+  const renderChamberRoom = () => {
+    switch (currentRoom) {
+      case 'chamber_102':
+        return <Chamber102Scene state={state} onInteract={onInteract} onInspect={onInspect} />;
+      case 'chamber_103':
+        return <Chamber103Scene state={state} onInteract={onInteract} onInspect={onInspect} />;
+      case 'chamber_104':
+        return <Chamber104Scene state={state} onInteract={onInteract} onInspect={onInspect} />;
+      case 'chamber_105':
+        return <Chamber105Scene state={state} onInteract={onInteract} onInspect={onInspect} />;
+      case 'chamber_106':
+        return <Chamber106Scene state={state} onInteract={onInteract} onInspect={onInspect} />;
+      default:
+        return (
           <>
-            {/* Physical & Visual Room Shell */}
             <ChamberArchitecture
               isDeceptiveRule={isRuleDeceptive}
               realityShiftCount={state.realityShiftCount}
             />
-
-            {/* 1. Monolithic Blast Door */}
-            <Door3D
-              isLocked={isDoorLocked}
-              isDeceptiveRule={isRuleDeceptive}
-            />
-
-            {/* 2. Specimen Pedestal & Floating Brass Key */}
-            <Pedestal3D
-              hasKey={hasBrassKey}
-            />
-
-            {/* 3. Anomaly Terminal Console */}
-            <Terminal3D
-              isDeceptiveRule={isRuleDeceptive}
-            />
-
-            {/* 4. Observation Slate */}
+            <Door3D isLocked={isDoorLocked} isDeceptiveRule={isRuleDeceptive} />
+            <Pedestal3D hasKey={hasBrassKey} />
+            <Terminal3D isDeceptiveRule={isRuleDeceptive} />
             <ObservationSlate3D />
-
-            {/* 5. Substrate Power Regulator Mechanism */}
-            <PowerMechanism3D
-              isEngaged={powerRegulatorState === 'transformed'}
-            />
+            <PowerMechanism3D isEngaged={powerRegulatorState === 'transformed'} />
           </>
-        )}
+        );
+    }
+  };
 
-        {/* First-Person Player Controller */}
+  return (
+    <>
+      <fog attach="fog" args={['#070d1a', 15, 35]} />
+
+      <Physics gravity={[0, -18, 0]}>
+        {renderChamberRoom()}
+
         <PlayerController
           isPaused={isPaused}
           onLockChange={onLockChange}

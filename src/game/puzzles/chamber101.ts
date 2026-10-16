@@ -105,5 +105,30 @@ export function createChamber101InitialState(): GameState {
     realityShiftCount: 0,
     carriedObjectId: null,
     chamber102: createChamber102InitialState(102),
+    chamber103: {
+      logInspected: false,
+      ballastInverted: false,
+      ruleOverridden: false,
+      exitUnlocked: false,
+    },
+    chamber104: {
+      telemetryAudited: false,
+      hasGuestToken: false,
+      checksumMatched: false,
+      exitUnlocked: false,
+    },
+    chamber105: {
+      chronometerInspected: false,
+      relaySequence: [],
+      relaysSequenced: false,
+      ruleOverridden: false,
+      exitUnlocked: false,
+    },
+    chamber106: {
+      primeAxiomRead: false,
+      activeConsoles: [],
+      matricesSynthesized: false,
+      primeDirectiveOverridden: false,
+    },
   };
 }

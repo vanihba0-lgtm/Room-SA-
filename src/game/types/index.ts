@@ -167,6 +167,35 @@ export interface Chamber102State {
 // 6. Overall Game State (Immutable)
 // ==========================================
 
+export interface Chamber103State {
+  readonly logInspected: boolean;
+  readonly ballastInverted: boolean;
+  readonly ruleOverridden: boolean;
+  readonly exitUnlocked: boolean;
+}
+
+export interface Chamber104State {
+  readonly telemetryAudited: boolean;
+  readonly hasGuestToken: boolean;
+  readonly checksumMatched: boolean;
+  readonly exitUnlocked: boolean;
+}
+
+export interface Chamber105State {
+  readonly chronometerInspected: boolean;
+  readonly relaySequence: readonly string[];
+  readonly relaysSequenced: boolean;
+  readonly ruleOverridden: boolean;
+  readonly exitUnlocked: boolean;
+}
+
+export interface Chamber106State {
+  readonly primeAxiomRead: boolean;
+  readonly activeConsoles: readonly string[];
+  readonly matricesSynthesized: boolean;
+  readonly primeDirectiveOverridden: boolean;
+}
+
 export type GameStatus = 'playing' | 'escaped' | 'failed';
 
 export interface GameEvent {
@@ -192,6 +221,10 @@ export interface GameState {
   readonly realityShiftCount: number;
   readonly carriedObjectId: string | null;
   readonly chamber102: Chamber102State;
+  readonly chamber103?: Chamber103State;
+  readonly chamber104?: Chamber104State;
+  readonly chamber105?: Chamber105State;
+  readonly chamber106?: Chamber106State;
 }
 
 // ==========================================
@@ -207,6 +240,7 @@ export type GameAction =
   | { type: 'APPLY_VALIDATED_RULE'; payload: { proposal: RuleProposal } }
   | { type: 'ATTEMPT_EXIT' }
   | { type: 'TRANSITION_ROOM'; payload: { targetRoomId: RoomId } }
+  | { type: 'SELECT_CHAMBER'; payload: { chamberId: RoomId } }
   | { type: 'PICKUP_OBJECT'; payload: { objectId: string } }
   | { type: 'DROP_OBJECT'; payload: { objectId: string; position?: [number, number, number]; plateId?: string | null } }
   | { type: 'CONFIGURE_CIRCUIT'; payload: { frequency?: number; channel?: SignalChannel } }

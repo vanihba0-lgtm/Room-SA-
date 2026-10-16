@@ -1,0 +1,219 @@
+/* Title Screen & Intro Cinematic Styles */
+.title-screen-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #141b27 0%, #07090e 100%);
+  z-index: var(--z-modal-backdrop);
+  padding: 24px;
+}
+
+.title-card {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.title-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-bg-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-cyan-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.12em;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.title-wordmark {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.title-wordmark-accent {
+  color: var(--color-amber-primary);
+}
+
+.title-subtitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-top: -12px;
+}
+
+.title-teaser {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  max-width: 460px;
+  margin: 0;
+}
+
+.title-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.btn-title-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-amber-primary);
+  color: #0c0f14;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.btn-title-primary:hover {
+  background: var(--color-amber-hover);
+  transform: translateY(-1px);
+}
+
+.btn-title-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-bg-surface-elevated);
+  border: 1px solid var(--color-border-muted);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: 11px 20px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-title-secondary:hover:not(:disabled) {
+  background: var(--color-bg-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.btn-title-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Cinematic Narrative Overlay */
+.intro-cinematic-container {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 9, 14, 0.94);
+  backdrop-filter: blur(12px);
+  z-index: var(--z-modal-backdrop);
+  padding: 24px;
+}
+
+.intro-beat-card {
+  max-width: 580px;
+  width: 100%;
+  background: var(--color-bg-surface-elevated);
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.intro-beat-counter {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xs);
+  color: var(--color-cyan-primary);
+  letter-spacing: 0.08em;
+}
+
+.intro-beat-heading {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.intro-beat-text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.intro-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 16px;
+}
+
+/* Contextual Tutorial Overlay Banner */
+.tutorial-banner {
+  position: absolute;
+  top: 72px;
+  right: 20px;
+  max-width: 320px;
+  background: var(--color-bg-surface-elevated);
+  border: 1px solid var(--color-cyan-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-tutorial);
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.tutorial-step-label {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-cyan-primary);
+  margin-bottom: 4px;
+}
+
+.tutorial-instruction {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+}
+
+.tutorial-skip-btn {
+  background: transparent;
+  border: none;
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 0 0;
+  display: block;
+}

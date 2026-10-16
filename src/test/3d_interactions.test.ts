@@ -206,13 +206,12 @@ describe('ROOM S A — 3D Systems & Interaction Math', () => {
     expect(state.chamber102.puzzleSolved).toBe(true);
     expect(state.chamber102.exitDoorLocked).toBe(false);
 
-    // Step through exit door of Chamber 102 -> CAMPAIGN CLEARED!
+    // Step through exit door of Chamber 102 -> Advances to Chamber 103
     const finalEscapeRes = engineReducer(state, {
       type: 'INTERACT_WITH_OBJECT',
       payload: { objectId: 'exit_door_102' },
     });
     expect(finalEscapeRes.success).toBe(true);
-    expect(finalEscapeRes.nextState.status).toBe('escaped');
-    expect(finalEscapeRes.message).toContain('Facility quarantine cleared');
+    expect(finalEscapeRes.nextState.currentRoomId).toBe('chamber_103');
   });
 });

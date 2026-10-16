@@ -1,0 +1,120 @@
+/* Objective Tracker HUD Styling */
+.objective-hud-container {
+  position: absolute;
+  top: 72px;
+  left: 20px;
+  max-width: 380px;
+  z-index: var(--z-hud);
+  pointer-events: auto;
+}
+
+.objective-card {
+  background: var(--color-bg-surface-elevated);
+  border: 1px solid var(--color-border-muted);
+  border-left: 3px solid var(--color-cyan-primary);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+  transition: border-color var(--transition-normal);
+}
+
+.objective-card:hover {
+  border-color: var(--color-border-strong);
+}
+
+.objective-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.objective-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--color-cyan-primary);
+  text-transform: uppercase;
+}
+
+.objective-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-hud-pill:hover {
+  background: var(--color-bg-surface-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-muted);
+}
+
+.objective-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+  margin-bottom: 4px;
+}
+
+.objective-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin-bottom: 6px;
+}
+
+.objective-why {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 5px;
+  font-style: italic;
+}
+
+/* Completion Toast Animation */
+.objective-completed-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-success-subtle);
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: 8px;
+  animation: fadeInDown 0.3s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

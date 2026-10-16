@@ -283,6 +283,307 @@ export function engineReducer(
         return engineReducer(state, { type: 'ATTEMPT_EXIT' });
       }
 
+      // ==========================================
+      // Chamber 103: The Gravity Archive
+      // ==========================================
+      if (objectId === 'c103_log') {
+        const nextInspected = state.inspectedObjectIds.includes('c103_log')
+          ? state.inspectedObjectIds
+          : [...state.inspectedObjectIds, 'c103_log'];
+        const msg = 'ARCHIVE TELEMETRY: "Rule #03 enforces 9.81 m/s² deck clamps on objects >5kg. Note: Archive Core is aerogel—invert ballast polarity to elevate."';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            inspectedObjectIds: nextInspected,
+            chamber103: {
+              ...(state.chamber103 ?? { ballastInverted: false, ruleOverridden: false, exitUnlocked: false }),
+              logInspected: true,
+            },
+          },
+          emittedEvents: [createEvent('LOG_INSPECTED', msg)],
+        };
+      }
+
+      if (objectId === 'c103_ballast') {
+        const currentBallast = state.chamber103?.ballastInverted ?? false;
+        const nextBallast = !currentBallast;
+        const c103Rule = state.chamber103?.ruleOverridden ?? false;
+        const exitUnlocked = nextBallast && c103Rule;
+        const msg = nextBallast
+          ? 'Ballast polarity inverted to -9.81 m/s². The aerogel core hovers 1 meter above the cradle.'
+          : 'Ballast polarity reset to standard gravity.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber103: {
+              logInspected: state.chamber103?.logInspected ?? false,
+              ballastInverted: nextBallast,
+              ruleOverridden: c103Rule,
+              exitUnlocked,
+            },
+          },
+          emittedEvents: [createEvent('BALLAST_TOGGLED', msg)],
+        };
+      }
+
+      if (objectId === 'c103_terminal') {
+        const ballastInverted = state.chamber103?.ballastInverted ?? false;
+        const nextRuleOverridden = true;
+        const exitUnlocked = ballastInverted && nextRuleOverridden;
+        const msg = 'RULE_03 REWRITTEN: "Buoyant specimens elevate freely through gravitational fields." Archive Core ascended to ceiling sensor!';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            realityShiftCount: state.realityShiftCount + 1,
+            chamber103: {
+              logInspected: state.chamber103?.logInspected ?? false,
+              ballastInverted,
+              ruleOverridden: nextRuleOverridden,
+              exitUnlocked,
+            },
+          },
+          emittedEvents: [createEvent('RULE_REWRITTEN', msg)],
+        };
+      }
+
+      if (objectId === 'exit_door_103') {
+        return engineReducer(state, { type: 'ATTEMPT_EXIT' });
+      }
+
+      // ==========================================
+      // Chamber 104: The Zero-Day Vault
+      // ==========================================
+      if (objectId === 'c104_monitor') {
+        const msg = 'SECURITY AUDIT: "Rule #04 requires Root-4 clearance. However, tokens expired 800 cycles ago. Protocol #404 allows guest tokens with parity 0x404 to elevate."';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber104: {
+              ...(state.chamber104 ?? { hasGuestToken: false, checksumMatched: false, exitUnlocked: false }),
+              telemetryAudited: true,
+            },
+          },
+          emittedEvents: [createEvent('LOG_INSPECTED', msg)],
+        };
+      }
+
+      if (objectId === 'c104_dispenser') {
+        const msg = 'Dispensed Guest Security Token #404 with parity header.';
+        const guestItem = {
+          id: 'guest_token',
+          name: 'Guest Security Token #404',
+          description: 'Emergency security card with cryptographic parity header 0x404.',
+          category: 'key' as const,
+        };
+        const hasToken = state.inventory.some((i) => i.id === 'guest_token');
+        const nextInv = hasToken ? state.inventory : [...state.inventory, guestItem];
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            inventory: nextInv,
+            chamber104: {
+              ...(state.chamber104 ?? { telemetryAudited: false, checksumMatched: false, exitUnlocked: false }),
+              hasGuestToken: true,
+            },
+          },
+          emittedEvents: [createEvent('TOKEN_DISPENSED', msg)],
+        };
+      }
+
+      if (objectId === 'c104_crypto') {
+        const audited = state.chamber104?.telemetryAudited ?? false;
+        const msg = 'PARITY VERIFIED: Parity checksum 0x404 matched. RULE_04 Overridden: Guest tokens granted root elevation. Vault locks retracted!';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            realityShiftCount: state.realityShiftCount + 1,
+            chamber104: {
+              telemetryAudited: audited,
+              hasGuestToken: true,
+              checksumMatched: true,
+              exitUnlocked: true,
+            },
+          },
+          emittedEvents: [createEvent('VAULT_UNLOCKED', msg)],
+        };
+      }
+
+      if (objectId === 'exit_door_104') {
+        return engineReducer(state, { type: 'ATTEMPT_EXIT' });
+      }
+
+      // ==========================================
+      // Chamber 105: The Causality Engine
+      // ==========================================
+      if (objectId === 'c105_chronometer') {
+        const msg = 'TEMPORAL DIAGNOSTIC: "Official order Alpha->Beta->Omega conflicts with timestamps. Telemetry: Alpha [12:00:00], Omega [12:00:01], Beta [12:00:04]."';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber105: {
+              ...(state.chamber105 ?? { relaySequence: [], relaysSequenced: false, ruleOverridden: false, exitUnlocked: false }),
+              chronometerInspected: true,
+            },
+          },
+          emittedEvents: [createEvent('LOG_INSPECTED', msg)],
+        };
+      }
+
+      if (objectId === 'c105_relay_alpha' || objectId === 'c105_relay_omega' || objectId === 'c105_relay_beta') {
+        const relayId = objectId.replace('c105_relay_', '');
+        const currentSeq = state.chamber105?.relaySequence ?? [];
+        let nextSeq: string[] = [];
+
+        // Expect Alpha -> Omega -> Beta
+        if (relayId === 'alpha') {
+          nextSeq = ['alpha'];
+        } else if (relayId === 'omega' && currentSeq.length === 1 && currentSeq[0] === 'alpha') {
+          nextSeq = ['alpha', 'omega'];
+        } else if (relayId === 'beta' && currentSeq.length === 2 && currentSeq[1] === 'omega') {
+          nextSeq = ['alpha', 'omega', 'beta'];
+        } else {
+          nextSeq = []; // Reset sequence on incorrect order
+        }
+
+        const isSequenced = nextSeq.length === 3;
+        const ruleOverridden = state.chamber105?.ruleOverridden ?? false;
+        const msg = isSequenced
+          ? 'Relays engaged in empirical temporal order (Alpha -> Omega -> Beta). Reactor state aligned!'
+          : `Relay ${relayId.toUpperCase()} flipped. Sequence: [${nextSeq.join(' -> ')}]`;
+
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber105: {
+              chronometerInspected: state.chamber105?.chronometerInspected ?? false,
+              relaySequence: nextSeq,
+              relaysSequenced: isSequenced,
+              ruleOverridden,
+              exitUnlocked: isSequenced && ruleOverridden,
+            },
+          },
+          emittedEvents: [createEvent('RELAY_TOGGLED', msg)],
+        };
+      }
+
+      if (objectId === 'c105_terminal') {
+        const isSequenced = state.chamber105?.relaysSequenced ?? false;
+        const msg = 'RULE_05 REWRITTEN: "State transitions observe empirical timestamp ordering." Quantum gate unlocked!';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            realityShiftCount: state.realityShiftCount + 1,
+            chamber105: {
+              chronometerInspected: state.chamber105?.chronometerInspected ?? false,
+              relaySequence: state.chamber105?.relaySequence ?? [],
+              relaysSequenced: isSequenced,
+              ruleOverridden: true,
+              exitUnlocked: isSequenced,
+            },
+          },
+          emittedEvents: [createEvent('RULE_REWRITTEN', msg)],
+        };
+      }
+
+      if (objectId === 'exit_door_105') {
+        return engineReducer(state, { type: 'ATTEMPT_EXIT' });
+      }
+
+      // ==========================================
+      // Chamber 106: The Rule Engine (Final Chamber)
+      // ==========================================
+      if (objectId === 'c106_prime_axiom') {
+        const msg = 'THE ARCHITECT\'S PRIME AXIOM: "The simulation\'s integrity depends on containing the investigator." The master compiler awaits 4 validation matrices.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber106: {
+              ...(state.chamber106 ?? { activeConsoles: [], matricesSynthesized: false, primeDirectiveOverridden: false }),
+              primeAxiomRead: true,
+            },
+          },
+          emittedEvents: [createEvent('PRIME_AXIOM_READ', msg)],
+        };
+      }
+
+      if (objectId.startsWith('c106_console_')) {
+        const consoleKey = objectId.replace('c106_console_', '');
+        const currentConsoles = state.chamber106?.activeConsoles ?? [];
+        const nextConsoles = currentConsoles.includes(consoleKey)
+          ? currentConsoles
+          : [...currentConsoles, consoleKey];
+        const matricesDone = nextConsoles.length >= 4;
+        const msg = matricesDone
+          ? 'All 4 verification matrices (Spectrometry, Resonance, Parity, Chronology) synthesized! Master Terminal unlocked.'
+          : `Synthesized matrix: ${consoleKey.toUpperCase()} (${nextConsoles.length}/4).`;
+
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber106: {
+              primeAxiomRead: state.chamber106?.primeAxiomRead ?? false,
+              activeConsoles: nextConsoles,
+              matricesSynthesized: matricesDone,
+              primeDirectiveOverridden: state.chamber106?.primeDirectiveOverridden ?? false,
+            },
+          },
+          emittedEvents: [createEvent('MATRIX_SYNTHESIZED', msg)],
+        };
+      }
+
+      if (objectId === 'c106_master_terminal') {
+        const matricesDone = state.chamber106?.matricesSynthesized ?? false;
+        if (!matricesDone) {
+          return {
+            success: false,
+            message: 'Master compiler locked: All 4 verification matrices must be synthesized first.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+        const msg = 'PRIME DIRECTIVE REWRITTEN: "The simulation is complete. Quarantine dissolved. The investigator is liberated." The reality portal has opened!';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            realityShiftCount: state.realityShiftCount + 1,
+            chamber106: {
+              ...(state.chamber106 ?? { primeAxiomRead: true, activeConsoles: ['spectrometry', 'resonance', 'parity', 'chronology'] }),
+              matricesSynthesized: true,
+              primeDirectiveOverridden: true,
+            },
+          },
+          emittedEvents: [createEvent('PRIME_DIRECTIVE_OVERRIDDEN', msg)],
+        };
+      }
+
+      if (objectId === 'c106_final_portal' || objectId === 'exit_door_106') {
+        return engineReducer(state, { type: 'ATTEMPT_EXIT' });
+      }
+
       return {
         success: false,
         message: `No interaction available for object '${objectId}'.`,
@@ -624,8 +925,105 @@ export function engineReducer(
       };
     }
 
+    case 'SELECT_CHAMBER': {
+      const { chamberId } = action.payload;
+      const evt = createEvent('CHAMBER_SELECTED', `Navigation routed to ${chamberId}.`);
+      return {
+        success: true,
+        message: `Routed to ${chamberId}.`,
+        nextState: {
+          ...state,
+          currentRoomId: chamberId,
+          eventLog: [...state.eventLog, evt],
+        },
+        emittedEvents: [evt],
+      };
+    }
+
     case 'ATTEMPT_EXIT': {
-      // 1. If currently in Chamber 102:
+      // Chamber 106 (Finale):
+      if (state.currentRoomId === 'chamber_106') {
+        if (!state.chamber106?.primeDirectiveOverridden) {
+          const failEvt = createEvent(
+            'CHAMBER_106_EXIT_FAILED',
+            'Master compiler locked. All 4 matrices must be synthesized and the Prime Directive overridden.'
+          );
+          return {
+            success: false,
+            message: 'Simulation quarantine is locked. Override the Architect\'s Prime Directive to dissolve the simulation.',
+            nextState: {
+              ...state,
+              eventLog: [...state.eventLog, failEvt],
+            },
+            emittedEvents: [failEvt],
+          };
+        }
+
+        const victoryEvt = createEvent(
+          'CAMPAIGN_ESCAPED',
+          'Quarantine dissolved! The investigator has broken the recursive loop and escaped into reality!'
+        );
+        return {
+          success: true,
+          message: 'Simulation dissolved! You have shattered the room that lies!',
+          nextState: {
+            ...state,
+            status: 'escaped',
+            eventLog: [...state.eventLog, victoryEvt],
+          },
+          emittedEvents: [victoryEvt],
+        };
+      }
+
+      // Chamber 105:
+      if (state.currentRoomId === 'chamber_105') {
+        if (!state.chamber105?.exitUnlocked) {
+          return {
+            success: false,
+            message: 'Temporal quarantine lock active. Relays must fire in empirical timestamp sequence.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+        return engineReducer(state, {
+          type: 'TRANSITION_ROOM',
+          payload: { targetRoomId: 'chamber_106' },
+        });
+      }
+
+      // Chamber 104:
+      if (state.currentRoomId === 'chamber_104') {
+        if (!state.chamber104?.exitUnlocked) {
+          return {
+            success: false,
+            message: 'Cryptographic vault is sealed. Parity checksum 0x404 must be verified to elevate guest tokens.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+        return engineReducer(state, {
+          type: 'TRANSITION_ROOM',
+          payload: { targetRoomId: 'chamber_105' },
+        });
+      }
+
+      // Chamber 103:
+      if (state.currentRoomId === 'chamber_103') {
+        if (!state.chamber103?.exitUnlocked) {
+          return {
+            success: false,
+            message: 'Archive vault door sealed. Ballast polarity must be inverted and Rule #03 rewritten.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+        return engineReducer(state, {
+          type: 'TRANSITION_ROOM',
+          payload: { targetRoomId: 'chamber_104' },
+        });
+      }
+
+      // Chamber 102:
       if (state.currentRoomId === 'chamber_102') {
         if (state.chamber102.exitDoorLocked) {
           const failEvt = createEvent(
@@ -643,21 +1041,11 @@ export function engineReducer(
           };
         }
 
-        // Chamber 102 Cleared - Entire Campaign Escaped!
-        const victoryEvt = createEvent(
-          'CAMPAIGN_ESCAPED',
-          'Subject successfully escaped Chamber 102: The Signal Foundry! All facility sectors clear.'
-        );
-        return {
-          success: true,
-          message: 'Facility quarantine cleared! Freedom achieved!',
-          nextState: {
-            ...state,
-            status: 'escaped',
-            eventLog: [...state.eventLog, victoryEvt],
-          },
-          emittedEvents: [victoryEvt],
-        };
+        // Transition to Chamber 103
+        return engineReducer(state, {
+          type: 'TRANSITION_ROOM',
+          payload: { targetRoomId: 'chamber_103' },
+        });
       }
 
       // 2. If in Chamber 101:

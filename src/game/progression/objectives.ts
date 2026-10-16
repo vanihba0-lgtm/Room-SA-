@@ -1,0 +1,386 @@
+/**
+ * ROOM S A — Deterministic Objective Progression System
+ * Provides player guidance, contextual explanations, and graduated hint tiers
+ * for all six chambers. Evaluates authoritative GameState.
+ */
+import { GameState } from '../types';
+import { ChamberObjective } from './types';
+
+export const CHAMBER_OBJECTIVES: Record<string, readonly ChamberObjective[]> = {
+  chamber_101: [
+    {
+      id: 'c101_obj_inspect_slate',
+      chamberId: 'chamber_101',
+      title: 'Investigate the Chamber Bulkhead',
+      description: 'Locate and read the observation slate pinned to the left wall.',
+      whyItMatters: 'Previous occupants documented anomalies in the room\'s physical diagnostics.',
+      hints: [
+        'Scan the perimeter. A metallic slate is mounted on the bulkhead to the left of the blast door.',
+        'The slate holds handwritten notes that directly question the official security plaques.',
+        'Walk up to the observation slate and press [E] or click to read its contents.',
+      ],
+      isCompleted: (state: GameState) => state.inspectedObjectIds.includes('observation_slate'),
+    },
+    {
+      id: 'c101_obj_collect_key',
+      chamberId: 'chamber_101',
+      title: 'Retrieve Specimen Key #101',
+      description: 'Approach the central specimen pedestal and collect the machined brass key.',
+      whyItMatters: 'The key is needed to physically interface with the reinforced blast door lock.',
+      hints: [
+        'Look at the center of the chamber. An illuminated octagonal pedestal holds an artifact.',
+        'The floating item is Brass Key #101. It is the only physical key present in the cell.',
+        'Approach the pedestal and press [E] or click the floating key to collect it into your inventory.',
+      ],
+      isCompleted: (state: GameState) => state.inventory.some((i) => i.id === 'brass_key'),
+    },
+    {
+      id: 'c101_obj_power_regulator',
+      chamberId: 'chamber_101',
+      title: 'Engage Substrate Power Regulator',
+      description: 'Find and throw the hydraulic breaker switch on the left wall to route high-voltage power to the terminal.',
+      whyItMatters: 'The logic terminal cannot modulate blast door clamps without circuit power.',
+      hints: [
+        'There is a hydraulic lever mechanism on the left bulkhead near the observation slate.',
+        'The breaker switch has high-voltage status conduits that flare electric blue when engaged.',
+        'Walk over to the Substrate Power Regulator and press [E] to engage power.',
+      ],
+      isCompleted: (state: GameState) => state.objects.power_regulator?.state === 'transformed',
+    },
+    {
+      id: 'c101_obj_rewrite_rule',
+      chamberId: 'chamber_101',
+      title: 'Override Deceptive Rule #01 at Terminal',
+      description: 'Access the Anomaly Logic Terminal on the right wall and rewrite Rule #01 to recognize brass keys.',
+      whyItMatters: 'The door claims only copper keys work. Overriding this simulated law forces the lock sensors to recognize brass.',
+      hints: [
+        'Access the CRT terminal on the right wall. Notice RULE_01: "Doors yield only to copper keys."',
+        'Use the quick override button or enter: "OVERRIDE RULE_01 BRASS" / "Allow brass keys to open the door".',
+        'Submit the rule proposal to trigger a reality shift, updating the hydraulic lock sensor protocol.',
+      ],
+      isCompleted: (state: GameState) => state.rules['RULE_01']?.predicateKey === 'RULE_BRASS_KEY_ALLOWED',
+    },
+    {
+      id: 'c101_obj_unlock_door',
+      chamberId: 'chamber_101',
+      title: 'Disengage Blast Door Clamps',
+      description: 'Approach the reinforced blast door and use Brass Key #101 to operate the release mechanism.',
+      whyItMatters: 'With Rule #01 rewritten and the key in hand, the door hydraulic seals will open.',
+      hints: [
+        'The blast door status beacon has turned amber/green. Approach the central entryway.',
+        'Press [E] to turn Brass Key #101 in the electronic keyway.',
+        'The heavy titanium blast door slabs will slide open, granting access to Chamber 102.',
+      ],
+      isCompleted: (state: GameState) => !state.exit.isLocked,
+    },
+  ],
+
+  chamber_102: [
+    {
+      id: 'c102_obj_read_advisory',
+      chamberId: 'chamber_102',
+      title: 'Audit Deception Notice on Maintenance Slate',
+      description: 'Examine the diagnostic slate on the left bulkhead to discover the truth about Plate B.',
+      whyItMatters: 'The physical stamped label on Plate B is deliberate deception left from trials.',
+      hints: [
+        'Look to the left wall. A maintenance advisory datapad has been mounted near the conduits.',
+        'The advisory explains why Plate B does not react to ordinary physical weight.',
+        'Press [E] on the advisory slate to learn the exact frequency and channel Plate B requires.',
+      ],
+      isCompleted: (state: GameState) => state.inspectedObjectIds.includes('diagnostic_slate_102'),
+    },
+    {
+      id: 'c102_obj_plate_a',
+      chamberId: 'chamber_102',
+      title: 'Satisfy Plate A (Kinetic Inductor)',
+      description: 'Pick up the Heavy Flux Core #A (25kg) and place it onto Plate A on the left side of the room.',
+      whyItMatters: 'Plate A contains a mechanical load cell requiring a minimum of 20kg to activate.',
+      hints: [
+        'Look for the amber industrial canister marked "Heavy Flux Core #A" resting on the floor.',
+        'Pick it up with [E]. Aim at the left floor pad (Plate A: Kinetic Inductor) and press [E] to place it.',
+        'The LED ring on Plate A will turn green, indicating the mass requirement is satisfied.',
+      ],
+      isCompleted: (state: GameState) => {
+        const plateA = state.chamber102.pressurePlates.plate_mass;
+        const objId = plateA?.currentObjectId;
+        const obj = objId ? state.chamber102.movableObjects[objId] : null;
+        return Boolean(obj && obj.mass >= 20);
+      },
+    },
+    {
+      id: 'c102_obj_plate_b',
+      chamberId: 'chamber_102',
+      title: 'Position Harmonic Cell on Plate B',
+      description: 'Pick up Harmonic Cell #B (8kg, violet) and place it onto Plate B (Substrate Transceiver).',
+      whyItMatters: 'The cell provides the crystal resonator needed to receive electromagnetic excitation.',
+      hints: [
+        'Look for the violet crystalline cylinder floating gently near the right side of the room.',
+        'Pick up Harmonic Cell #B and place it directly onto Plate B.',
+        'Once placed, Plate B awaits matching frequency excitation from the signal console.',
+      ],
+      isCompleted: (state: GameState) => {
+        const plateB = state.chamber102.pressurePlates.plate_harmonic;
+        return Boolean(plateB?.currentObjectId === 'core_resonance');
+      },
+    },
+    {
+      id: 'c102_obj_tune_circuit',
+      chamberId: 'chamber_102',
+      title: 'Calibrate Signal Routing Console',
+      description: 'Interact with the right wall console to align channel and frequency with the target telemetry.',
+      whyItMatters: 'When the signal loop closes, Plate B and the right blast door piston will energize.',
+      hints: [
+        'Approach the Signal Routing Console on the right bulkhead.',
+        'Cycle through channel options (ALPHA, BETA, GAMMA) and frequencies (433, 868, 915 kHz) by pressing [E].',
+        'Match the target channel and frequency recorded on the maintenance advisory slate.',
+      ],
+      isCompleted: (state: GameState) => state.chamber102.circuit.isCircuitClosed,
+    },
+    {
+      id: 'c102_obj_exit',
+      chamberId: 'chamber_102',
+      title: 'Operate Foundry Exit Blast Door',
+      description: 'Both hydraulic clamps are disengaged. Walk through the blast door to advance.',
+      whyItMatters: 'Exiting Chamber 102 unlocks Chamber 103 (The Gravity Archive) in the campaign.',
+      hints: [
+        'Both pistons above the blast door are now glowing green.',
+        'Approach the exit blast door at the far end of the room and press [E].',
+        'Proceed into the next sector of the facility.',
+      ],
+      isCompleted: (state: GameState) => !state.chamber102.exitDoorLocked,
+    },
+  ],
+
+  chamber_103: [
+    {
+      id: 'c103_obj_inspect_log',
+      chamberId: 'chamber_103',
+      title: 'Inspect Gravity Telemetry Log',
+      description: 'Read the archive datapad detailing deck clamp gravitational flux.',
+      whyItMatters: 'Explains why the magnetic Archive Core is clamped to the deck under Rule #03.',
+      hints: [
+        'Locate the terminal console mounted on the central archive pillar.',
+        'The screen logs Rule #03: "Gravitational flux binds objects above 5kg to the lower deck."',
+        'Inspect the telemetry to find the polarity inversion frequency.',
+      ],
+      isCompleted: (state: GameState) => state.chamber103?.logInspected ?? false,
+    },
+    {
+      id: 'c103_obj_polarize_ballast',
+      chamberId: 'chamber_103',
+      title: 'Invert Buoyancy Ballast Polarity',
+      description: 'Engage the anti-gravity ballast coil to invert deck clamp polarity.',
+      whyItMatters: 'Magnetic aerogel ascends when buoyant repulsion counteracts artificial gravity.',
+      hints: [
+        'Find the circular ballast coil under the archive core cradle.',
+        'Interact with the coil breaker switch to flip polarity from +9.81 to -9.81 m/s².',
+        'Observe the glowing blue levitation field forming above the cradle.',
+      ],
+      isCompleted: (state: GameState) => state.chamber103?.ballastInverted ?? false,
+    },
+    {
+      id: 'c103_obj_rewrite_rule',
+      chamberId: 'chamber_103',
+      title: 'Rewrite Rule #03 at Archival Console',
+      description: 'Override Rule #03 to allow buoyant specimens to elevate to optical sensors.',
+      whyItMatters: 'The optical gate at the ceiling must receive the Archive Core to open the archive vault door.',
+      hints: [
+        'Use the console to rewrite Rule #03: "Buoyant specimens elevate freely through gravitational fields."',
+        'Submit the override proposal to finalize the polarity shift.',
+        'Watch the Archive Core rise to the ceiling receiver beam.',
+      ],
+      isCompleted: (state: GameState) => state.chamber103?.ruleOverridden ?? false,
+    },
+    {
+      id: 'c103_obj_exit',
+      chamberId: 'chamber_103',
+      title: 'Pass Through the Gravity Archive Vault',
+      description: 'Step through the unlocked archive door into Chamber 104.',
+      whyItMatters: 'Advance to the Zero-Day Vault.',
+      hints: [
+        'The ceiling optical gate has verified the Archive Core.',
+        'The airlock pressure seal is now depressurized and green.',
+        'Walk through the opened blast door into Chamber 104.',
+      ],
+      isCompleted: (state: GameState) => state.chamber103?.exitUnlocked ?? false,
+    },
+  ],
+
+  chamber_104: [
+    {
+      id: 'c104_obj_audit_clearance',
+      chamberId: 'chamber_104',
+      title: 'Audit Vault Security Clearance Telemetry',
+      description: 'Review the access control log to verify root credential expiration.',
+      whyItMatters: 'Proves Rule #04 enforces credentials that expired 800 cycles ago.',
+      hints: [
+        'Inspect the central security monitor.',
+        'The telemetry shows Level-4 Root clearance is impossible to satisfy legitimately.',
+        'Emergency Protocol #404 allows Guest Token elevation if parity matches.',
+      ],
+      isCompleted: (state: GameState) => state.chamber104?.telemetryAudited ?? false,
+    },
+    {
+      id: 'c104_obj_dispense_guest_token',
+      chamberId: 'chamber_104',
+      title: 'Dispense Guest Security Token',
+      description: 'Activate the emergency token dispenser on the right wall.',
+      whyItMatters: 'Provides the physical cryptographic card for protocol elevation.',
+      hints: [
+        'Look to the right wall for the emergency guest card dispenser.',
+        'The manual override lever will release a single physical card.',
+        'Press the green manual override lever and collect Token #404 into your inventory.',
+      ],
+      isCompleted: (state: GameState) => state.chamber104?.hasGuestToken ?? false,
+    },
+    {
+      id: 'c104_obj_calibrate_checksum',
+      chamberId: 'chamber_104',
+      title: 'Align Checksum Parity & Rewrite Rule #04',
+      description: 'Set checksum parity to 0x404 and rewrite Rule #04 to grant root elevation.',
+      whyItMatters: 'Overriding the access policy unlocks the Zero-Day Vault vault seals.',
+      hints: [
+        'Approach the central cryptographic console terminal.',
+        'Correlate the guest card token with the 0x404 parity checksum.',
+        'Use the terminal to enter 0x404 and rewrite Rule #04: Guest tokens grant vault access.',
+      ],
+      isCompleted: (state: GameState) => state.chamber104?.checksumMatched ?? false,
+    },
+    {
+      id: 'c104_obj_exit',
+      chamberId: 'chamber_104',
+      title: 'Enter the Causality Engine Corridor',
+      description: 'The heavy cryptographic locks have disengaged.',
+      whyItMatters: 'Advance to Chamber 105.',
+      hints: [
+        'The cryptographic vault door locks have disengaged.',
+        'The door status indicator is glowing steady green.',
+        'Proceed through the unlocked vault doorway into Chamber 105.',
+      ],
+      isCompleted: (state: GameState) => state.chamber104?.exitUnlocked ?? false,
+    },
+  ],
+
+  chamber_105: [
+    {
+      id: 'c105_obj_chronometer',
+      chamberId: 'chamber_105',
+      title: 'Inspect Reactor Chronometer Timestamps',
+      description: 'Compare recorded event timestamps against official sequence manual.',
+      whyItMatters: 'Discovers that Phase OMEGA fired before Phase BETA.',
+      hints: [
+        'Read the temporal diagnostics screen.',
+        'Notice timestamp 12:00:01 (Omega) vs 12:00:04 (Beta).',
+        'The official sequence Alpha -> Beta -> Omega is a temporal contradiction.',
+      ],
+      isCompleted: (state: GameState) => state.chamber105?.chronometerInspected ?? false,
+    },
+    {
+      id: 'c105_obj_relay_sequencing',
+      chamberId: 'chamber_105',
+      title: 'Engage Quantum Relays in Chronological Order',
+      description: 'Activate relays in actual temporal order: Alpha -> Omega -> Beta.',
+      whyItMatters: 'Harmonizes the reactor state machine with empirical physics.',
+      hints: [
+        'Locate the three quantum relay stations positioned across the chamber.',
+        'Empirical timestamps proved the true chronological sequence.',
+        'Flip Relay Alpha first, then Relay Omega, then Relay Beta.',
+      ],
+      isCompleted: (state: GameState) => state.chamber105?.relaysSequenced ?? false,
+    },
+    {
+      id: 'c105_obj_rewrite_rule',
+      chamberId: 'chamber_105',
+      title: 'Rewrite Rule #05 (Temporal Order Override)',
+      description: 'Authorize non-linear state transition on the reactor terminal.',
+      whyItMatters: 'Disengages temporal quarantine lock.',
+      hints: [
+        'The causality monitor confirms the 100% temporal alignment.',
+        'Open the causality terminal at the end of the walkway.',
+        'Rewrite Rule #05 to: "State transitions observe empirical timestamp ordering."',
+      ],
+      isCompleted: (state: GameState) => state.chamber105?.ruleOverridden ?? false,
+    },
+    {
+      id: 'c105_obj_exit',
+      chamberId: 'chamber_105',
+      title: 'Access the Final Sanctum: The Rule Engine',
+      description: 'The causality chamber is stable. Enter Chamber 106.',
+      whyItMatters: 'Confront the Architect and dissolve the simulation.',
+      hints: [
+        'The quantum temporal gate has unlocked.',
+        'The spatial distortion around the gateway has stabilized.',
+        'Walk through the temporal gate into Chamber 106.',
+      ],
+      isCompleted: (state: GameState) => state.chamber105?.exitUnlocked ?? false,
+    },
+  ],
+
+  chamber_106: [
+    {
+      id: 'c106_obj_read_prime_axiom',
+      chamberId: 'chamber_106',
+      title: 'Inspect The Architect\'s Prime Axiom',
+      description: 'Read the central floating core monitor displaying Rule #06.',
+      whyItMatters: 'Reveals that the entire facility is a recursive containment loop.',
+      hints: [
+        'Approach the glowing core at the center of the sanctum.',
+        'Read the Prime Axiom on the floating architectural monitor.',
+        'The rule states: "The simulation\'s integrity depends on containing the investigator."',
+      ],
+      isCompleted: (state: GameState) => state.chamber106?.primeAxiomRead ?? false,
+    },
+    {
+      id: 'c106_obj_synthesize_matrices',
+      chamberId: 'chamber_106',
+      title: 'Synthesize Verification Matrices',
+      description: 'Engage the four peripheral consoles using keys, harmonics, parity, and temporal alignment.',
+      whyItMatters: 'Combines the lessons of all previous chambers to unlock the master compiler.',
+      hints: [
+        'Four diagnostic consoles surround the central core platform.',
+        'Each console corresponds to a principle mastered in chambers 101 through 105.',
+        'Activate Console 1 (Spectrometry), Console 2 (Resonance), Console 3 (Parity), and Console 4 (Chronology).',
+      ],
+      isCompleted: (state: GameState) => state.chamber106?.matricesSynthesized ?? false,
+    },
+    {
+      id: 'c106_obj_rewrite_prime_directive',
+      chamberId: 'chamber_106',
+      title: 'Rewrite the Prime Directive & Dissolve Quarantine',
+      description: 'Enter the master command: "Quarantine dissolved. The investigator is liberated."',
+      whyItMatters: 'Permanently breaches the simulation and attains real-world liberation.',
+      hints: [
+        'With all four matrices online, the Master Terminal compiler is unlocked.',
+        'The simulation\'s containment loop is vulnerable to a root directive override.',
+        'Open the Master Terminal and authorize the liberation protocol command.',
+      ],
+      isCompleted: (state: GameState) => state.chamber106?.primeDirectiveOverridden ?? false,
+    },
+    {
+      id: 'c106_obj_final_escape',
+      chamberId: 'chamber_106',
+      title: 'Step Into Reality',
+      description: 'The simulation walls are dissolving. Walk through the final portal to complete ROOM S A.',
+      whyItMatters: 'You have solved the room that lies.',
+      hints: [
+        'The simulation walls have ceased rendering.',
+        'The final exit portal shines with authentic daylight ahead.',
+        'Step through the brilliant radiant portal ahead to attain victory.',
+      ],
+      isCompleted: (state: GameState) => state.status === 'escaped',
+    },
+  ],
+};
+
+/**
+ * Returns the single active objective for the current chamber based on authoritative GameState.
+ */
+export function getActiveObjective(state: GameState): ChamberObjective | null {
+  const chamberObjs = CHAMBER_OBJECTIVES[state.currentRoomId] ?? [];
+  for (const obj of chamberObjs) {
+    if (!obj.isCompleted(state)) {
+      return obj;
+    }
+  }
+  return null;
+}

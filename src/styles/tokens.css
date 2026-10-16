@@ -1,65 +1,93 @@
 :root {
-  /* Surface Colors */
-  --color-bg-abyss: #07090c;
-  --color-bg-base: #0c0f14;
-  --color-bg-surface: #12161f;
-  --color-bg-surface-elevated: #181e2a;
-  --color-bg-surface-hover: #1f2736;
-  --color-bg-overlay: rgba(7, 9, 12, 0.85);
+  /* ==========================================
+   * 1. Surface & Background Tokens
+   * Restrained, deep charcoal / slate / ink tones
+   * ========================================== */
+  --color-bg-abyss: #07090e;
+  --color-bg-base: #0d1219;
+  --color-bg-surface: #131923;
+  --color-bg-surface-elevated: #1a2230;
+  --color-bg-surface-hover: #222c3e;
+  --color-bg-surface-active: #2a364c;
+  --color-bg-overlay: rgba(7, 9, 14, 0.78);
+  --color-bg-overlay-heavy: rgba(7, 9, 14, 0.92);
 
-  /* Border Colors */
-  --color-border-subtle: #1e2430;
-  --color-border-muted: #283040;
-  --color-border-accent: rgba(245, 158, 11, 0.35);
-  --color-border-accent-strong: #f59e0b;
+  /* ==========================================
+   * 2. Border Tokens
+   * Crisp, subtle framing without harsh neon
+   * ========================================== */
+  --color-border-subtle: #1e2736;
+  --color-border-muted: #2d384c;
+  --color-border-strong: #40506b;
+  --color-border-focus: #38bdf8;
+  --color-border-accent: rgba(245, 158, 11, 0.4);
+  --color-border-cyan: rgba(56, 189, 248, 0.4);
 
-  /* Typography / Text Colors */
-  --color-text-primary: #f3f4f6;       /* Muted Ivory */
-  --color-text-secondary: #c0c6d1;     /* Soft Grey */
-  --color-text-muted: #788293;         /* Dim Charcoal */
-  --color-text-disabled: #424a57;
+  /* ==========================================
+   * 3. Typography Tokens
+   * Friendly, rounded, highly readable sans-serif
+   * Restrained, clean technical monospace
+   * ========================================== */
+  --font-family-sans: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-display: var(--font-family-sans);
+  --font-family-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
-  /* Accent & Highlight Colors (Warm Amber Sci-Fi) */
-  --color-amber-dim: #78350f;
-  --color-amber-muted: #b45309;
-  --color-amber-primary: #f59e0b;
-  --color-amber-bright: #fbbf24;
-  --color-amber-glow: rgba(245, 158, 11, 0.18);
-  --color-amber-beam: rgba(251, 191, 36, 0.08);
-
-  /* Semantic Feedback */
-  --color-terminal-cyan: #06b6d4;
-  --color-terminal-glow: rgba(6, 182, 212, 0.15);
-  --color-anomaly-red: #ef4444;
-  --color-anomaly-glow: rgba(239, 68, 68, 0.2);
-  --color-success-green: #10b981;
-  --color-success-glow: rgba(16, 185, 129, 0.2);
-
-  /* Typography Scale */
-  --font-family-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
-  --font-size-xs: 0.75rem;     /* 12px */
-  --font-size-sm: 0.875rem;    /* 14px */
+  /* Typographic Scale */
+  --font-size-2xs: 0.7rem;     /* 11px */
+  --font-size-xs: 0.78rem;     /* 12.5px */
+  --font-size-sm: 0.88rem;     /* 14px */
   --font-size-base: 1rem;       /* 16px */
-  --font-size-lg: 1.125rem;    /* 18px */
-  --font-size-xl: 1.375rem;    /* 22px */
-  --font-size-2xl: 1.75rem;    /* 28px */
-  --font-size-3xl: 2.25rem;    /* 36px */
+  --font-size-lg: 1.15rem;     /* 18px */
+  --font-size-xl: 1.35rem;     /* 21.6px */
+  --font-size-2xl: 1.7rem;     /* 27.2px */
+  --font-size-3xl: 2.2rem;     /* 35px */
+  --font-size-4xl: 2.8rem;     /* 44.8px */
 
-  --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --line-height-tight: 1.2;
-  --line-height-normal: 1.5;
-  --line-height-loose: 1.7;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.55;
+  --line-height-relaxed: 1.7;
 
-  /* Spacing Scale */
+  /* Text Colors */
+  --color-text-primary: #f1f5f9;       /* Crisp Warm White */
+  --color-text-secondary: #cbd5e1;     /* Soft Light Grey */
+  --color-text-muted: #8292a8;         /* Subdued Slate */
+  --color-text-disabled: #4b586d;      /* Inactive */
+  --color-text-accent: #f59e0b;        /* Warm Amber */
+  --color-text-cyan: #38bdf8;          /* Soft Sky Cyan */
+
+  /* ==========================================
+   * 4. Accent & Semantic Tokens
+   * Gentle, readable accents (no eye-straining glow)
+   * ========================================== */
+  --color-amber-primary: #f59e0b;
+  --color-amber-hover: #d97706;
+  --color-amber-subtle: rgba(245, 158, 11, 0.12);
+
+  --color-cyan-primary: #38bdf8;
+  --color-cyan-hover: #0284c7;
+  --color-cyan-subtle: rgba(56, 189, 248, 0.12);
+
+  --color-success: #10b981;
+  --color-success-hover: #059669;
+  --color-success-subtle: rgba(16, 185, 129, 0.12);
+
+  --color-danger: #f43f5e;
+  --color-danger-hover: #e11d48;
+  --color-danger-subtle: rgba(244, 63, 94, 0.12);
+
+  /* ==========================================
+   * 5. Spacing Scale
+   * ========================================== */
+  --space-0-5: 0.125rem; /* 2px */
   --space-1: 0.25rem;   /* 4px */
+  --space-1-5: 0.375rem; /* 6px */
   --space-2: 0.5rem;    /* 8px */
+  --space-2-5: 0.625rem; /* 10px */
   --space-3: 0.75rem;   /* 12px */
   --space-4: 1rem;      /* 16px */
   --space-5: 1.25rem;   /* 20px */
@@ -68,34 +96,41 @@
   --space-10: 2.5rem;   /* 40px */
   --space-12: 3rem;     /* 48px */
 
-  /* Borders & Radius */
-  --radius-none: 0;
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  /* ==========================================
+   * 6. Border Radius Scale
+   * Friendly, modern rounded corners
+   * ========================================== */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 
-  /* Shadows & Depth */
-  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.8);
-  --shadow-glow-amber: 0 0 20px var(--color-amber-glow), 0 0 4px var(--color-amber-primary);
-  --shadow-glow-terminal: 0 0 20px var(--color-terminal-glow);
+  /* ==========================================
+   * 7. Shadows & Depth
+   * Restrained, soft elevation
+   * ========================================== */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.65);
+  --shadow-subtle-glow: 0 0 12px rgba(56, 189, 248, 0.15);
 
-  /* Animation Timings */
-  --transition-instant: 100ms ease;
-  --transition-fast: 150ms ease-out;
-  --transition-normal: 250ms ease-in-out;
-  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-reality-shift: 700ms cubic-bezier(0.25, 1, 0.5, 1);
+  /* ==========================================
+   * 8. Animation & Transitions
+   * ========================================== */
+  --transition-fast: 120ms ease;
+  --transition-normal: 200ms ease;
+  --transition-smooth: 320ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Z-Index Hierarchy */
-  --z-background: 0;
-  --z-room-env: 10;
-  --z-hotspots: 20;
-  --z-terminal-screen: 30;
+  /* ==========================================
+   * 9. Z-Index Hierarchy
+   * ========================================== */
+  --z-bg: 0;
+  --z-scene: 10;
   --z-hud: 40;
-  --z-modal-overlay: 50;
-  --z-modal-content: 60;
-  --z-toast: 70;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-toast: 90;
+  --z-tutorial: 100;
 }

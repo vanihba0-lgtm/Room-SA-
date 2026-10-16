@@ -81,6 +81,12 @@ export function useGameState() {
     [dispatch]
   );
 
+  const selectChamber = useCallback(
+    (chamberId: string) =>
+      dispatch({ type: 'SELECT_CHAMBER', payload: { chamberId } }),
+    [dispatch]
+  );
+
   const restartGame = useCallback(
     () => dispatch({ type: 'RESTART_GAME' }),
     [dispatch]
@@ -100,6 +106,7 @@ export function useGameState() {
     dropObject,
     configureCircuit,
     transitionRoom,
+    selectChamber,
     restartGame,
   };
 }
