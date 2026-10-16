@@ -54,19 +54,10 @@ export const CAMPAIGN_CHAMBERS: readonly ChamberMetadata[] = [
   {
     id: 'chamber_105',
     number: 5,
-    name: 'The Causality Engine',
-    subtitle: 'State Machines & Temporal Inversion',
-    description: 'A quantum reactor where the official linear event sequence is chronologically impossible.',
-    coreConcept: 'Reconstruct state transitions from telemetry timestamps, not the written manual.',
-    isImplemented: true,
-  },
-  {
-    id: 'chamber_106',
-    number: 6,
-    name: 'The Rule Engine',
-    subtitle: 'The Grand Finale — Dissolve the Simulation',
-    description: 'The central core of the Architect\'s recursive diagnostic loop.',
-    coreConcept: 'Synthesize all learned principles to rewrite the Prime Axiom and liberate reality.',
+    name: 'The Last Witness',
+    subtitle: 'The Grand Finale — The Master Compiler',
+    description: 'The ontological heart of the simulation where all suppressed evidence and facility rules converge.',
+    coreConcept: 'Synthesize evidence from all chambers, reveal ROOM S A, and decide the fate of the simulation.',
     isImplemented: true,
   },
 ];

@@ -28,7 +28,6 @@ export const LogbookModal: React.FC<LogbookModalProps> = ({
     { id: 'chamber_103', label: 'Chamber 3' },
     { id: 'chamber_104', label: 'Chamber 4' },
     { id: 'chamber_105', label: 'Chamber 5' },
-    { id: 'chamber_106', label: 'Chamber 6' },
   ];
 
   // Discoverable logs: logs from the current room or explicitly in discoveredLogIds

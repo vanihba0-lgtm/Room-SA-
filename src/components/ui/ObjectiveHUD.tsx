@@ -89,24 +89,24 @@ export const ObjectiveHUD: React.FC<ObjectiveHUDProps> = ({
           <div className="objective-expanded-content">
             {currentObj.what && (
               <div className="objective-field">
-                <span className="field-label">Action: </span>
+                <span className="field-label">WHAT: </span>
                 <span className="field-text">{currentObj.what}</span>
               </div>
             )}
             {currentObj.where && (
               <div className="objective-field">
-                <span className="field-label">Location: </span>
+                <span className="field-label">WHERE: </span>
                 <span className="field-text">{currentObj.where}</span>
               </div>
             )}
             {currentObj.how && (
               <div className="objective-field">
-                <span className="field-label">Method: </span>
+                <span className="field-label">HOW: </span>
                 <span className="field-text">{currentObj.how}</span>
               </div>
             )}
             <div className="objective-why">
-              <span className="field-label">Why: </span>
+              <span className="field-label">WHY: </span>
               <span className="field-text">{currentObj.whyItMatters}</span>
             </div>
           </div>

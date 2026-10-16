@@ -12,12 +12,12 @@ export interface AudioSettings {
   muted: boolean;
 }
 
-const SETTINGS_KEY = 'room_sa_audio_settings_v2';
+const SETTINGS_KEY = 'room_sa_audio_settings_v3';
 
 const DEFAULT_SETTINGS: AudioSettings = {
-  masterVolume: 0.8,
-  sfxVolume: 0.85,
-  ambienceVolume: 0.35,
+  masterVolume: 0.25,   // 25% default
+  sfxVolume: 0.25,      // 25% default
+  ambienceVolume: 0.0,  // 0% - background music/ambience OFF by default
   muted: false,
 };
 
@@ -130,37 +130,13 @@ class SoundManager {
   }
 
   // ==========================================================
-  // Ambient Chamber Soundscape
+  // Ambient Chamber Soundscape (Drone completely disabled)
+  // Background music/ambience is OFF by default. No continuous synth buzzing.
   // ==========================================================
   public startAmbience(): void {
-    if (this.isAmbienceRunning) return;
-    const ctx = this.ensureContext();
-    if (!ctx || !this.ambienceGain) return;
-
-    try {
-      this.ambientOsc1 = ctx.createOscillator();
-      this.ambientOsc2 = ctx.createOscillator();
-      this.ambientFilter = ctx.createBiquadFilter();
-
-      this.ambientOsc1.type = 'sine';
-      this.ambientOsc1.frequency.setValueAtTime(55, ctx.currentTime); // A1 sub-drone
-
-      this.ambientOsc2.type = 'triangle';
-      this.ambientOsc2.frequency.setValueAtTime(82.4, ctx.currentTime); // E2 fifth
-
-      this.ambientFilter.type = 'lowpass';
-      this.ambientFilter.frequency.setValueAtTime(140, ctx.currentTime);
-
-      this.ambientOsc1.connect(this.ambientFilter);
-      this.ambientOsc2.connect(this.ambientFilter);
-      this.ambientFilter.connect(this.ambienceGain);
-
-      this.ambientOsc1.start();
-      this.ambientOsc2.start();
-      this.isAmbienceRunning = true;
-    } catch {
-      // Audio node error
-    }
+    // Continuous ambient buzzing/drone permanently removed at the source.
+    // Silence is strictly preferred to annoying continuous synth tones.
+    this.isAmbienceRunning = false;
   }
 
   public stopAmbience(): void {

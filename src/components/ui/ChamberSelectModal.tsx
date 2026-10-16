@@ -35,7 +35,7 @@ export const ChamberSelectModal: React.FC<ChamberSelectModalProps> = ({
           <div className="modal-title-group">
             <Grid size={20} color="var(--color-cyan-primary)" />
             <h2 id="chamber-select-title" className="modal-title-text">
-              Simulation Sector Select (6 Total Chambers)
+              Simulation Sector Select (5 Total Chambers)
             </h2>
           </div>
           <button

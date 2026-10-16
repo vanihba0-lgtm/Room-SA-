@@ -169,58 +169,52 @@ describe('ROOM S A — Mega Prompt 50 Experience Overhaul & 6-Chamber Campaign',
       payload: { objectId: 'exit_door_104' },
     }).nextState;
 
-    // Chamber 105: Causality Engine
+    // Chamber 105: The Last Witness (Grand Finale)
     expect(state.currentRoomId).toBe('chamber_105');
+    // Step 1: Reconstruct Material Axiom at Station 1
     state = engineReducer(state, {
       type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c105_relay_alpha' },
+      payload: { objectId: 'c105_station_material' },
     }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c105_relay_omega' },
-    }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c105_relay_beta' },
-    }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c105_terminal' },
-    }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'exit_door_105' },
-    }).nextState;
+    expect(state.chamber105?.stationMaterialSolved).toBe(true);
 
-    // Chamber 106: The Rule Engine (Finale)
-    expect(state.currentRoomId).toBe('chamber_106');
+    // Step 2: Reconstruct Signal Resonance at Station 2
     state = engineReducer(state, {
       type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c106_console_spectrometry' },
+      payload: { objectId: 'c105_station_signal' },
     }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c106_console_resonance' },
-    }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c106_console_parity' },
-    }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c106_console_chronology' },
-    }).nextState;
-    state = engineReducer(state, {
-      type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'c106_master_terminal' },
-    }).nextState;
+    expect(state.chamber105?.stationSignalSolved).toBe(true);
 
+    // Step 3: Restore Mara Voss Incident Record at Station 3
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'c105_station_archive' },
+    }).nextState;
+    expect(state.chamber105?.stationArchiveSolved).toBe(true);
+
+    // Step 4: Validate Parity Checksum at Station 4
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'c105_station_security' },
+    }).nextState;
+    expect(state.chamber105?.stationSecuritySolved).toBe(true);
+    expect(state.chamber105?.masterCompilerUnlocked).toBe(true);
+
+    // Step 5: Synthesize Truth at Master Compiler Apparatus
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'c105_master_compiler' },
+    }).nextState;
+    expect(state.chamber105?.truthRevealed).toBe(true);
+
+    // Step 6: Execute Ending B (Rewrite the Rules)
     const escapeRes = engineReducer(state, {
       type: 'INTERACT_WITH_OBJECT',
-      payload: { objectId: 'exit_door_106' },
+      payload: { objectId: 'c105_ending_rewrite' },
     });
     expect(escapeRes.success).toBe(true);
     expect(escapeRes.nextState.status).toBe('escaped');
+    expect(escapeRes.nextState.chamber105?.chosenEnding).toBe('rewrite');
   });
 
   it('tracks campaign save progression when chambers are completed', () => {

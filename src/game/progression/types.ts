@@ -37,4 +37,5 @@ export interface CampaignSaveData {
   readonly tutorialCompleted: boolean;
   readonly discoveredLogIds: readonly string[];
   readonly lastPlayedAt: number;
+  readonly chosenEnding?: 'shutdown' | 'rewrite' | 'control';
 }

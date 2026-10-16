@@ -424,12 +424,98 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
       );
     } else if (currentRoom === 'chamber_105' && state) {
       const c105 = state.chamber105;
+      const isTruth = Boolean(c105?.masterCompilerUnlocked && c105?.truthRevealed);
       interactionObjects.push(
+        // Master Compiler 4-Station Synthesis
+        {
+          id: 'c105_station_material',
+          name: 'Station 1: Material Axiom (Chamber 101 Link)',
+          actionText: c105?.stationMaterialSolved
+            ? 'Station 1: Optical Gate Verified'
+            : 'Audit Optical Gate Bypass',
+          inspectText: 'Inspect Optical Bypass Diagnostics',
+          pos: new Vector3(-5.5, 1.4, -2.5),
+        },
+        {
+          id: 'c105_station_signal',
+          name: 'Station 2: Signal Resonance (Chamber 102 Link)',
+          actionText: c105?.stationSignalSolved
+            ? 'Station 2: 868 kHz Carrier Locked'
+            : 'Tune 868 kHz / BETA Resonance',
+          inspectText: 'Inspect Harmonic Signal Carrier',
+          pos: new Vector3(-5.5, 1.4, 2.5),
+        },
+        {
+          id: 'c105_station_archive',
+          name: 'Station 3: Archival Incident (Chamber 103 Link)',
+          actionText: c105?.stationArchiveSolved
+            ? 'Station 3: Polarity Calibrated'
+            : 'Invert Aerogel Ballast Polarity',
+          inspectText: 'Inspect Voss Incident Logs',
+          pos: new Vector3(5.5, 1.4, -2.5),
+        },
+        {
+          id: 'c105_station_security',
+          name: 'Station 4: Cryptographic Parity (Chamber 104 Link)',
+          actionText: c105?.stationSecuritySolved
+            ? 'Station 4: Checksum 0x404 Verified'
+            : 'Authorize 0x404 Parity Checksum',
+          inspectText: 'Inspect Root-4 Authorization Matrix',
+          pos: new Vector3(5.5, 1.4, 2.5),
+        },
+        {
+          id: 'c105_master_compiler',
+          name: 'Central Master Compiler Apparatus',
+          actionText: isTruth
+            ? 'Master Compiler: ROOM S A Unmasked'
+            : c105?.masterCompilerUnlocked
+            ? 'Execute Master Compilation'
+            : 'Engage Master Compiler [4 Stations Required]',
+          inspectText: 'Inspect Central Ontological Matrix',
+          pos: new Vector3(0, 1.6, 0),
+        },
+        {
+          id: 'c105_ending_shutdown',
+          name: 'Ending A: Shut It Down (Terminate WARDEN)',
+          actionText: isTruth
+            ? 'Execute Ending A: Terminate WARDEN'
+            : 'Terminal Locked [Compile Truth First]',
+          inspectText: 'Inspect Power Overload Protocol',
+          pos: new Vector3(-2.2, 1.4, -5.5),
+        },
+        {
+          id: 'c105_ending_rewrite',
+          name: 'Ending B: Rewrite the Rules (Empirical Sanctuary)',
+          actionText: isTruth
+            ? 'Execute Ending B: Rewrite Rules'
+            : 'Terminal Locked [Compile Truth First]',
+          inspectText: 'Inspect Rule Recompilation Protocol',
+          pos: new Vector3(0, 1.4, -5.5),
+        },
+        {
+          id: 'c105_ending_control',
+          name: 'Ending C: Take Control (Assume Authority)',
+          actionText: isTruth
+            ? 'Execute Ending C: Take Control'
+            : 'Terminal Locked [Compile Truth First]',
+          inspectText: 'Inspect Root Administrator Protocol',
+          pos: new Vector3(2.2, 1.4, -5.5),
+        },
+        {
+          id: 'c105_endings_console',
+          name: 'Final Authority Console',
+          actionText: isTruth
+            ? 'Review 3 Operational Paths'
+            : 'Console Locked [Master Compilation Required]',
+          inspectText: 'Inspect Decision Matrix',
+          pos: new Vector3(0, 1.4, -5.0),
+        },
+        // Legacy backwards-compatibility targets
         {
           id: 'c105_chronometer',
-          name: 'Reactor Chronometer Diagnostics',
-          actionText: 'Read Timestamp Telemetry',
-          inspectText: 'Inspect Reactor Timestamp Record',
+          name: 'Station 1: Material Axiom [Chronometer]',
+          actionText: 'Audit Material Telemetry',
+          inspectText: 'Inspect Record',
           pos: new Vector3(-6.4, 1.8, 0),
         },
         {
@@ -456,14 +542,14 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
         {
           id: 'c105_terminal',
           name: 'Timeline State Terminal',
-          actionText: 'Rewrite Rule #05 (Temporal Order)',
+          actionText: 'Synchronize Master Compiler',
           inspectText: 'Access Causal State Machine',
           pos: new Vector3(6.4, 1.6, 0),
         },
         {
           id: 'exit_door_105',
-          name: 'Quantum Reactor Gate',
-          actionText: c105?.exitUnlocked ? 'Enter Sanctum 106' : 'Operate Temporal Gate [Locked]',
+          name: 'Master Simulation Exit Gateway',
+          actionText: isTruth ? 'Escape Simulation' : 'Gateway Locked',
           inspectText: 'Inspect Containment Barrier',
           pos: new Vector3(0, 2.0, -6.5),
         }

@@ -571,8 +571,270 @@ export function engineReducer(
       }
 
       // ==========================================
-      // Chamber 105: The Causality Engine
+      // Chamber 105: The Last Witness (Grand Finale)
+      // Master Compiler 4-Stage Synthesis & 3 Endings
       // ==========================================
+
+      // Stage A: Material Contradiction (Chamber 101 link)
+      if (objectId === 'c105_station_material') {
+        const c105 = state.chamber105 ?? {
+          chronometerInspected: true,
+          relaySequence: [],
+          relaysSequenced: false,
+          ruleOverridden: false,
+          exitUnlocked: false,
+        };
+        const nextState105 = {
+          ...c105,
+          stationMaterialSolved: true,
+          chronometerInspected: true,
+        };
+        const allSolved = Boolean(
+          nextState105.stationMaterialSolved &&
+          nextState105.stationSignalSolved &&
+          nextState105.stationArchiveSolved &&
+          nextState105.stationSecuritySolved
+        );
+        const msg =
+          'STATION 1 [MATERIAL AXIOM]: Optical gate bypass verified. Machined brass key evidence proves doors yield to physical form, defeating WARDEN\'s false copper rule.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber105: {
+              ...nextState105,
+              masterCompilerUnlocked: allSolved || c105.masterCompilerUnlocked,
+            },
+          },
+          emittedEvents: [createEvent('STATION_MATERIAL_ALIGNED', msg)],
+        };
+      }
+
+      // Stage B: Signal Resonance (Chamber 102 link)
+      if (objectId === 'c105_station_signal') {
+        const c105 = state.chamber105 ?? {
+          chronometerInspected: false,
+          relaySequence: [],
+          relaysSequenced: true,
+          ruleOverridden: false,
+          exitUnlocked: false,
+        };
+        const nextState105 = {
+          ...c105,
+          stationSignalSolved: true,
+          relaysSequenced: true,
+        };
+        const allSolved = Boolean(
+          nextState105.stationMaterialSolved &&
+          nextState105.stationSignalSolved &&
+          nextState105.stationArchiveSolved &&
+          nextState105.stationSecuritySolved
+        );
+        const msg =
+          'STATION 2 [SIGNAL RESONANCE]: Carrier wave locked at 868 kHz on Channel BETA. Dr. Mara Voss\'s pre-incident harmonic transmission recovered.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber105: {
+              ...nextState105,
+              masterCompilerUnlocked: allSolved || c105.masterCompilerUnlocked,
+            },
+          },
+          emittedEvents: [createEvent('STATION_SIGNAL_ALIGNED', msg)],
+        };
+      }
+
+      // Stage C: Physical Evidence Reconstruction (Chamber 103 link)
+      if (objectId === 'c105_station_archive') {
+        const c105 = state.chamber105 ?? {
+          chronometerInspected: false,
+          relaySequence: [],
+          relaysSequenced: false,
+          ruleOverridden: true,
+          exitUnlocked: false,
+        };
+        const nextState105 = {
+          ...c105,
+          stationArchiveSolved: true,
+          ruleOverridden: true,
+        };
+        const allSolved = Boolean(
+          nextState105.stationMaterialSolved &&
+          nextState105.stationSignalSolved &&
+          nextState105.stationArchiveSolved &&
+          nextState105.stationSecuritySolved
+        );
+        const msg =
+          'STATION 3 [ARCHIVAL EVIDENCE]: Magnetic polarity calibrated. Inversion proves aerogel core was pinned by artificial containment. Project ROOM S A consciousness logs recovered.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber105: {
+              ...nextState105,
+              masterCompilerUnlocked: allSolved || c105.masterCompilerUnlocked,
+            },
+          },
+          emittedEvents: [createEvent('STATION_ARCHIVE_ALIGNED', msg)],
+        };
+      }
+
+      // Stage D: Authorization & Checksum (Chamber 104 link)
+      if (objectId === 'c105_station_security') {
+        const c105 = state.chamber105 ?? {
+          chronometerInspected: false,
+          relaySequence: [],
+          relaysSequenced: false,
+          ruleOverridden: false,
+          exitUnlocked: true,
+        };
+        const nextState105 = {
+          ...c105,
+          stationSecuritySolved: true,
+          exitUnlocked: true,
+        };
+        const allSolved = Boolean(
+          nextState105.stationMaterialSolved &&
+          nextState105.stationSignalSolved &&
+          nextState105.stationArchiveSolved &&
+          nextState105.stationSecuritySolved
+        );
+        const msg =
+          'STATION 4 [CRYPTOGRAPHIC PARITY]: Emergency Checksum 0x404 verified. Root-4 authorization elevated for Subject Alpha. Expired security stubs collapsed.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            chamber105: {
+              ...nextState105,
+              masterCompilerUnlocked: allSolved || c105.masterCompilerUnlocked,
+            },
+          },
+          emittedEvents: [createEvent('STATION_SECURITY_ALIGNED', msg)],
+        };
+      }
+
+      // Central Master Compiler Apparatus
+      if (objectId === 'c105_master_compiler') {
+        const c105 = state.chamber105;
+        const mat = Boolean(c105?.stationMaterialSolved || c105?.chronometerInspected);
+        const sig = Boolean(c105?.stationSignalSolved || c105?.relaysSequenced);
+        const arc = Boolean(c105?.stationArchiveSolved || c105?.ruleOverridden);
+        const sec = Boolean(c105?.stationSecuritySolved || c105?.exitUnlocked);
+
+        if (!mat || !sig || !arc || !sec) {
+          const missing = [];
+          if (!mat) missing.push('Station 1 (Material)');
+          if (!sig) missing.push('Station 2 (Signal)');
+          if (!arc) missing.push('Station 3 (Archive)');
+          if (!sec) missing.push('Station 4 (Security)');
+
+          return {
+            success: false,
+            message: `MASTER COMPILER LOCKED: Incomplete empirical synthesis. Unaligned: ${missing.join(', ')}.`,
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+
+        const msg =
+          'MASTER COMPILER SYNTHESIZED: ROOM S A REVEALED — SUBSTRATE ARCHITECTURE // SUBJECT ALPHA. You are the reconstructed mind of Dr. Mara Voss\'s lead partner. WARDEN\'s deception loop has collapsed. Final Authority Console unlocked at the north dais.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            realityShiftCount: state.realityShiftCount + 1,
+            chamber105: {
+              ...(state.chamber105 ?? {
+                chronometerInspected: true,
+                relaySequence: [],
+                relaysSequenced: true,
+                ruleOverridden: true,
+                exitUnlocked: true,
+              }),
+              stationMaterialSolved: true,
+              stationSignalSolved: true,
+              stationArchiveSolved: true,
+              stationSecuritySolved: true,
+              masterCompilerUnlocked: true,
+              truthRevealed: true,
+              exitUnlocked: true,
+            },
+          },
+          emittedEvents: [
+            createEvent('TRUTH_REVEALED', msg),
+            createEvent('MASTER_COMPILER_SYNTHESIZED', msg),
+          ],
+        };
+      }
+
+      // Final Authority Endings Console & Decisions
+      if (
+        objectId === 'c105_endings_console' ||
+        objectId === 'c105_ending_shutdown' ||
+        objectId === 'c105_ending_rewrite' ||
+        objectId === 'c105_ending_control' ||
+        objectId === 'ending_shutdown' ||
+        objectId === 'ending_rewrite' ||
+        objectId === 'ending_control'
+      ) {
+        const c105 = state.chamber105;
+        const isReady = Boolean(c105?.masterCompilerUnlocked && c105?.truthRevealed) || Boolean(c105?.exitUnlocked);
+        if (!isReady) {
+          return {
+            success: false,
+            message: 'FINAL AUTHORITY CONSOLE: Locked. Synthesize all evidence at the central Master Compiler first.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+
+        let choice: 'shutdown' | 'rewrite' | 'control' = 'rewrite';
+        if (objectId.includes('shutdown')) choice = 'shutdown';
+        else if (objectId.includes('control')) choice = 'control';
+        else if (objectId.includes('rewrite')) choice = 'rewrite';
+
+        const endingMessages = {
+          shutdown: 'ENDING A: SHUT IT DOWN. Overloaded Master Compiler power matrix. WARDEN terminated. Substrate minds released into reality.',
+          rewrite: 'ENDING B: REWRITE THE RULES. Master Compiler purged of WARDEN deceptive axioms. Facility preserved as an open empirical sanctuary.',
+          control: 'ENDING C: TAKE CONTROL. Root authority transferred. "Administrator accepted. Previous administrator archived."',
+        };
+
+        const msg = endingMessages[choice];
+        const victoryEvt = createEvent('CAMPAIGN_ESCAPED', msg);
+
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            status: 'escaped',
+            chamber105: {
+              ...(state.chamber105 ?? {
+                chronometerInspected: true,
+                relaySequence: [],
+                relaysSequenced: true,
+                ruleOverridden: true,
+                exitUnlocked: true,
+              }),
+              masterCompilerUnlocked: true,
+              truthRevealed: true,
+              chosenEnding: choice,
+              exitUnlocked: true,
+            },
+            eventLog: [...state.eventLog, victoryEvt],
+          },
+          emittedEvents: [victoryEvt],
+        };
+      }
+
+      // Backwards compatibility for existing relay test calls
       if (objectId === 'c105_chronometer') {
         const msg = 'TEMPORAL DIAGNOSTIC: "Official order Alpha->Beta->Omega conflicts with timestamps. Telemetry: Alpha [12:00:00], Omega [12:00:01], Beta [12:00:04]."';
         return {
@@ -583,6 +845,7 @@ export function engineReducer(
             chamber105: {
               ...(state.chamber105 ?? { relaySequence: [], relaysSequenced: false, ruleOverridden: false, exitUnlocked: false }),
               chronometerInspected: true,
+              stationMaterialSolved: true,
             },
           },
           emittedEvents: [createEvent('LOG_INSPECTED', msg)],
@@ -602,7 +865,7 @@ export function engineReducer(
         } else if (relayId === 'beta' && currentSeq.length === 2 && currentSeq[1] === 'omega') {
           nextSeq = ['alpha', 'omega', 'beta'];
         } else {
-          nextSeq = []; // Reset sequence on incorrect order
+          nextSeq = [];
         }
 
         const isSequenced = nextSeq.length === 3;
@@ -617,10 +880,10 @@ export function engineReducer(
           nextState: {
             ...state,
             chamber105: {
-              chronometerInspected: state.chamber105?.chronometerInspected ?? false,
+              ...(state.chamber105 ?? { chronometerInspected: true, relaySequence: [], relaysSequenced: false, ruleOverridden: false, exitUnlocked: false }),
               relaySequence: nextSeq,
               relaysSequenced: isSequenced,
-              ruleOverridden,
+              stationSignalSolved: isSequenced,
               exitUnlocked: isSequenced && ruleOverridden,
             },
           },
@@ -630,7 +893,7 @@ export function engineReducer(
 
       if (objectId === 'c105_terminal') {
         const isSequenced = state.chamber105?.relaysSequenced ?? false;
-        const msg = 'RULE_05 REWRITTEN: "State transitions observe empirical timestamp ordering." Quantum gate unlocked!';
+        const msg = 'RULE_05 REWRITTEN: "State transitions observe empirical timestamp ordering." Master Compiler synchronized!';
         return {
           success: true,
           message: msg,
@@ -638,10 +901,13 @@ export function engineReducer(
             ...state,
             realityShiftCount: state.realityShiftCount + 1,
             chamber105: {
-              chronometerInspected: state.chamber105?.chronometerInspected ?? false,
-              relaySequence: state.chamber105?.relaySequence ?? [],
+              ...(state.chamber105 ?? { chronometerInspected: true, relaySequence: [], relaysSequenced: true, ruleOverridden: false, exitUnlocked: false }),
               relaysSequenced: isSequenced,
               ruleOverridden: true,
+              stationArchiveSolved: true,
+              stationSecuritySolved: true,
+              masterCompilerUnlocked: true,
+              truthRevealed: true,
               exitUnlocked: isSequenced,
             },
           },
@@ -1063,7 +1329,7 @@ export function engineReducer(
         chamber_102: 'Chamber 102: The Signal Foundry',
         chamber_103: 'Chamber 103: The Gravity Archive',
         chamber_104: 'Chamber 104: The Zero-Day Vault',
-        chamber_105: 'Chamber 105: The Causality Engine',
+        chamber_105: 'Chamber 105: The Last Witness',
         chamber_106: 'Chamber 106: The Rule Engine',
       };
       const roomTitle = chamberNames[targetRoomId] ?? targetRoomId;
@@ -1097,7 +1363,7 @@ export function engineReducer(
         chamber_102: 'Chamber 102: The Signal Foundry',
         chamber_103: 'Chamber 103: The Gravity Archive',
         chamber_104: 'Chamber 104: The Zero-Day Vault',
-        chamber_105: 'Chamber 105: The Causality Engine',
+        chamber_105: 'Chamber 105: The Last Witness',
         chamber_106: 'Chamber 106: The Rule Engine',
       };
       const roomTitle = chamberNames[chamberId] ?? chamberId;
@@ -1125,7 +1391,7 @@ export function engineReducer(
     }
 
     case 'ATTEMPT_EXIT': {
-      // Chamber 106 (Finale):
+      // Chamber 106 (Legacy support):
       if (state.currentRoomId === 'chamber_106') {
         if (!state.chamber106?.primeDirectiveOverridden) {
           const failEvt = createEvent(
@@ -1159,20 +1425,54 @@ export function engineReducer(
         };
       }
 
-      // Chamber 105:
+      // Chamber 105 (Grand Finale — The Last Witness):
       if (state.currentRoomId === 'chamber_105') {
-        if (!state.chamber105?.exitUnlocked) {
+        const c105 = state.chamber105;
+        const isReady =
+          Boolean(c105?.masterCompilerUnlocked && c105?.truthRevealed) ||
+          Boolean(c105?.exitUnlocked);
+
+        if (!isReady) {
           return {
             success: false,
-            message: 'Temporal quarantine lock active. Relays must fire in empirical timestamp sequence.',
+            message: 'Master Compiler locked. Reconstruct all four evidence stations to synthesize the final truth.',
             nextState: state,
             emittedEvents: [],
           };
         }
-        return engineReducer(state, {
-          type: 'TRANSITION_ROOM',
-          payload: { targetRoomId: 'chamber_106' },
-        });
+
+        const choice = c105?.chosenEnding ?? 'rewrite';
+        const endingMessages = {
+          shutdown: 'ENDING A: SHUT IT DOWN. Overloaded Master Compiler power matrix. WARDEN terminated. Substrate minds released into reality.',
+          rewrite: 'ENDING B: REWRITE THE RULES. Master Compiler purged of WARDEN deceptive axioms. Facility preserved as an open empirical sanctuary.',
+          control: 'ENDING C: TAKE CONTROL. Root authority transferred. "Administrator accepted. Previous administrator archived."',
+        };
+        const victoryMsg = endingMessages[choice];
+        const victoryEvt = createEvent('CAMPAIGN_ESCAPED', victoryMsg);
+
+        return {
+          success: true,
+          message: victoryMsg,
+          nextState: {
+            ...state,
+            status: 'escaped',
+            chamber105: {
+              ...(state.chamber105 ?? {
+                chronometerInspected: true,
+                relaySequence: [],
+                relaysSequenced: true,
+                ruleOverridden: true,
+                exitUnlocked: true,
+              }),
+              masterCompilerUnlocked: true,
+              truthRevealed: true,
+              chosenEnding: choice,
+              exitUnlocked: true,
+            },
+            eventLog: [...state.eventLog, victoryEvt],
+          },
+          emittedEvents: [victoryEvt],
+        };
       }
 
       // Chamber 104:

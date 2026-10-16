@@ -186,6 +186,16 @@ export interface Chamber104State {
 }
 
 export interface Chamber105State {
+  // Master Compiler 4-Stage Synthesis (The Last Witness)
+  readonly stationMaterialSolved?: boolean; // Stage A: Brass Key optical gate reality
+  readonly stationSignalSolved?: boolean;   // Stage B: 868 kHz / BETA carrier resonance
+  readonly stationArchiveSolved?: boolean;  // Stage C: Dr. Mara Voss dossier & polarity inversion
+  readonly stationSecuritySolved?: boolean; // Stage D: Checksum 0x404 & Root elevation
+  readonly masterCompilerUnlocked?: boolean; // All 4 stations verified
+  readonly truthRevealed?: boolean;          // ROOM S A identity unmasked
+  readonly chosenEnding?: 'shutdown' | 'rewrite' | 'control';
+
+  // Backwards compatibility fields
   readonly chronometerInspected: boolean;
   readonly relaySequence: readonly string[];
   readonly relaysSequenced: boolean;

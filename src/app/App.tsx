@@ -42,6 +42,7 @@ import { soundManager } from '../services/audio/soundManager';
 import { notificationManager } from '../services/notifications/notificationManager';
 import {
   loadCampaignSave,
+  saveCampaignProgress,
   markChamberCompleted,
   hasCompletedIntro,
   markIntroCompleted,
@@ -113,18 +114,23 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       nextSave = markChamberCompleted('chamber_103');
     } else if (state.currentRoomId === 'chamber_105') {
       nextSave = markChamberCompleted('chamber_104');
-    } else if (state.currentRoomId === 'chamber_106') {
-      nextSave = markChamberCompleted('chamber_105');
     }
 
     if (state.status === 'escaped') {
-      nextSave = markChamberCompleted('chamber_106');
+      nextSave = markChamberCompleted('chamber_105');
+      if (state.chamber105?.chosenEnding) {
+        nextSave = {
+          ...nextSave,
+          chosenEnding: state.chamber105.chosenEnding,
+        };
+        saveCampaignProgress(nextSave);
+      }
     }
 
     if (nextSave) {
       setCampaignSave(nextSave);
     }
-  }, [state.currentRoomId, state.status]);
+  }, [state.currentRoomId, state.status, state.chamber105?.chosenEnding]);
 
   // Synchronize active chamber with window.location.hash on mount and hashchange
   useEffect(() => {
@@ -134,7 +140,6 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       'chamber_103',
       'chamber_104',
       'chamber_105',
-      'chamber_106',
     ];
 
     const syncFromHash = () => {
@@ -166,13 +171,9 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     }
   }, [state.currentRoomId, phase]);
 
-  // Handle ambient drone audio according to active phase
+  // Ambience is OFF by default. No continuous background audio autostart.
   useEffect(() => {
-    if (phase === 'playing') {
-      soundManager.startAmbience();
-    } else {
-      soundManager.stopAmbience();
-    }
+    soundManager.stopAmbience();
     return () => {
       soundManager.stopAmbience();
     };
@@ -197,9 +198,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       case 'chamber_104':
         return 'CHAMBER 104 // THE ZERO-DAY VAULT';
       case 'chamber_105':
-        return 'CHAMBER 105 // THE CAUSALITY ENGINE';
-      case 'chamber_106':
-        return 'CHAMBER 106 // THE RULE ENGINE (FINALE)';
+        return 'CHAMBER 105 // THE LAST WITNESS (FINALE)';
       default:
         return 'CHAMBER // SIMULATION SECTOR';
     }
@@ -215,7 +214,12 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     else if (id === 'c103_log') logId = 'log_c103_clue';
     else if (id === 'c104_monitor') logId = 'log_c104_security';
     else if (id === 'c104_crypto') logId = 'log_c104_investigator';
-    else if (id === 'c105_chronometer') logId = 'log_c105_chronometer';
+    else if (id === 'c105_station_material' || id === 'c105_chronometer') logId = 'log_c105_compiler_axioms';
+    else if (id === 'c105_station_signal') logId = 'log_c102_investigator';
+    else if (id === 'c105_station_archive') logId = 'log_c105_voss_last_recording';
+    else if (id === 'c105_station_security') logId = 'log_c104_investigator';
+    else if (id === 'c105_master_compiler') logId = 'log_c105_room_sa_truth';
+    else if (id === 'c105_endings_console') logId = 'log_c105_three_paths';
 
     if (logId) {
       setCampaignSave((prev) => recordLogDiscovered(prev, logId!));
@@ -690,8 +694,12 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       {/* Victory Escape Sequence Overlay */}
       <VictoryOverlay
         isOpen={state.status === 'escaped'}
+        chosenEnding={state.chamber105?.chosenEnding ?? 'rewrite'}
         onRestart={() => {
           restartGame();
+          setPhase('title');
+        }}
+        onReturnToMenu={() => {
           setPhase('title');
         }}
       />
