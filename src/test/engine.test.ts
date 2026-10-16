@@ -218,4 +218,25 @@ describe('ROOM S A — Authoritative Engine & Puzzle Mechanics (Chamber 101)', (
     expect(resetState.rules['RULE_01']?.isDeceptive).toBe(true);
     expect(resetState.realityShiftCount).toBe(0);
   });
+
+  // 12. Interactive mechanism: Substrate Power Regulator
+  it('12. toggles the Substrate Power Regulator mechanism and emits event', () => {
+    const toggle1 = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'power_regulator' },
+    });
+
+    expect(toggle1.success).toBe(true);
+    expect(toggle1.nextState.objects.power_regulator.state).toBe('transformed');
+    expect(toggle1.message).toContain('Substrate Power Regulator');
+    expect(toggle1.nextState.eventLog.some((e) => e.type === 'MECHANISM_TOGGLED')).toBe(true);
+
+    const toggle2 = engineReducer(toggle1.nextState, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'power_regulator' },
+    });
+
+    expect(toggle2.success).toBe(true);
+    expect(toggle2.nextState.objects.power_regulator.state).toBe('default');
+  });
 });

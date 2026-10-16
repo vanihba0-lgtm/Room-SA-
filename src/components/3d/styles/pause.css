@@ -1,0 +1,238 @@
+.pause-overlay-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(7, 10, 18, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.pause-modal-card {
+  width: 100%;
+  max-width: 680px;
+  background: #0f172a;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: pauseCardZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pauseCardZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pause-card-header {
+  text-align: center;
+}
+
+.pause-badge {
+  font-family: var(--font-family-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #38bdf8;
+  margin-bottom: 6px;
+}
+
+.pause-title {
+  font-family: var(--font-family-display, sans-serif);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.title-accent {
+  color: #f59e0b;
+}
+
+.pause-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* Status Banner */
+.pause-status-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.status-label {
+  font-family: var(--font-family-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 120px;
+}
+
+.status-value {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.status-value.value-deceptive {
+  color: #f59e0b;
+}
+
+.status-value.value-stable {
+  color: #10b981;
+}
+
+/* Primary Resume Button */
+.btn-resume-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: var(--font-family-display, sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-resume-primary:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6);
+}
+
+.btn-resume-primary:active {
+  transform: translateY(1px);
+}
+
+/* Controls Grid */
+.controls-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.guide-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-icon-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.key-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.key-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.key-pill.wide-pill {
+  min-width: 50px;
+}
+
+.guide-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+/* Footer Actions */
+.pause-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 16px;
+}
+
+.btn-pause-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: #94a3b8;
+  font-family: var(--font-family-display, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-pause-secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-pause-secondary.btn-restart:hover {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+}

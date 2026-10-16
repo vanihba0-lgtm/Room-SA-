@@ -1,0 +1,41 @@
+.chamber-3d-viewport {
+  position: relative;
+  width: 100%;
+  height: 580px;
+  min-height: 520px;
+  max-height: 640px;
+  background-color: #050811;
+  overflow: hidden;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-subtle, #1e293b);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.chamber-3d-viewport canvas,
+.chamber-canvas-element {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+.webgl-fallback-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  text-align: center;
+  color: #f8fafc;
+  background: #0f172a;
+}
+
+.webgl-fallback-title {
+  font-family: var(--font-family-display, sans-serif);
+  font-size: 24px;
+  color: #f59e0b;
+  margin-bottom: 12px;
+}

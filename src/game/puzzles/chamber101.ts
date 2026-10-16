@@ -53,6 +53,17 @@ export const CHAMBER_101_OBJECTS: Record<string, RoomObject> = {
     isInteractable: true,
     position: { x: 50, y: 28, width: 30, height: 38 },
   },
+  power_regulator: {
+    id: 'power_regulator',
+    name: 'Substrate Power Regulator',
+    description:
+      'A wall-mounted hydraulic breaker switch with glowing status conduits.',
+    inspectText:
+      'Diagnostic readout: "CIRCUIT #101 ROUTED TO LOGIC CORE AND EXIT MECHANISM. SUBSTRATE STABILITY: COMPROMISED BY DECEPTIVE RULE_01."',
+    state: 'default',
+    isInteractable: true,
+    position: { x: 30, y: 55, width: 14, height: 20 },
+  },
 };
 
 /**

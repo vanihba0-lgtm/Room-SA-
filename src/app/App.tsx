@@ -6,9 +6,12 @@ import {
   ShieldCheck,
   Volume2,
   VolumeX,
+  Box,
+  Map,
 } from 'lucide-react';
 import { useGameState } from '../hooks/useGameState';
 import { RoomView } from '../components/room/RoomView';
+import { ChamberCanvas } from '../components/3d/ChamberCanvas';
 import { InventoryHUD } from '../components/ui/InventoryHUD';
 import { TerminalModal } from '../components/ui/TerminalModal';
 import { FeedbackToast } from '../components/ui/FeedbackToast';
@@ -24,7 +27,11 @@ import {
 } from '../services/audio/sound';
 import './app.css';
 
-export const App: React.FC = () => {
+interface AppProps {
+  initialViewMode?: '3d' | 'schematic';
+}
+
+export const App: React.FC<AppProps> = ({ initialViewMode }) => {
   const {
     state,
     lastFeedback,
@@ -36,7 +43,12 @@ export const App: React.FC = () => {
     restartGame,
   } = useGameState();
 
+  const isWebGLAvailable =
+    typeof window !== 'undefined' && typeof window.WebGLRenderingContext !== 'undefined';
+  const defaultMode = initialViewMode ?? (isWebGLAvailable ? '3d' : 'schematic');
+
   const [muted, setMutedState] = useState(() => isMuted());
+  const [viewMode, setViewMode] = useState<'3d' | 'schematic'>(defaultMode);
 
   // Trigger reality shift audio cue when realityShiftCount increments
   useEffect(() => {
@@ -54,6 +66,26 @@ export const App: React.FC = () => {
   };
 
   const handleInteract = (objectId: string) => {
+    if (objectId === 'pedestal') {
+      const hasKey = state.inventory.some((i) => i.id === 'brass_key');
+      if (!hasKey) {
+        handleCollectKey();
+        return;
+      }
+    }
+
+    if (objectId === 'terminal') {
+      playKeystrokeSound();
+      activateTerminal(true);
+      return;
+    }
+
+    if (objectId === 'observation_slate') {
+      playKeystrokeSound();
+      inspectObject('observation_slate');
+      return;
+    }
+
     if (objectId === 'exit_door') {
       const isBrassRuleActive =
         state.rules['RULE_01']?.predicateKey === 'RULE_BRASS_KEY_ALLOWED';
@@ -127,6 +159,19 @@ export const App: React.FC = () => {
             <button
               type="button"
               className="btn-header-action"
+              onClick={() => {
+                playKeystrokeSound();
+                setViewMode((prev) => (prev === '3d' ? 'schematic' : '3d'));
+              }}
+              aria-label={viewMode === '3d' ? 'Switch to 2D Schematic' : 'Switch to 3D Chamber'}
+              title={viewMode === '3d' ? 'Switch to 2D Tactical Schematic' : 'Switch to 3D First-Person View'}
+            >
+              {viewMode === '3d' ? <Map size={14} /> : <Box size={14} />}
+              <span>{viewMode === '3d' ? '2D MAP' : '3D VIEW'}</span>
+            </button>
+            <button
+              type="button"
+              className="btn-header-action"
               onClick={handleToggleMute}
               aria-label={muted ? 'Unmute game audio' : 'Mute game audio'}
               title={muted ? 'Audio Muted' : 'Audio Enabled'}
@@ -158,17 +203,31 @@ export const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Central Interactive Chamber Scene */}
+        {/* Central Interactive Chamber Scene (3D First-Person or 2D Schematic) */}
         <section className="room-viewport-section">
-          <RoomView
-            state={state}
-            onInteract={handleInteract}
-            onInspect={(id) => {
-              playKeystrokeSound();
-              inspectObject(id);
-            }}
-            onCollectKey={handleCollectKey}
-          />
+          {viewMode === '3d' ? (
+            <ChamberCanvas
+              state={state}
+              onInteract={handleInteract}
+              onInspect={(id) => {
+                playKeystrokeSound();
+                inspectObject(id);
+              }}
+              onRestart={handleRestart}
+              muted={muted}
+              onToggleMute={handleToggleMute}
+            />
+          ) : (
+            <RoomView
+              state={state}
+              onInteract={handleInteract}
+              onInspect={(id) => {
+                playKeystrokeSound();
+                inspectObject(id);
+              }}
+              onCollectKey={handleCollectKey}
+            />
+          )}
         </section>
 
         {/* Footer HUD & Controls */}

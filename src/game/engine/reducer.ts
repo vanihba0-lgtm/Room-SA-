@@ -174,6 +174,34 @@ export function engineReducer(
         });
       }
 
+      if (objectId === 'power_regulator') {
+        const currentObj = state.objects.power_regulator;
+        const nextStateValue = currentObj?.state === 'transformed' ? 'default' : 'transformed';
+        const msg = nextStateValue === 'transformed'
+          ? 'You engaged the Substrate Power Regulator. Conduits flare electric blue; the circuit diagnostic confirms the logic terminal is directly modulating the blast door clamps.'
+          : 'You disengaged the Substrate Power Regulator. The conduits dim back to standby cyan.';
+        const evt = createEvent('MECHANISM_TOGGLED', msg);
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            objects: {
+              ...state.objects,
+              power_regulator: {
+                ...state.objects.power_regulator,
+                state: nextStateValue,
+                description: nextStateValue === 'transformed'
+                  ? 'A wall-mounted hydraulic breaker switch engaged. High-voltage conduits glow vibrant electric blue.'
+                  : 'A wall-mounted hydraulic breaker switch with glowing status conduits.',
+              },
+            },
+            eventLog: [...state.eventLog, evt],
+          },
+          emittedEvents: [evt],
+        };
+      }
+
       if (objectId === 'exit_door') {
         return engineReducer(state, { type: 'ATTEMPT_EXIT' });
       }

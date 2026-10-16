@@ -75,9 +75,44 @@
 
 ---
 
-## Milestone 3 — The Room Fights Back
+## Milestone 2.8 — 3D First-Person Vertical Slice (COMPLETED)
 
-**Target:** Multi-room expansion, contradictory world rules, and physical constraints.
+**Target:** First complete, playable 3D First-Person chamber using Three.js, React Three Fiber, Drei, and Rapier.
+
+### Features & Scope
+- **Genuine 3D Containment Chamber**:
+  - Real 12m x 12m architectural room with physical floor, ceiling, pillars, and wall bulkheads.
+  - Directional sunlight, ambient bounce lighting, and spotlights for high readability and bright sci-fi aesthetics.
+- **FPS Controller & Physics**:
+  - Smooth WASD movement, Sprint (`Shift`), and Jumping (`Space`).
+  - Mouse-look with pointer lock via `@react-three/drei` `PointerLockControls`.
+  - Pause & Controls guide modal with one-click pointer lock capture and `Escape` release.
+- **Interactive 3D Objects**:
+  - Specimen Pedestal with vertical light beam, glowing energy ring, and floating, rotating Brass Key #101.
+  - Monolithic Titanium Blast Door with hydraulic pistons and animated sliding door leaves.
+  - Wall-recessed Anomaly Logic Terminal with flickering CRT phosphor screen.
+  - Magnetic Observation Slate with illuminated handwritten lore.
+  - Substrate Power Regulator breaker switch with animated rotating lever and high-voltage conduits.
+- **Camera Raycast Reticle HUD**:
+  - Center crosshair dynamically expands when aiming at interactables within 3.8m.
+  - Action pills display `[E]` primary interaction and `[R]` inspection text.
+- **Engine Decoupling & View Toggle**:
+  - State and puzzle authority remain 100% in pure TypeScript engine.
+  - Seamless header toggle between `[3D VIEW]` and `[2D MAP]` (tactical blueprint schematic).
+
+### Acceptance Criteria
+- [x] Genuine 3D canvas with perspective projection and PBR materials.
+- [x] First-person WASD movement, sprint, jump, and pointer lock mouse look.
+- [x] Complete puzzle walkthrough in 3D: retrieve key -> toggle power -> rewrite rule at terminal -> escape through blast door.
+- [x] 37 automated tests passing across 6 test files.
+- [x] TypeScript strict typecheck (0 errors) and ESLint (0 errors).
+- [x] Production build passes cleanly with Vite.
+
+---
+
+## Milestone 3 — The Room Fights Back & Seeded Chambers
+
+**Target:** Replayable seeded puzzle generation, multi-room expansion, contradictory world rules, and physical constraints.
 
 ### Features & Scope
 - **Chamber 102 & 103**: Multiple interconnected chambers with persistent inventory.
