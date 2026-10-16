@@ -1,43 +1,43 @@
 :root {
   /* ==========================================
    * 1. Surface & Background Tokens
-   * Restrained, deep charcoal / slate / ink tones
+   * Phase 3 Palette: Rich cinematic sci-fi
    * ========================================== */
-  --color-bg-abyss: #07090e;
-  --color-bg-base: #0d1219;
-  --color-bg-surface: #131923;
-  --color-bg-surface-elevated: #1a2230;
-  --color-bg-surface-hover: #222c3e;
-  --color-bg-surface-active: #2a364c;
-  --color-bg-overlay: rgba(7, 9, 14, 0.78);
-  --color-bg-overlay-heavy: rgba(7, 9, 14, 0.92);
+  --color-bg-abyss: #0a0e17;
+  --color-bg-base: #101722;
+  --color-bg-surface: #182333;
+  --color-bg-surface-elevated: #223247;
+  --color-bg-surface-hover: #2c3e56;
+  --color-bg-surface-active: #374b68;
+  --color-bg-overlay: rgba(16, 23, 34, 0.85);
+  --color-bg-overlay-heavy: rgba(16, 23, 34, 0.95);
 
   /* ==========================================
    * 2. Border Tokens
    * Crisp, subtle framing without harsh neon
    * ========================================== */
-  --color-border-subtle: #1e2736;
-  --color-border-muted: #2d384c;
-  --color-border-strong: #40506b;
-  --color-border-focus: #38bdf8;
-  --color-border-accent: rgba(245, 158, 11, 0.4);
-  --color-border-cyan: rgba(56, 189, 248, 0.4);
+  --color-border-subtle: #223247;
+  --color-border-muted: #2f4460;
+  --color-border-strong: #455f82;
+  --color-border-focus: #52D9F2;
+  --color-border-accent: rgba(255, 196, 107, 0.45);
+  --color-border-cyan: rgba(82, 217, 242, 0.45);
 
   /* ==========================================
    * 3. Typography Tokens
-   * Friendly, rounded, highly readable sans-serif
-   * Restrained, clean technical monospace
+   * Primary: Inter for all essential player-facing text
+   * Monospace: JetBrains Mono for limited technical content
    * ========================================== */
-  --font-family-sans: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-family-display: var(--font-family-sans);
-  --font-family-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-family-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Typographic Scale */
-  --font-size-2xs: 0.7rem;     /* 11px */
-  --font-size-xs: 0.78rem;     /* 12.5px */
-  --font-size-sm: 0.88rem;     /* 14px */
-  --font-size-base: 1rem;       /* 16px */
-  --font-size-lg: 1.15rem;     /* 18px */
+  --font-size-2xs: 0.72rem;    /* 11.5px */
+  --font-size-xs: 0.8rem;      /* 13px */
+  --font-size-sm: 0.9rem;      /* 14.5px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-lg: 1.15rem;     /* 18.5px */
   --font-size-xl: 1.35rem;     /* 21.6px */
   --font-size-2xl: 1.7rem;     /* 27.2px */
   --font-size-3xl: 2.2rem;     /* 35px */
@@ -52,33 +52,32 @@
   --line-height-normal: 1.55;
   --line-height-relaxed: 1.7;
 
-  /* Text Colors */
-  --color-text-primary: #f1f5f9;       /* Crisp Warm White */
-  --color-text-secondary: #cbd5e1;     /* Soft Light Grey */
-  --color-text-muted: #8292a8;         /* Subdued Slate */
-  --color-text-disabled: #4b586d;      /* Inactive */
-  --color-text-accent: #f59e0b;        /* Warm Amber */
-  --color-text-cyan: #38bdf8;          /* Soft Sky Cyan */
+  /* Text Colors — Phase 3 Tokens */
+  --color-text-primary: #F4F7FC;       /* Primary text */
+  --color-text-secondary: #C0CBDA;     /* Secondary text */
+  --color-text-muted: #98A8BC;         /* Muted metadata */
+  --color-text-disabled: #55687d;      /* Inactive */
+  --color-text-accent: #FFC46B;        /* Clue amber */
+  --color-text-cyan: #52D9F2;          /* Interaction cyan */
 
   /* ==========================================
-   * 4. Accent & Semantic Tokens
-   * Gentle, readable accents (no eye-straining glow)
+   * 4. Accent & Semantic Tokens — Phase 3 Palette
    * ========================================== */
-  --color-amber-primary: #f59e0b;
-  --color-amber-hover: #d97706;
-  --color-amber-subtle: rgba(245, 158, 11, 0.12);
+  --color-amber-primary: #FFC46B;
+  --color-amber-hover: #e6b05e;
+  --color-amber-subtle: rgba(255, 196, 107, 0.15);
 
-  --color-cyan-primary: #38bdf8;
-  --color-cyan-hover: #0284c7;
-  --color-cyan-subtle: rgba(56, 189, 248, 0.12);
+  --color-cyan-primary: #52D9F2;
+  --color-cyan-hover: #3bc2db;
+  --color-cyan-subtle: rgba(82, 217, 242, 0.15);
 
-  --color-success: #10b981;
-  --color-success-hover: #059669;
-  --color-success-subtle: rgba(16, 185, 129, 0.12);
+  --color-success: #65E6B0;
+  --color-success-hover: #50cc98;
+  --color-success-subtle: rgba(101, 230, 176, 0.15);
 
-  --color-danger: #f43f5e;
-  --color-danger-hover: #e11d48;
-  --color-danger-subtle: rgba(244, 63, 94, 0.12);
+  --color-danger: #FF7F86;
+  --color-danger-hover: #e56b72;
+  --color-danger-subtle: rgba(255, 127, 134, 0.15);
 
   /* ==========================================
    * 5. Spacing Scale

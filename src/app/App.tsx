@@ -237,6 +237,8 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       objectId === 'plate_mass' ||
       objectId === 'plate_harmonic' ||
       objectId === 'c103_ballast' ||
+      objectId === 'c103_core' ||
+      objectId === 'c103_sensor' ||
       objectId === 'c104_dispenser' ||
       objectId.startsWith('c105_relay') ||
       objectId.startsWith('c106_console')
@@ -293,10 +295,14 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     state.status === 'escaped';
 
   return (
-    <main className="app-viewport">
-      {/* Ambient background grid & lighting */}
-      <div className="ambient-grid" aria-hidden="true" />
-      <div className="ambient-radial-glow" aria-hidden="true" />
+    <main className={`app-viewport ${phase === 'playing' ? 'is-playing' : ''}`}>
+      {/* Ambient background grid & lighting (hidden during gameplay) */}
+      {phase !== 'playing' && (
+        <>
+          <div className="ambient-grid" aria-hidden="true" />
+          <div className="ambient-radial-glow" aria-hidden="true" />
+        </>
+      )}
 
       {/* Screen A: Title Screen */}
       {phase === 'title' && (
@@ -333,7 +339,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
           )}
 
           {/* Main Game Interface Container */}
-          <div className="room-frame">
+          <div className={`room-frame ${viewMode === '3d' ? 'room-frame--fullscreen' : ''}`}>
             {/* Navigation & Status Header */}
             <header className="room-header">
               <div className="header-brand">
@@ -531,6 +537,11 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                   muted={muted}
                   onToggleMute={handleToggleMute}
                   isExternalModalOpen={isAnyModalOpen}
+                  onOpenHints={() => setIsHintModalOpen(true)}
+                  onOpenLogbook={() => setIsLogbookModalOpen(true)}
+                  onOpenSettings={() => setIsSettingsOpen(true)}
+                  onOpenChamberSelect={() => setIsChamberSelectOpen(true)}
+                  onReturnToMenu={() => setPhase('title')}
                 />
               ) : (
                 <RoomView

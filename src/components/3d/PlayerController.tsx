@@ -334,6 +334,13 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
       const c103 = state.chamber103;
       interactionObjects.push(
         {
+          id: 'c103_core',
+          name: 'Magnetic Aerogel Core',
+          actionText: c103?.surveyed ? 'Survey Active Core Telemetry' : 'Survey Archive Core Specimen',
+          inspectText: 'Inspect Aerogel Buoyancy Data',
+          pos: new Vector3(0, c103?.sensorActivated ? 3.5 : c103?.ballastInverted ? 2.0 : 0.8, 0),
+        },
+        {
           id: 'c103_ballast',
           name: 'Buoyancy Ballast Coil',
           actionText: c103?.ballastInverted ? 'Reset Gravity Ballast' : 'Invert Ballast Polarity [-9.81 m/s²]',
@@ -353,6 +360,15 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: 'Rewrite Rule #03 (Buoyant Elevation)',
           inspectText: 'Access Terminal Logic Matrix',
           pos: new Vector3(6.4, 1.6, 0),
+        },
+        {
+          id: 'c103_sensor',
+          name: 'Ceiling Optical Sensor Receiver',
+          actionText: c103?.sensorActivated
+            ? 'Optical Sensor [Signal Locked // Vault Unsealed]'
+            : 'Optical Sensor [Awaiting Elevated Core]',
+          inspectText: 'Inspect Photodiode Circuit',
+          pos: new Vector3(0, 4.4, 0),
         },
         {
           id: 'exit_door_103',

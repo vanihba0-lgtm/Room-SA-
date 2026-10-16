@@ -13,6 +13,11 @@ export interface ChamberObjective {
   readonly whyItMatters: string;
   readonly hints: readonly [string, string, string]; // [Nudge, Correlation, Solution]
   readonly isCompleted: (state: GameState) => boolean;
+  readonly what?: string;
+  readonly where?: string;
+  readonly how?: string;
+  readonly successCondition?: string;
+  readonly nextStep?: string;
 }
 
 export interface LogbookEntry {

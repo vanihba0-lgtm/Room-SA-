@@ -7,7 +7,14 @@ import {
   Compass,
   Eye,
   Hand,
+  Target,
+  HelpCircle,
+  BookOpen,
+  Settings,
+  Layers,
+  Home,
 } from 'lucide-react';
+import { ChamberObjective } from '../../game/progression/types';
 import './styles/pause.css';
 
 interface PauseControlsModalProps {
@@ -20,7 +27,25 @@ interface PauseControlsModalProps {
   isRuleDeceptive: boolean;
   hasKey: boolean;
   currentRoomId?: string;
+  activeObjective?: ChamberObjective | null;
+  onOpenHints?: () => void;
+  onOpenLogbook?: () => void;
+  onOpenSettings?: () => void;
+  onOpenChamberSelect?: () => void;
+  onReturnToMenu?: () => void;
 }
+
+const getChamberLabel = (roomId?: string): string => {
+  switch (roomId) {
+    case 'chamber_101': return 'CHAMBER 101 // THE OBVIOUS LIE';
+    case 'chamber_102': return 'CHAMBER 102 // THE SIGNAL FOUNDRY';
+    case 'chamber_103': return 'CHAMBER 103 // THE GRAVITY ARCHIVE';
+    case 'chamber_104': return 'CHAMBER 104 // THE ZERO-DAY VAULT';
+    case 'chamber_105': return 'CHAMBER 105 // THE CAUSALITY ENGINE';
+    case 'chamber_106': return 'CHAMBER 106 // THE RULE ENGINE';
+    default: return 'SIMULATION PAUSED';
+  }
+};
 
 export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
   isOpen,
@@ -32,6 +57,12 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
   isRuleDeceptive,
   hasKey,
   currentRoomId,
+  activeObjective,
+  onOpenHints,
+  onOpenLogbook,
+  onOpenSettings,
+  onOpenChamberSelect,
+  onReturnToMenu,
 }) => {
   if (!isOpen) return null;
 
@@ -41,9 +72,7 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
         {/* Header */}
         <div className="pause-card-header">
           <div className="pause-badge">
-            {currentRoomId === 'chamber_102'
-              ? 'CHAMBER 102 // SIMULATION PAUSED'
-              : 'CHAMBER 101 // SIMULATION PAUSED'}
+            {getChamberLabel(currentRoomId)}
           </div>
           <h2 className="pause-title">
             ROOM <span className="title-accent">S A</span>
@@ -51,7 +80,36 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
           <p className="pause-subtitle">THE ROOM LIES. EXPERIMENT TO ESCAPE.</p>
         </div>
 
-        {/* Current Objective & Status */}
+        {/* Current Objective Card */}
+        {activeObjective && (
+          <div className="pause-objective-card">
+            <div className="objective-card-header">
+              <Target size={14} className="objective-icon" />
+              <span className="objective-label">CURRENT OBJECTIVE</span>
+            </div>
+            <h3 className="objective-title">{activeObjective.title}</h3>
+            {activeObjective.what && (
+              <div className="objective-detail">
+                <span className="detail-key">WHAT:</span>
+                <span className="detail-value">{activeObjective.what}</span>
+              </div>
+            )}
+            {activeObjective.where && (
+              <div className="objective-detail">
+                <span className="detail-key">WHERE:</span>
+                <span className="detail-value">{activeObjective.where}</span>
+              </div>
+            )}
+            {activeObjective.how && (
+              <div className="objective-detail">
+                <span className="detail-key">HOW:</span>
+                <span className="detail-value">{activeObjective.how}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Status Banner */}
         <div className="pause-status-banner">
           <div className="status-item">
             <span className="status-label">GOVERNING LAW:</span>
@@ -81,6 +139,34 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
           <Play size={20} className="btn-icon" />
           <span>ENTER CHAMBER (CLICK TO LOCK MOUSE)</span>
         </button>
+
+        {/* Quick Actions Grid */}
+        <div className="pause-actions-grid">
+          {onOpenHints && (
+            <button type="button" className="btn-pause-action" onClick={() => { onResume(); setTimeout(() => onOpenHints(), 50); }}>
+              <HelpCircle size={16} />
+              <span>Hints</span>
+            </button>
+          )}
+          {onOpenLogbook && (
+            <button type="button" className="btn-pause-action" onClick={() => { onResume(); setTimeout(() => onOpenLogbook(), 50); }}>
+              <BookOpen size={16} />
+              <span>Logbook</span>
+            </button>
+          )}
+          {onOpenSettings && (
+            <button type="button" className="btn-pause-action" onClick={() => { onResume(); setTimeout(() => onOpenSettings(), 50); }}>
+              <Settings size={16} />
+              <span>Settings</span>
+            </button>
+          )}
+          {onOpenChamberSelect && (
+            <button type="button" className="btn-pause-action" onClick={() => { onResume(); setTimeout(() => onOpenChamberSelect(), 50); }}>
+              <Layers size={16} />
+              <span>Chambers</span>
+            </button>
+          )}
+        </div>
 
         {/* Complete Controls Guide */}
         <div className="controls-guide-grid">
@@ -148,14 +234,27 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
             <span>{muted ? 'SOUND: MUTED' : 'SOUND: ENABLED'}</span>
           </button>
 
-          <button
-            type="button"
-            className="btn-pause-secondary btn-restart"
-            onClick={onRestart}
-          >
-            <RotateCcw size={16} />
-            <span>RESTART CHAMBER</span>
-          </button>
+          <div className="pause-footer-right">
+            <button
+              type="button"
+              className="btn-pause-secondary btn-restart"
+              onClick={onRestart}
+            >
+              <RotateCcw size={16} />
+              <span>RESTART</span>
+            </button>
+
+            {onReturnToMenu && (
+              <button
+                type="button"
+                className="btn-pause-secondary btn-menu"
+                onClick={onReturnToMenu}
+              >
+                <Home size={16} />
+                <span>MENU</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

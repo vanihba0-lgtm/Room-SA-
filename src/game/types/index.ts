@@ -168,9 +168,12 @@ export interface Chamber102State {
 // ==========================================
 
 export interface Chamber103State {
+  readonly surveyed?: boolean;
   readonly logInspected: boolean;
+  readonly overrideInspected?: boolean;
   readonly ballastInverted: boolean;
   readonly ruleOverridden: boolean;
+  readonly sensorActivated?: boolean;
   readonly exitUnlocked: boolean;
 }
 

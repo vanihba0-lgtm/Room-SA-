@@ -1,16 +1,24 @@
+/* ===========================================================
+   App Viewport — Full-screen immersive game layout
+   =========================================================== */
+
 .app-viewport {
   min-height: 100vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-4);
   position: relative;
   background-color: var(--color-bg-abyss);
   overflow: hidden;
 }
 
-/* Ambient sci-fi background effects */
+/* When playing, viewport is edge-to-edge */
+.app-viewport.is-playing {
+  padding: 0;
+}
+
+/* Ambient sci-fi background effects (title/intro only) */
 .ambient-grid {
   position: absolute;
   inset: 0;
@@ -35,7 +43,10 @@
   opacity: 0.6;
 }
 
-/* Central Room Frame */
+/* ===========================================================
+   Game Frame — Full-screen during gameplay
+   =========================================================== */
+
 .room-frame {
   position: relative;
   z-index: var(--z-room-env);
@@ -52,7 +63,22 @@
   backdrop-filter: blur(12px);
 }
 
-/* Frame Accent Glow Bar */
+/* Full-screen game frame */
+.room-frame.room-frame--fullscreen {
+  position: fixed;
+  inset: 0;
+  max-width: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+  background-color: #000;
+  box-shadow: none;
+  backdrop-filter: none;
+  z-index: 1;
+}
+
+/* Frame Accent Glow Bar (only visible in windowed mode) */
 .room-frame::before {
   content: '';
   position: absolute;
@@ -68,8 +94,14 @@
   );
   opacity: 0.7;
 }
+.room-frame--fullscreen::before {
+  display: none;
+}
 
-/* Header */
+/* ===========================================================
+   Floating Header Overlay (during gameplay)
+   =========================================================== */
+
 .room-header {
   display: flex;
   align-items: center;
@@ -78,6 +110,23 @@
   border-bottom: 1px solid var(--color-border-subtle);
   gap: var(--space-3);
   flex-wrap: wrap;
+}
+
+/* In fullscreen mode, the header floats on top of the 3D canvas */
+.room-frame--fullscreen .room-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, rgba(10, 14, 23, 0.82) 0%, rgba(10, 14, 23, 0.5) 70%, transparent 100%);
+  border-bottom: none;
+  pointer-events: none;
+}
+
+.room-frame--fullscreen .room-header > * {
+  pointer-events: auto;
 }
 
 .header-brand {
@@ -199,13 +248,40 @@
   outline: none;
 }
 
-/* Viewport Section */
+/* ===========================================================
+   Viewport Section — fills remaining space in fullscreen
+   =========================================================== */
+
 .room-viewport-section {
   width: 100%;
 }
 
-/* Footer HUD Bar */
+.room-frame--fullscreen .room-viewport-section {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ===========================================================
+   Footer HUD Bar — floats at bottom in fullscreen
+   =========================================================== */
+
 .game-hud-bar {
   display: flex;
   flex-direction: column;
+}
+
+.room-frame--fullscreen .game-hud-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 8px 16px;
+  background: linear-gradient(0deg, rgba(10, 14, 23, 0.82) 0%, rgba(10, 14, 23, 0.5) 70%, transparent 100%);
+  pointer-events: none;
+}
+
+.room-frame--fullscreen .game-hud-bar > * {
+  pointer-events: auto;
 }

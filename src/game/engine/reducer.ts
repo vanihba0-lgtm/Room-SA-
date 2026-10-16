@@ -286,6 +286,28 @@ export function engineReducer(
       // ==========================================
       // Chamber 103: The Gravity Archive
       // ==========================================
+
+      // Survey: inspect the central core/cradle
+      if (objectId === 'c103_core') {
+        const nextInspected = state.inspectedObjectIds.includes('c103_core')
+          ? state.inspectedObjectIds
+          : [...state.inspectedObjectIds, 'c103_core'];
+        const msg = 'ARCHIVE CORE: Magnetic aerogel specimen suspended in cradle. Mass: 0.3kg. Buoyancy coefficient: 12.4. The specimen responds to gravitational polarity changes.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            inspectedObjectIds: nextInspected,
+            chamber103: {
+              ...(state.chamber103 ?? { logInspected: false, ballastInverted: false, ruleOverridden: false, exitUnlocked: false }),
+              surveyed: true,
+            },
+          },
+          emittedEvents: [createEvent('CORE_SURVEYED', msg)],
+        };
+      }
+
       if (objectId === 'c103_log') {
         const nextInspected = state.inspectedObjectIds.includes('c103_log')
           ? state.inspectedObjectIds
@@ -298,7 +320,8 @@ export function engineReducer(
             ...state,
             inspectedObjectIds: nextInspected,
             chamber103: {
-              ...(state.chamber103 ?? { ballastInverted: false, ruleOverridden: false, exitUnlocked: false }),
+              ...(state.chamber103 ?? { logInspected: false, ballastInverted: false, ruleOverridden: false, exitUnlocked: false }),
+              surveyed: true,
               logInspected: true,
             },
           },
@@ -310,9 +333,10 @@ export function engineReducer(
         const currentBallast = state.chamber103?.ballastInverted ?? false;
         const nextBallast = !currentBallast;
         const c103Rule = state.chamber103?.ruleOverridden ?? false;
-        const exitUnlocked = nextBallast && c103Rule;
+        const sensorActivated = nextBallast && c103Rule;
+        const exitUnlocked = sensorActivated;
         const msg = nextBallast
-          ? 'Ballast polarity inverted to -9.81 m/s². The aerogel core hovers 1 meter above the cradle.'
+          ? 'Ballast polarity inverted to -9.81 m/s². The aerogel core hovers above the cradle.'
           : 'Ballast polarity reset to standard gravity.';
         return {
           success: true,
@@ -320,9 +344,12 @@ export function engineReducer(
           nextState: {
             ...state,
             chamber103: {
+              surveyed: state.chamber103?.surveyed,
               logInspected: state.chamber103?.logInspected ?? false,
+              overrideInspected: state.chamber103?.overrideInspected,
               ballastInverted: nextBallast,
               ruleOverridden: c103Rule,
+              sensorActivated,
               exitUnlocked,
             },
           },
@@ -333,8 +360,11 @@ export function engineReducer(
       if (objectId === 'c103_terminal') {
         const ballastInverted = state.chamber103?.ballastInverted ?? false;
         const nextRuleOverridden = true;
-        const exitUnlocked = ballastInverted && nextRuleOverridden;
-        const msg = 'RULE_03 REWRITTEN: "Buoyant specimens elevate freely through gravitational fields." Archive Core ascended to ceiling sensor!';
+        const sensorActivated = ballastInverted && nextRuleOverridden;
+        const exitUnlocked = sensorActivated;
+        const msg = sensorActivated
+          ? 'RULE_03 REWRITTEN: "Buoyant specimens elevate freely through gravitational fields." Archive Core ascended to ceiling optical sensor! EXIT UNLOCKED.'
+          : 'RULE_03 REWRITTEN: "Buoyant specimens elevate freely." Mass override authorized. Invert the ballast polarity to elevate the core.';
         return {
           success: true,
           message: msg,
@@ -342,13 +372,29 @@ export function engineReducer(
             ...state,
             realityShiftCount: state.realityShiftCount + 1,
             chamber103: {
+              surveyed: state.chamber103?.surveyed,
               logInspected: state.chamber103?.logInspected ?? false,
+              overrideInspected: true,
               ballastInverted,
               ruleOverridden: nextRuleOverridden,
+              sensorActivated,
               exitUnlocked,
             },
           },
           emittedEvents: [createEvent('RULE_REWRITTEN', msg)],
+        };
+      }
+
+      if (objectId === 'c103_sensor') {
+        const sensorActive = Boolean(state.chamber103?.sensorActivated || (state.chamber103?.ballastInverted && state.chamber103?.ruleOverridden));
+        const msg = sensorActive
+          ? 'OPTICAL RECEIVER: Signal locked on elevated aerogel core. Photodiode array saturated at 98.4%. Sector 104 vault door unsealed.'
+          : 'OPTICAL RECEIVER: Photodiode array dormant. Requires elevated magnetic aerogel specimen to trigger optical handshake.';
+        return {
+          success: true,
+          message: msg,
+          nextState: state,
+          emittedEvents: [createEvent('SENSOR_INSPECTED', msg)],
         };
       }
 

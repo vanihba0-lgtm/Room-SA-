@@ -5,6 +5,7 @@ import { CrosshairHUD } from './CrosshairHUD';
 import { PauseControlsModal } from './PauseControlsModal';
 import { InteractionTargetInfo } from './PlayerController';
 import { GameState } from '../../game/types';
+import { getActiveObjective } from '../../game/progression/objectives';
 import './styles/chamber3d.css';
 
 interface ChamberCanvasProps {
@@ -15,6 +16,11 @@ interface ChamberCanvasProps {
   muted: boolean;
   onToggleMute: () => void;
   isExternalModalOpen?: boolean;
+  onOpenHints?: () => void;
+  onOpenLogbook?: () => void;
+  onOpenSettings?: () => void;
+  onOpenChamberSelect?: () => void;
+  onReturnToMenu?: () => void;
 }
 
 export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
@@ -25,6 +31,11 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   muted,
   onToggleMute,
   isExternalModalOpen = false,
+  onOpenHints,
+  onOpenLogbook,
+  onOpenSettings,
+  onOpenChamberSelect,
+  onReturnToMenu,
 }) => {
   const [isLocked, setIsLocked] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
@@ -32,6 +43,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
 
   const activeRule = state.rules['RULE_01'];
   const hasBrassKey = state.inventory.some((item) => item.id === 'brass_key');
+  const activeObjective = getActiveObjective(state);
 
   const handleLockChange = (locked: boolean) => {
     setIsLocked(locked);
@@ -87,7 +99,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
       {/* Crosshair & Contextual Target Prompts */}
       <CrosshairHUD target={hoverTarget} isLocked={isLocked && !isPaused && !isExternalModalOpen} />
 
-      {/* Pause / Controls Guide Modal */}
+      {/* Full Pause Menu */}
       <PauseControlsModal
         isOpen={isPaused && !state.terminalOpen && state.status !== 'escaped' && !isExternalModalOpen}
         onResume={handleResume}
@@ -98,6 +110,12 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
         isRuleDeceptive={activeRule?.isDeceptive ?? false}
         hasKey={hasBrassKey}
         currentRoomId={state.currentRoomId}
+        activeObjective={activeObjective}
+        onOpenHints={onOpenHints}
+        onOpenLogbook={onOpenLogbook}
+        onOpenSettings={onOpenSettings}
+        onOpenChamberSelect={onOpenChamberSelect}
+        onReturnToMenu={onReturnToMenu}
       />
     </div>
   );
