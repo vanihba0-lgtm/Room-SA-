@@ -178,6 +178,7 @@ export interface Chamber103State {
 }
 
 export interface Chamber104State {
+  readonly vaultInspected?: boolean;
   readonly telemetryAudited: boolean;
   readonly hasGuestToken: boolean;
   readonly checksumMatched: boolean;

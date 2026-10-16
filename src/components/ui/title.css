@@ -180,40 +180,59 @@
 /* Contextual Tutorial Overlay Banner */
 .tutorial-banner {
   position: absolute;
-  top: 72px;
+  top: 68px;
   right: 20px;
-  max-width: 320px;
-  background: var(--color-bg-surface-elevated);
-  border: 1px solid var(--color-cyan-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  box-shadow: var(--shadow-md);
-  z-index: var(--z-tutorial);
-  animation: fadeInDown 0.3s ease-out;
+  max-width: 280px;
+  background: rgba(24, 35, 51, 0.92);
+  border: 1px solid rgba(82, 217, 242, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  z-index: var(--z-tutorial, 90);
+  animation: fadeInDown 0.25s ease-out;
+  pointer-events: auto;
+}
+
+.tutorial-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
 }
 
 .tutorial-step-label {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-2xs);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-cyan-primary);
-  margin-bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  color: #52D9F2;
+  letter-spacing: 0.06em;
+}
+
+.tutorial-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.tutorial-close-btn:hover {
+  color: #F4F7FC;
 }
 
 .tutorial-instruction {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  line-height: var(--line-height-normal);
-}
-
-.tutorial-skip-btn {
-  background: transparent;
-  border: none;
-  font-size: var(--font-size-2xs);
-  color: var(--color-text-muted);
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 4px 0 0;
-  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #F4F7FC;
+  line-height: 1.35;
+  margin: 0;
 }

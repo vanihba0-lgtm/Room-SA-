@@ -390,23 +390,35 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
         },
         {
           id: 'c104_dispenser',
-          name: 'Guest Token Dispenser',
-          actionText: c104?.hasGuestToken ? 'Examine Card Dispenser' : 'Dispense Guest Token #404',
-          inspectText: 'Inspect Card Dispensing Tray',
+          name: 'Emergency Guest Token Dispenser',
+          actionText: c104?.hasGuestToken
+            ? 'Examine Dispenser Tray [Token Issued]'
+            : c104?.telemetryAudited
+            ? 'Dispense Guest Token #404'
+            : 'Dispenser Unit [Audit Required]',
+          inspectText: 'Inspect Emergency Release Lever',
           pos: new Vector3(6.4, 1.6, 0),
         },
         {
           id: 'c104_crypto',
           name: 'Cryptographic Parity Console',
-          actionText: c104?.checksumMatched ? 'Parity Aligned (Root Elevated)' : 'Inject Parity Checksum 0x404',
+          actionText: c104?.checksumMatched
+            ? 'Parity Aligned [0x404 Verified]'
+            : c104?.hasGuestToken
+            ? 'Inject Token #404 & Align Parity'
+            : 'Parity Console [Insert Token #404]',
           inspectText: 'Inspect Checksum Verification Laser',
           pos: new Vector3(0, 1.2, 0),
         },
         {
           id: 'exit_door_104',
           name: 'Cryptographic Vault Blast Door',
-          actionText: c104?.exitUnlocked ? 'Advance to Sector 105' : 'Operate Vault Door [Root Locked]',
-          inspectText: 'Inspect Vault Deadbolts',
+          actionText: c104?.exitUnlocked
+            ? 'Advance to Sector 105'
+            : c104?.checksumMatched
+            ? 'Authorize & Open Vault Door'
+            : 'Audit Vault Door [Root-4 Locked]',
+          inspectText: 'Inspect Heavy Hydraulic Deadbolts',
           pos: new Vector3(0, 2.0, -6.5),
         }
       );

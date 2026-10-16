@@ -119,6 +119,48 @@ export function engineReducer(
           inspectText =
             'Engraved plaque: "ONLY COPPER OPERATES THIS MECHANISM". An electronic lock slot sits cold and dark.';
         }
+      } else if (objectId === 'c104_monitor') {
+        const msg = 'SECURITY AUDIT: Access control policy #04 enforces Root-4 credentials that expired 800 cycles ago. Emergency Protocol #404 allows guest tokens with parity 0x404 to elevate.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            inspectedObjectIds: state.inspectedObjectIds.includes('c104_monitor')
+              ? state.inspectedObjectIds
+              : [...state.inspectedObjectIds, 'c104_monitor'],
+            chamber104: {
+              vaultInspected: true,
+              hasGuestToken: state.chamber104?.hasGuestToken ?? false,
+              checksumMatched: state.chamber104?.checksumMatched ?? false,
+              exitUnlocked: state.chamber104?.exitUnlocked ?? false,
+              telemetryAudited: true,
+            },
+          },
+          emittedEvents: [createEvent('LOG_INSPECTED', msg)],
+        };
+      } else if (objectId === 'exit_door_104') {
+        const c104 = state.chamber104;
+        const msg = c104?.exitUnlocked
+          ? 'The cryptographic vault door is unsealed. Corridor to Chamber 105 is open.'
+          : c104?.checksumMatched
+          ? 'Dual hydraulic deadbolts ready to disengage. Press E to authorize unlock.'
+          : 'Heavy blast door locked by Root-4 clearance. Level-4 root credentials expired 800 cycles ago.';
+        return {
+          success: true,
+          message: msg,
+          nextState: {
+            ...state,
+            inspectedObjectIds: state.inspectedObjectIds.includes('exit_door_104')
+              ? state.inspectedObjectIds
+              : [...state.inspectedObjectIds, 'exit_door_104'],
+            chamber104: {
+              ...(state.chamber104 ?? { telemetryAudited: false, hasGuestToken: false, checksumMatched: false, exitUnlocked: false }),
+              vaultInspected: true,
+            },
+          },
+          emittedEvents: [createEvent('INSPECT', msg)],
+        };
       } else if (obj) {
         inspectText = obj.inspectText;
       }
@@ -406,14 +448,17 @@ export function engineReducer(
       // Chamber 104: The Zero-Day Vault
       // ==========================================
       if (objectId === 'c104_monitor') {
-        const msg = 'SECURITY AUDIT: "Rule #04 requires Root-4 clearance. However, tokens expired 800 cycles ago. Protocol #404 allows guest tokens with parity 0x404 to elevate."';
+        const msg = 'SECURITY AUDIT: Access control policy #04 enforces Root-4 credentials that expired 800 cycles ago. Emergency Protocol #404 allows guest tokens with parity 0x404 to elevate.';
         return {
           success: true,
           message: msg,
           nextState: {
             ...state,
             chamber104: {
-              ...(state.chamber104 ?? { hasGuestToken: false, checksumMatched: false, exitUnlocked: false }),
+              vaultInspected: true,
+              hasGuestToken: state.chamber104?.hasGuestToken ?? false,
+              checksumMatched: state.chamber104?.checksumMatched ?? false,
+              exitUnlocked: state.chamber104?.exitUnlocked ?? false,
               telemetryAudited: true,
             },
           },
@@ -422,23 +467,35 @@ export function engineReducer(
       }
 
       if (objectId === 'c104_dispenser') {
-        const msg = 'Dispensed Guest Security Token #404 with parity header.';
+        const hasToken = state.inventory.some((i) => i.id === 'guest_token');
+        if (hasToken) {
+          return {
+            success: true,
+            message: 'DISPENSER: Emergency Guest Token #404 has already been issued to your inventory.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+
+        const msg = 'Dispensed Guest Security Token #404 with parity header 0x404 into inventory.';
         const guestItem = {
           id: 'guest_token',
           name: 'Guest Security Token #404',
           description: 'Emergency security card with cryptographic parity header 0x404.',
           category: 'key' as const,
         };
-        const hasToken = state.inventory.some((i) => i.id === 'guest_token');
-        const nextInv = hasToken ? state.inventory : [...state.inventory, guestItem];
+
         return {
           success: true,
           message: msg,
           nextState: {
             ...state,
-            inventory: nextInv,
+            inventory: [...state.inventory, guestItem],
             chamber104: {
-              ...(state.chamber104 ?? { telemetryAudited: false, checksumMatched: false, exitUnlocked: false }),
+              vaultInspected: state.chamber104?.vaultInspected ?? true,
+              telemetryAudited: state.chamber104?.telemetryAudited ?? true,
+              checksumMatched: state.chamber104?.checksumMatched ?? false,
+              exitUnlocked: state.chamber104?.exitUnlocked ?? false,
               hasGuestToken: true,
             },
           },
@@ -447,8 +504,20 @@ export function engineReducer(
       }
 
       if (objectId === 'c104_crypto') {
-        const audited = state.chamber104?.telemetryAudited ?? false;
-        const msg = 'PARITY VERIFIED: Parity checksum 0x404 matched. RULE_04 Overridden: Guest tokens granted root elevation. Vault locks retracted!';
+        const hasToken =
+          state.inventory.some((i) => i.id === 'guest_token') ||
+          Boolean(state.chamber104?.hasGuestToken);
+        if (!hasToken) {
+          return {
+            success: false,
+            message: 'CONSOLE REJECTED: Insert valid Guest Token #404 to align parity.',
+            nextState: state,
+            emittedEvents: [],
+          };
+        }
+
+        const msg =
+          'PARITY VERIFIED: Parity checksum 0x404 matched. RULE_04 Overridden: Guest tokens granted root elevation. Vault locks retracted!';
         return {
           success: true,
           message: msg,
@@ -456,17 +525,48 @@ export function engineReducer(
             ...state,
             realityShiftCount: state.realityShiftCount + 1,
             chamber104: {
-              telemetryAudited: audited,
+              vaultInspected: true,
+              telemetryAudited: true,
               hasGuestToken: true,
               checksumMatched: true,
               exitUnlocked: true,
             },
           },
-          emittedEvents: [createEvent('VAULT_UNLOCKED', msg)],
+          emittedEvents: [
+            createEvent('PARITY_ALIGNED', msg),
+            createEvent('VAULT_UNLOCKED', msg),
+          ],
         };
       }
 
       if (objectId === 'exit_door_104') {
+        const c104 = state.chamber104;
+        if (!c104?.exitUnlocked) {
+          const failMsg = !c104?.hasGuestToken
+            ? 'VAULT SEALED: Emergency Token #404 required. Dispense token from east wall unit.'
+            : !c104?.checksumMatched
+            ? 'VAULT SEALED: Verify parity checksum 0x404 at central console before authorizing access.'
+            : 'VAULT SEALED: Root-4 clearance expired. Audit access control telemetry on the west wall monitor.';
+          return {
+            success: false,
+            message: failMsg,
+            nextState: {
+              ...state,
+              chamber104: {
+                ...(state.chamber104 ?? {
+                  telemetryAudited: false,
+                  hasGuestToken: false,
+                  checksumMatched: false,
+                  exitUnlocked: false,
+                }),
+                vaultInspected: true,
+              },
+            },
+            emittedEvents: [],
+          };
+        }
+
+        // Unlocked: step through to Chamber 105!
         return engineReducer(state, { type: 'ATTEMPT_EXIT' });
       }
 
@@ -958,13 +1058,32 @@ export function engineReducer(
 
     case 'TRANSITION_ROOM': {
       const { targetRoomId } = action.payload;
-      const evt = createEvent('ROOM_TRANSITION', `Subject navigated to ${targetRoomId}.`);
+      const chamberNames: Record<string, string> = {
+        chamber_101: 'Chamber 101: The Obvious Lie',
+        chamber_102: 'Chamber 102: The Signal Foundry',
+        chamber_103: 'Chamber 103: The Gravity Archive',
+        chamber_104: 'Chamber 104: The Zero-Day Vault',
+        chamber_105: 'Chamber 105: The Causality Engine',
+        chamber_106: 'Chamber 106: The Rule Engine',
+      };
+      const roomTitle = chamberNames[targetRoomId] ?? targetRoomId;
+      const evt = createEvent('ROOM_TRANSITION', `Subject navigated to ${roomTitle}.`);
+
+      const nextInventory = state.inventory.filter((item) => {
+        if (item.id === 'brass_key') return targetRoomId === 'chamber_101';
+        if (item.id === 'guest_token') return targetRoomId === 'chamber_104' && Boolean(state.chamber104?.hasGuestToken);
+        if (item.id === 'core_heavy' || item.id === 'core_resonance') return targetRoomId === 'chamber_102';
+        return true;
+      });
+
       return {
         success: true,
-        message: `Entered ${targetRoomId === 'chamber_102' ? 'Chamber 102: The Signal Foundry' : 'Chamber 101'}.`,
+        message: `Entered ${roomTitle}.`,
         nextState: {
           ...state,
           currentRoomId: targetRoomId,
+          inventory: nextInventory,
+          carriedObjectId: targetRoomId === 'chamber_102' ? state.carriedObjectId : null,
           eventLog: [...state.eventLog, evt],
         },
         emittedEvents: [evt],
@@ -973,13 +1092,32 @@ export function engineReducer(
 
     case 'SELECT_CHAMBER': {
       const { chamberId } = action.payload;
-      const evt = createEvent('CHAMBER_SELECTED', `Navigation routed to ${chamberId}.`);
+      const chamberNames: Record<string, string> = {
+        chamber_101: 'Chamber 101: The Obvious Lie',
+        chamber_102: 'Chamber 102: The Signal Foundry',
+        chamber_103: 'Chamber 103: The Gravity Archive',
+        chamber_104: 'Chamber 104: The Zero-Day Vault',
+        chamber_105: 'Chamber 105: The Causality Engine',
+        chamber_106: 'Chamber 106: The Rule Engine',
+      };
+      const roomTitle = chamberNames[chamberId] ?? chamberId;
+      const evt = createEvent('CHAMBER_SELECTED', `Navigation routed to ${roomTitle}.`);
+
+      const nextInventory = state.inventory.filter((item) => {
+        if (item.id === 'brass_key') return chamberId === 'chamber_101';
+        if (item.id === 'guest_token') return chamberId === 'chamber_104' && Boolean(state.chamber104?.hasGuestToken);
+        if (item.id === 'core_heavy' || item.id === 'core_resonance') return chamberId === 'chamber_102';
+        return true;
+      });
+
       return {
         success: true,
-        message: `Routed to ${chamberId}.`,
+        message: `Navigated to ${roomTitle}.`,
         nextState: {
           ...state,
           currentRoomId: chamberId,
+          inventory: nextInventory,
+          carriedObjectId: chamberId === 'chamber_102' ? state.carriedObjectId : null,
           eventLog: [...state.eventLog, evt],
         },
         emittedEvents: [evt],

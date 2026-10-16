@@ -121,12 +121,44 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
               "{ruleStatement}"
             </span>
           </div>
-          <div className="status-item">
-            <span className="status-label">KEY STATUS:</span>
-            <span className="status-value">
-              {hasKey ? 'Machined Brass Key #101 Acquired' : 'Resting on Specimen Pedestal'}
-            </span>
-          </div>
+          {(!currentRoomId || currentRoomId === 'chamber_101') && (
+            <div className="status-item">
+              <span className="status-label">KEY STATUS:</span>
+              <span className="status-value">
+                {hasKey ? 'Machined Brass Key #101 Acquired' : 'Resting on Specimen Pedestal'}
+              </span>
+            </div>
+          )}
+          {currentRoomId === 'chamber_102' && (
+            <div className="status-item">
+              <span className="status-label">FOUNDRY SYSTEM:</span>
+              <span className="status-value">Substrate Circuit & Resonance Plates</span>
+            </div>
+          )}
+          {currentRoomId === 'chamber_103' && (
+            <div className="status-item">
+              <span className="status-label">GRAVITY ANCHOR:</span>
+              <span className="status-value">Magnetic Aerogel Ballast Mechanism</span>
+            </div>
+          )}
+          {currentRoomId === 'chamber_104' && (
+            <div className="status-item">
+              <span className="status-label">SECURITY PROTOCOL:</span>
+              <span className="status-value">Root-4 Parity Interlocks & Token Vault</span>
+            </div>
+          )}
+          {currentRoomId === 'chamber_105' && (
+            <div className="status-item">
+              <span className="status-label">TEMPORAL RELAY:</span>
+              <span className="status-value">Causal Chronometer Calibration</span>
+            </div>
+          )}
+          {currentRoomId === 'chamber_106' && (
+            <div className="status-item">
+              <span className="status-label">ENGINE ARCHITECTURE:</span>
+              <span className="status-value">Rule Compiler & Ontological Core</span>
+            </div>
+          )}
         </div>
 
         {/* Primary Click to Play / Resume Button */}

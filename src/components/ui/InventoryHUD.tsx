@@ -1,5 +1,5 @@
-import React from 'react';
-import { KeyRound, Box } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { KeyRound, ChevronUp, ChevronDown, Package } from 'lucide-react';
 import { InventoryItem } from '../../game/types';
 import './inventory.css';
 
@@ -14,50 +14,90 @@ export const InventoryHUD: React.FC<InventoryHUDProps> = ({
   items,
   onInspectItem,
 }) => {
-  const slots = Array.from({ length: TOTAL_SLOTS }, (_, index) => items[index] ?? null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Toggle inventory on 'I' key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'KeyI' && !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        setIsExpanded((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
-    <section className="inventory-hud" aria-label="Player Inventory">
-      <div className="inventory-header">
-        <span className="inventory-label">INVENTORY</span>
-        <span className="inventory-count">
-          {items.length}/{TOTAL_SLOTS}
-        </span>
+    <section
+      className={`inventory-hud ${isExpanded ? 'is-expanded' : 'is-compact'}`}
+      aria-label="Player Inventory"
+    >
+      {/* Compact strip bar */}
+      <div className="inventory-bar">
+        <button
+          type="button"
+          className="inventory-summary-btn"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          aria-label={isExpanded ? 'Collapse inventory panel' : 'Expand inventory panel'}
+        >
+          <Package size={14} className="inventory-summary-icon" />
+          <span className="inventory-label">INVENTORY</span>
+          <span className="inventory-count">
+            {items.length}/{TOTAL_SLOTS}
+          </span>
+          {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+        </button>
+
+        {/* Quick-access item chips in compact mode */}
+        <div className="inventory-chips">
+          {items.length === 0 ? (
+            <span className="inventory-empty-hint">Empty [Press I to view]</span>
+          ) : (
+            items.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="inventory-item-chip"
+                onClick={() => onInspectItem?.(item)}
+                aria-label={`Inspect ${item.name}: ${item.description}`}
+                title={`Click to inspect ${item.name}`}
+              >
+                <KeyRound size={13} className="item-chip-icon" />
+                <span className="item-chip-name">{item.name}</span>
+              </button>
+            ))
+          )}
+        </div>
       </div>
 
-      <div className="inventory-slots">
-        {slots.map((item, idx) => (
-          <div
-            key={item ? item.id : `empty_slot_${idx}`}
-            className={`inventory-slot ${item ? 'slot-occupied' : 'slot-empty'}`}
-            role={item ? 'button' : undefined}
-            tabIndex={item ? 0 : -1}
-            aria-label={item ? `${item.name}: ${item.description}` : 'Empty inventory slot'}
-            onClick={() => item && onInspectItem?.(item)}
-            onKeyDown={(e) => {
-              if (item && (e.key === 'Enter' || e.key === ' ')) {
-                e.preventDefault();
-                onInspectItem?.(item);
-              }
-            }}
-          >
-            {item ? (
-              <div className="slot-item-content">
-                <div className="item-icon-wrapper">
-                  <KeyRound size={20} className="item-icon" />
-                </div>
-                <span className="item-name">{item.name}</span>
-                <span className="item-category-tag">{item.category}</span>
+      {/* Expanded detailed drawer */}
+      {isExpanded && items.length > 0 && (
+        <div className="inventory-drawer">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="inventory-drawer-card"
+              role="button"
+              tabIndex={0}
+              onClick={() => onInspectItem?.(item)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onInspectItem?.(item);
+                }
+              }}
+            >
+              <div className="drawer-card-header">
+                <KeyRound size={16} className="item-chip-icon" />
+                <span className="drawer-item-title">{item.name}</span>
+                <span className="drawer-item-tag">{item.category}</span>
               </div>
-            ) : (
-              <div className="slot-empty-content">
-                <Box size={16} className="empty-slot-icon" />
-                <span className="empty-text">EMPTY</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+              <p className="drawer-item-desc">{item.description}</p>
+              <span className="drawer-inspect-prompt">Click to inspect</span>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };

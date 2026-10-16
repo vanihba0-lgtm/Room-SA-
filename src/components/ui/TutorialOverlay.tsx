@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass } from 'lucide-react';
+import { Compass, X } from 'lucide-react';
 import { GameState } from '../../game/types';
 import { soundManager } from '../../services/audio/soundManager';
 import './title.css';
@@ -44,7 +44,6 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       setStep(5);
     }
     if (step === 5 && !state.exit.isLocked) {
-      // Completed tutorial
       onDismiss();
     }
   }, [step, hasMoved, state.inspectedObjectIds, state.inventory, state.rules, state.exit.isLocked, onDismiss]);
@@ -54,15 +53,15 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
   const renderInstruction = () => {
     switch (step) {
       case 1:
-        return 'Movement: Use [W, A, S, D] or Arrow Keys to move. Hold [Shift] to sprint.';
+        return 'WASD / Arrows to move. Shift to sprint.';
       case 2:
-        return 'Observation: Look at the wall slate and press [R] to inspect handwritten evidence.';
+        return 'Approach wall slate & press R to inspect.';
       case 3:
-        return 'Collection: Approach the central pedestal and press [E] to collect Brass Key #101.';
+        return 'Approach pedestal & press E to collect key.';
       case 4:
-        return 'Rule Override: Approach the terminal on the right wall and rewrite Rule #01.';
+        return 'Approach terminal & rewrite Rule #01.';
       case 5:
-        return 'Escape: Walk to the blast door and press [E] with your key to unlock the exit.';
+        return 'Walk to blast door & press E to unlock.';
       default:
         return 'Investigate the room and escape.';
     }
@@ -70,21 +69,24 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
 
   return (
     <div className="tutorial-banner" role="complementary" aria-label="Training Guide">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-        <div className="tutorial-step-label">TRAINING GUIDE // STEP {step} OF 5</div>
-        <Compass size={13} color="var(--color-cyan-primary)" />
+      <div className="tutorial-header">
+        <div className="tutorial-step-label">
+          <Compass size={12} color="#52D9F2" />
+          <span>GUIDE // STEP {step}/5</span>
+        </div>
+        <button
+          type="button"
+          className="tutorial-close-btn"
+          onClick={() => {
+            soundManager.playKeystroke();
+            onDismiss();
+          }}
+          aria-label="Dismiss training guide"
+        >
+          <X size={12} />
+        </button>
       </div>
       <p className="tutorial-instruction">{renderInstruction()}</p>
-      <button
-        type="button"
-        className="tutorial-skip-btn"
-        onClick={() => {
-          soundManager.playKeystroke();
-          onDismiss();
-        }}
-      >
-        Dismiss training guide
-      </button>
     </div>
   );
 };

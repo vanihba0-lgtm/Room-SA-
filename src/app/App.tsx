@@ -39,11 +39,13 @@ import {
   playKeystrokeSound,
 } from '../services/audio/sound';
 import { soundManager } from '../services/audio/soundManager';
+import { notificationManager } from '../services/notifications/notificationManager';
 import {
   loadCampaignSave,
   markChamberCompleted,
   hasCompletedIntro,
   markIntroCompleted,
+  recordLogDiscovered,
 } from '../game/progression/campaign';
 import { getActiveObjective } from '../game/progression/objectives';
 import { CampaignSaveData } from '../game/progression/types';
@@ -124,6 +126,46 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     }
   }, [state.currentRoomId, state.status]);
 
+  // Synchronize active chamber with window.location.hash on mount and hashchange
+  useEffect(() => {
+    const validChambers = [
+      'chamber_101',
+      'chamber_102',
+      'chamber_103',
+      'chamber_104',
+      'chamber_105',
+      'chamber_106',
+    ];
+
+    const syncFromHash = () => {
+      if (typeof window === 'undefined') return;
+      const hash = window.location.hash.replace(/^#/, '');
+      if (validChambers.includes(hash)) {
+        if (state.currentRoomId !== hash) {
+          selectChamber(hash);
+        }
+        setPhase('playing');
+        notificationManager.clear();
+      }
+    };
+
+    syncFromHash();
+
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
+  }, []);
+
+  // Update hash when currentRoomId changes in playing mode
+  useEffect(() => {
+    if (phase === 'playing' && typeof window !== 'undefined') {
+      const currentHash = window.location.hash.replace(/^#/, '');
+      if (currentHash !== state.currentRoomId) {
+        window.location.hash = state.currentRoomId;
+      }
+      notificationManager.clear();
+    }
+  }, [state.currentRoomId, phase]);
+
   // Handle ambient drone audio according to active phase
   useEffect(() => {
     if (phase === 'playing') {
@@ -163,6 +205,23 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     }
   };
 
+  const handleInspect = (id: string) => {
+    playKeystrokeSound();
+    inspectObject(id);
+
+    let logId: string | null = null;
+    if (id === 'observation_slate') logId = 'log_c101_scratches';
+    else if (id === 'diagnostic_slate_102') logId = 'log_c102_advisory';
+    else if (id === 'c103_log') logId = 'log_c103_clue';
+    else if (id === 'c104_monitor') logId = 'log_c104_security';
+    else if (id === 'c104_crypto') logId = 'log_c104_investigator';
+    else if (id === 'c105_chronometer') logId = 'log_c105_chronometer';
+
+    if (logId) {
+      setCampaignSave((prev) => recordLogDiscovered(prev, logId!));
+    }
+  };
+
   const handleInteract = (objectId: string) => {
     // 1. Chamber 101 Pedestal Key
     if (objectId === 'pedestal') {
@@ -173,11 +232,9 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       }
     }
 
-    // 2. Terminals
+    // 2. Anomaly Rule Terminal
     if (
       objectId === 'terminal' ||
-      objectId === 'c103_terminal' ||
-      objectId === 'c104_crypto' ||
       objectId === 'c105_terminal' ||
       objectId === 'c106_master_terminal'
     ) {
@@ -195,8 +252,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       objectId === 'c105_chronometer' ||
       objectId === 'c106_prime_axiom'
     ) {
-      playKeystrokeSound();
-      inspectObject(objectId);
+      handleInspect(objectId);
       return;
     }
 
@@ -240,6 +296,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       objectId === 'c103_core' ||
       objectId === 'c103_sensor' ||
       objectId === 'c104_dispenser' ||
+      objectId === 'c104_crypto' ||
       objectId.startsWith('c105_relay') ||
       objectId.startsWith('c106_console')
     ) {
@@ -258,10 +315,12 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
 
   const handleRestart = () => {
     playKeystrokeSound();
+    notificationManager.clear();
     restartGame();
   };
 
   const handleStartNewGame = () => {
+    notificationManager.clear();
     restartGame();
     if (!hasCompletedIntro()) {
       setPhase('intro');
@@ -271,16 +330,19 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
   };
 
   const handleContinueGame = () => {
+    notificationManager.clear();
     setPhase('playing');
   };
 
   const handleIntroComplete = () => {
+    notificationManager.clear();
     markIntroCompleted();
     setCampaignSave(loadCampaignSave());
     setPhase('playing');
   };
 
   const handleSelectChamber = (chamberId: string) => {
+    notificationManager.clear();
     selectChamber(chamberId);
     setPhase('playing');
   };
@@ -334,7 +396,11 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
             <TutorialOverlay
               state={state}
               isActive={showTutorial}
-              onDismiss={() => setShowTutorial(false)}
+              onDismiss={() => {
+                setShowTutorial(false);
+                markIntroCompleted();
+                setCampaignSave(loadCampaignSave());
+              }}
             />
           )}
 
@@ -369,7 +435,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                     <AlertTriangle size={14} className="pill-icon-warn" />
                   )}
                   <span className="pill-text">
-                    {`CIRCUIT: [ CHAN ${state.chamber102.circuit.routingChannel} @ ${state.chamber102.circuit.selectedFrequency} kHz ]`}
+                    {`CIRCUIT: CHAN ${state.chamber102.circuit.routingChannel} @ ${state.chamber102.circuit.selectedFrequency} kHz`}
                   </span>
                 </div>
               ) : (
@@ -383,6 +449,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                     activateTerminal(true);
                   }}
                   aria-label={`Active Rule: "${activeRule?.statement ?? ''}". Click to open terminal.`}
+                  title={`Active Rule: "${activeRule?.statement ?? ''}". Click to inspect in terminal.`}
                 >
                   {isRuleDeceptive ? (
                     <AlertTriangle size={14} className="pill-icon-warn" />
@@ -529,10 +596,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                 <ChamberCanvas
                   state={state}
                   onInteract={handleInteract}
-                  onInspect={(id) => {
-                    playKeystrokeSound();
-                    inspectObject(id);
-                  }}
+                  onInspect={handleInspect}
                   onRestart={handleRestart}
                   muted={muted}
                   onToggleMute={handleToggleMute}
@@ -547,10 +611,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                 <RoomView
                   state={state}
                   onInteract={handleInteract}
-                  onInspect={(id) => {
-                    playKeystrokeSound();
-                    inspectObject(id);
-                  }}
+                  onInspect={handleInspect}
                   onCollectKey={handleCollectKey}
                 />
               )}
@@ -560,10 +621,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
             <footer className="game-hud-bar">
               <InventoryHUD
                 items={state.inventory}
-                onInspectItem={(item) => {
-                  playKeystrokeSound();
-                  inspectObject(item.id === 'brass_key' ? 'pedestal' : item.id);
-                }}
+                onInspectItem={(item) => handleInspect(item.id === 'brass_key' ? 'pedestal' : item.id)}
               />
             </footer>
           </div>
