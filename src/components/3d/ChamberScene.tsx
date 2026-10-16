@@ -6,6 +6,7 @@ import { Pedestal3D } from './Pedestal3D';
 import { Terminal3D } from './Terminal3D';
 import { ObservationSlate3D } from './ObservationSlate3D';
 import { PowerMechanism3D } from './PowerMechanism3D';
+import { Chamber102Scene } from './chamber102/Chamber102Scene';
 import { PlayerController, InteractionTargetInfo } from './PlayerController';
 import { GameState } from '../../game/types';
 
@@ -26,9 +27,10 @@ export const ChamberScene: React.FC<ChamberSceneProps> = ({
   onInspect,
   onHoverTarget,
 }) => {
+  const isChamber102 = state.currentRoomId === 'chamber_102';
   const hasBrassKey = state.inventory.some((item) => item.id === 'brass_key');
   const isRuleDeceptive = state.rules['RULE_01']?.isDeceptive ?? true;
-  const isDoorLocked = state.exit.isLocked;
+  const isDoorLocked = isChamber102 ? state.chamber102.exitDoorLocked : state.exit.isLocked;
   const powerRegulatorState = state.objects.power_regulator?.state ?? 'default';
 
   return (
@@ -37,35 +39,47 @@ export const ChamberScene: React.FC<ChamberSceneProps> = ({
       <fog attach="fog" args={['#070d1a', 15, 35]} />
 
       <Physics gravity={[0, -18, 0]}>
-        {/* Physical & Visual Room Shell */}
-        <ChamberArchitecture
-          isDeceptiveRule={isRuleDeceptive}
-          realityShiftCount={state.realityShiftCount}
-        />
+        {isChamber102 ? (
+          /* Chamber 102: The Signal Foundry */
+          <Chamber102Scene
+            state={state}
+            onInteract={onInteract}
+            onInspect={onInspect}
+          />
+        ) : (
+          /* Chamber 101: The Obvious Lie */
+          <>
+            {/* Physical & Visual Room Shell */}
+            <ChamberArchitecture
+              isDeceptiveRule={isRuleDeceptive}
+              realityShiftCount={state.realityShiftCount}
+            />
 
-        {/* 1. Monolithic Blast Door */}
-        <Door3D
-          isLocked={isDoorLocked}
-          isDeceptiveRule={isRuleDeceptive}
-        />
+            {/* 1. Monolithic Blast Door */}
+            <Door3D
+              isLocked={isDoorLocked}
+              isDeceptiveRule={isRuleDeceptive}
+            />
 
-        {/* 2. Specimen Pedestal & Floating Brass Key */}
-        <Pedestal3D
-          hasKey={hasBrassKey}
-        />
+            {/* 2. Specimen Pedestal & Floating Brass Key */}
+            <Pedestal3D
+              hasKey={hasBrassKey}
+            />
 
-        {/* 3. Anomaly Terminal Console */}
-        <Terminal3D
-          isDeceptiveRule={isRuleDeceptive}
-        />
+            {/* 3. Anomaly Terminal Console */}
+            <Terminal3D
+              isDeceptiveRule={isRuleDeceptive}
+            />
 
-        {/* 4. Observation Slate */}
-        <ObservationSlate3D />
+            {/* 4. Observation Slate */}
+            <ObservationSlate3D />
 
-        {/* 5. Substrate Power Regulator Mechanism */}
-        <PowerMechanism3D
-          isEngaged={powerRegulatorState === 'transformed'}
-        />
+            {/* 5. Substrate Power Regulator Mechanism */}
+            <PowerMechanism3D
+              isEngaged={powerRegulatorState === 'transformed'}
+            />
+          </>
+        )}
 
         {/* First-Person Player Controller */}
         <PlayerController
@@ -77,6 +91,7 @@ export const ChamberScene: React.FC<ChamberSceneProps> = ({
           doorLocked={isDoorLocked}
           hasKey={hasBrassKey}
           regulatorState={powerRegulatorState}
+          state={state}
         />
       </Physics>
     </>

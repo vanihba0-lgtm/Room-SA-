@@ -60,6 +60,9 @@ export const App: React.FC<AppProps> = ({ initialViewMode }) => {
   const activeRule = state.rules['RULE_01'];
   const isRuleDeceptive = activeRule?.isDeceptive;
 
+  const isChamber102 = state.currentRoomId === 'chamber_102';
+  const c102 = state.chamber102;
+
   const handleToggleMute = () => {
     const next = toggleMuted();
     setMutedState(next);
@@ -80,9 +83,9 @@ export const App: React.FC<AppProps> = ({ initialViewMode }) => {
       return;
     }
 
-    if (objectId === 'observation_slate') {
+    if (objectId === 'observation_slate' || objectId === 'diagnostic_slate_102') {
       playKeystrokeSound();
-      inspectObject('observation_slate');
+      inspectObject(objectId);
       return;
     }
 
@@ -95,6 +98,19 @@ export const App: React.FC<AppProps> = ({ initialViewMode }) => {
       } else {
         playDoorLockedSound();
       }
+    } else if (objectId === 'exit_door_102') {
+      if (!c102.exitDoorLocked) {
+        playDoorUnlockSound();
+        playSuccessChime();
+      } else {
+        playDoorLockedSound();
+      }
+    } else if (objectId === 'core_heavy' || objectId === 'core_resonance') {
+      playSuccessChime();
+    } else if (objectId === 'circuit_console') {
+      playKeystrokeSound();
+    } else if (objectId === 'plate_mass' || objectId === 'plate_harmonic') {
+      playSuccessChime();
     } else {
       playKeystrokeSound();
     }
@@ -128,31 +144,56 @@ export const App: React.FC<AppProps> = ({ initialViewMode }) => {
             <h1 className="header-title">
               ROOM <span className="title-accent">S A</span>
             </h1>
-            <span className="header-chamber-tag">CHAMBER 101 // THE OBVIOUS LIE</span>
+            <span className="header-chamber-tag">
+              {isChamber102
+                ? 'CHAMBER 102 // THE SIGNAL FOUNDRY'
+                : 'CHAMBER 101 // THE OBVIOUS LIE'}
+            </span>
           </div>
 
           {/* Active Rule Status Pill */}
-          <button
-            type="button"
-            className={`rule-indicator-pill ${
-              isRuleDeceptive ? 'pill-deceptive' : 'pill-stable'
-            }`}
-            onClick={() => {
-              playKeystrokeSound();
-              activateTerminal(true);
-            }}
-            aria-label={`Active Rule: ${activeRule?.statement}. Click to open terminal.`}
-          >
-            {isRuleDeceptive ? (
-              <AlertTriangle size={14} className="pill-icon-warn" />
-            ) : (
-              <ShieldCheck size={14} className="pill-icon-ok" />
-            )}
-            <span className="pill-text">
-              RULE_01: "{activeRule?.statement}"
-            </span>
-            <span className="pill-hint">[TERMINAL]</span>
-          </button>
+          {isChamber102 ? (
+            <div
+              className={`rule-indicator-pill ${
+                c102.circuit.isCircuitClosed ? 'pill-stable' : 'pill-deceptive'
+              }`}
+              aria-label={`Harmonic Circuit Status: ${c102.circuit.isCircuitClosed ? 'Closed' : 'Open'}`}
+            >
+              {c102.circuit.isCircuitClosed ? (
+                <ShieldCheck size={14} className="pill-icon-ok" />
+              ) : (
+                <AlertTriangle size={14} className="pill-icon-warn" />
+              )}
+              <span className="pill-text">
+                {`CIRCUIT: [ CHAN ${c102.circuit.routingChannel} @ ${c102.circuit.selectedFrequency} kHz ]`}
+              </span>
+              <span className="pill-hint">
+                {c102.circuit.isCircuitClosed ? '[RESONANCE]' : '[TUNING]'}
+              </span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={`rule-indicator-pill ${
+                isRuleDeceptive ? 'pill-deceptive' : 'pill-stable'
+              }`}
+              onClick={() => {
+                playKeystrokeSound();
+                activateTerminal(true);
+              }}
+              aria-label={`Active Rule: ${activeRule?.statement}. Click to open terminal.`}
+            >
+              {isRuleDeceptive ? (
+                <AlertTriangle size={14} className="pill-icon-warn" />
+              ) : (
+                <ShieldCheck size={14} className="pill-icon-ok" />
+              )}
+              <span className="pill-text">
+                RULE_01: "{activeRule?.statement}"
+              </span>
+              <span className="pill-hint">[TERMINAL]</span>
+            </button>
+          )}
 
           {/* Quick Header Actions */}
           <div className="header-actions">

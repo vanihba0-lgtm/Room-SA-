@@ -95,6 +95,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
         ruleStatement={activeRule?.statement ?? ''}
         isRuleDeceptive={activeRule?.isDeceptive ?? false}
         hasKey={hasBrassKey}
+        currentRoomId={state.currentRoomId}
       />
     </div>
   );

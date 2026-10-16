@@ -124,4 +124,95 @@ describe('ROOM S A — 3D Systems & Interaction Math', () => {
     expect(transitionResult.success).toBe(true);
     expect(transitionResult.nextState.currentRoomId).toBe('chamber_102');
   });
+
+  // 4. Chamber 102 3D Systems & Full Campaign Victory Walkthrough
+  it('6. determines Chamber 102 3D interactive targets based on look direction and range', () => {
+    const cameraPos = new Vector3(0, 1.7, 2.0);
+    const cameraDirToConsole = new Vector3(1, 0, -0.3).normalize(); // Looking towards east console
+
+    const consolePos = new Vector3(6.4, 1.6, 0);
+    const toConsole = new Vector3().subVectors(consolePos, cameraPos);
+    toConsole.normalize();
+
+    const dot = cameraDirToConsole.dot(toConsole);
+    expect(dot).toBeGreaterThan(0.85); // High precision alignment with console
+  });
+
+  it('7. completes entire campaign walkthrough: Chamber 101 -> Chamber 102 Signal Foundry -> full escape', () => {
+    let state = createChamber101InitialState();
+
+    // Chamber 101: Key -> Rewrite -> Unlock -> Transition
+    state = engineReducer(state, {
+      type: 'COLLECT_ITEM',
+      payload: { itemId: 'brass_key', sourceObjectId: 'pedestal' },
+    }).nextState;
+
+    state = engineReducer(state, {
+      type: 'SUBMIT_RULE_PROPOSAL',
+      payload: { proposal: CHAMBER_101_SOLUTION_PROPOSAL },
+    }).nextState;
+
+    state = engineReducer(state, { type: 'ATTEMPT_EXIT' }).nextState; // Unlock door
+    state = engineReducer(state, { type: 'ATTEMPT_EXIT' }).nextState; // Transition to 102
+    expect(state.currentRoomId).toBe('chamber_102');
+
+    // Chamber 102:
+    // Read diagnostic slate
+    const slateRes = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'diagnostic_slate_102' },
+    });
+    expect(slateRes.success).toBe(true);
+    expect(slateRes.message).toContain('Plate B (Substrate Transceiver) does NOT measure mass');
+
+    // Pick up Heavy Flux Core (25kg) and place on Plate A
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'core_heavy' },
+    }).nextState;
+    expect(state.carriedObjectId).toBe('core_heavy');
+
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'plate_mass' },
+    }).nextState;
+    expect(state.carriedObjectId).toBeNull();
+    expect(state.chamber102.pressurePlates.plate_mass.isDepressed).toBe(true);
+
+    // Pick up Harmonic Cell (8kg) and place on Plate B
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'core_resonance' },
+    }).nextState;
+    expect(state.carriedObjectId).toBe('core_resonance');
+
+    state = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'plate_harmonic' },
+    }).nextState;
+    expect(state.carriedObjectId).toBeNull();
+    expect(state.chamber102.pressurePlates.plate_harmonic.isDepressed).toBe(true);
+
+    // Tune circuit console to target frequency and channel
+    const targetFreq = state.chamber102.circuit.targetFrequency;
+    const targetChan = state.chamber102.circuit.targetChannel;
+
+    state = engineReducer(state, {
+      type: 'CONFIGURE_CIRCUIT',
+      payload: { frequency: targetFreq, channel: targetChan },
+    }).nextState;
+
+    expect(state.chamber102.circuit.isCircuitClosed).toBe(true);
+    expect(state.chamber102.puzzleSolved).toBe(true);
+    expect(state.chamber102.exitDoorLocked).toBe(false);
+
+    // Step through exit door of Chamber 102 -> CAMPAIGN CLEARED!
+    const finalEscapeRes = engineReducer(state, {
+      type: 'INTERACT_WITH_OBJECT',
+      payload: { objectId: 'exit_door_102' },
+    });
+    expect(finalEscapeRes.success).toBe(true);
+    expect(finalEscapeRes.nextState.status).toBe('escaped');
+    expect(finalEscapeRes.message).toContain('Facility quarantine cleared');
+  });
 });

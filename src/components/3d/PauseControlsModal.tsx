@@ -19,6 +19,7 @@ interface PauseControlsModalProps {
   ruleStatement: string;
   isRuleDeceptive: boolean;
   hasKey: boolean;
+  currentRoomId?: string;
 }
 
 export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
@@ -30,6 +31,7 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
   ruleStatement,
   isRuleDeceptive,
   hasKey,
+  currentRoomId,
 }) => {
   if (!isOpen) return null;
 
@@ -38,7 +40,11 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
       <div className="pause-modal-card">
         {/* Header */}
         <div className="pause-card-header">
-          <div className="pause-badge">CHAMBER 101 // SIMULATION PAUSED</div>
+          <div className="pause-badge">
+            {currentRoomId === 'chamber_102'
+              ? 'CHAMBER 102 // SIMULATION PAUSED'
+              : 'CHAMBER 101 // SIMULATION PAUSED'}
+          </div>
           <h2 className="pause-title">
             ROOM <span className="title-accent">S A</span>
           </h2>

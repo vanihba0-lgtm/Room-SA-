@@ -3,6 +3,8 @@ import { KeyRound, Terminal, FileText, Lock, Unlock, Eye } from 'lucide-react';
 import { GameState, ObjectId } from '../../game/types';
 import './room.css';
 
+import { Room102View } from './Room102View';
+
 interface RoomViewProps {
   state: GameState;
   onInteract: (objectId: ObjectId) => void;
@@ -16,6 +18,10 @@ export const RoomView: React.FC<RoomViewProps> = ({
   onInspect,
   onCollectKey,
 }) => {
+  if (state.currentRoomId === 'chamber_102') {
+    return <Room102View state={state} onInteract={onInteract} onInspect={onInspect} />;
+  }
+
   const [isShifting, setIsShifting] = useState(false);
 
   // Trigger reality-shift effect when realityShiftCount increments
