@@ -8,25 +8,29 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #04060a;
-  padding: 24px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px));
   animation: transitionFadeIn 0.35s ease-out forwards;
 }
 
 .cinematic-transition-card {
   width: 100%;
   max-width: 620px;
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow-y: auto;
   background: #0b111c;
   border: 1px solid #1c2b3e;
   border-radius: 12px;
-  padding: 32px 30px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
 }
 

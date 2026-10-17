@@ -363,3 +363,39 @@
   color: #52D9F2;
   border-color: rgba(82, 217, 242, 0.4);
 }
+
+@media (max-width: 640px) {
+  .pause-overlay-backdrop {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pause-modal-card {
+    padding: 18px 16px;
+    gap: 14px;
+    max-height: 94dvh;
+  }
+
+  .pause-title {
+    font-size: 22px;
+  }
+
+  .pause-quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .pause-card-footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .pause-footer-right {
+    justify-content: space-between;
+  }
+
+  .btn-pause-secondary {
+    flex: 1;
+    justify-content: center;
+  }
+}

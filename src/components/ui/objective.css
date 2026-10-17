@@ -100,3 +100,35 @@
     transform: translateY(0);
   }
 }
+
+@media (max-width: 640px) {
+  .objective-hud-container {
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: calc(14px + env(safe-area-inset-left, 0px));
+    max-width: 250px;
+    width: auto;
+  }
+
+  .objective-panel {
+    padding: 8px 12px;
+    gap: 4px;
+    border-radius: 6px;
+  }
+
+  .objective-headline {
+    font-size: 0.82rem;
+  }
+
+  .objective-body {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .objective-clue-row {
+    display: none;
+  }
+}

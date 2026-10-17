@@ -8,12 +8,14 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg-abyss);
   overflow: hidden;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .app-viewport.is-playing {
@@ -54,6 +56,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: #05080e;
   border: none;
   border-radius: 0;
@@ -68,6 +71,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   max-width: none;
   border: none;
   border-radius: 0;
@@ -91,7 +95,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) 16px calc(20px + env(safe-area-inset-left, 0px));
   pointer-events: none;
   z-index: 40;
 }
@@ -107,7 +111,7 @@
   margin-left: auto;
 }
 
-/* Minimal Unobtrusive In-Game Menu Pill */
+/* Minimal Unobtrusive In-Game Menu Pill (Desktop) */
 .hud-esc-pill {
   display: inline-flex;
   align-items: center;
@@ -125,6 +129,12 @@
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   transition: all 0.15s ease;
+}
+
+@media (pointer: coarse) {
+  .hud-esc-pill {
+    display: none;
+  }
 }
 
 .hud-esc-pill:hover {

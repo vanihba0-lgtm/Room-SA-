@@ -627,3 +627,38 @@
   }
 }
 
+/* Mobile & Touchscreen Adaptations */
+@media (max-width: 640px) {
+  .terminal-modal-overlay {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .terminal-window {
+    max-height: 94dvh;
+    border-radius: 8px;
+  }
+
+  .terminal-window-header {
+    padding: 8px 12px;
+  }
+
+  .terminal-header-title {
+    font-size: 0.82rem;
+  }
+
+  .terminal-window-body {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .terminal-cli-form,
+  .terminal-nl-form {
+    flex-wrap: wrap;
+  }
+
+  .terminal-input-field {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+}
+

@@ -8,14 +8,16 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 900;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #070a0f;
-  overflow: hidden;
+  overflow-y: auto;
   user-select: none;
-  padding: 32px 20px;
+  -webkit-user-select: none;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
 .main-menu-grid {
