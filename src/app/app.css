@@ -1,32 +1,34 @@
 /* ===========================================================
    App Viewport — Full-screen immersive game layout
+   ROOM S A — Sci-Fi Forensic Experience
    =========================================================== */
 
 .app-viewport {
-  min-height: 100vh;
-  width: 100%;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   background-color: var(--color-bg-abyss);
   overflow: hidden;
+  user-select: none;
 }
 
-/* When playing, viewport is edge-to-edge */
 .app-viewport.is-playing {
   padding: 0;
 }
 
-/* Ambient sci-fi background effects (title/intro only) */
+/* Ambient sci-fi background effects */
 .ambient-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(to right, rgba(30, 36, 48, 0.25) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 36, 48, 0.25) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 20%, transparent 80%);
+    linear-gradient(to right, rgba(32, 45, 64, 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(32, 45, 64, 0.18) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 25%, transparent 80%);
   pointer-events: none;
 }
 
@@ -37,266 +39,128 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, var(--color-amber-glow) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 196, 107, 0.08) 0%, transparent 70%);
   filter: blur(80px);
   pointer-events: none;
   opacity: 0.6;
 }
 
 /* ===========================================================
-   Game Frame — Full-screen during gameplay
+   Game Frame — Full-screen 3D Viewport
    =========================================================== */
 
 .room-frame {
-  position: relative;
-  z-index: var(--z-room-env);
-  width: 100%;
-  max-width: 960px;
-  background-color: var(--color-bg-base);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-elevated), 0 0 50px rgba(0, 0, 0, 0.7);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-5);
-  backdrop-filter: blur(12px);
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #05080e;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  z-index: 1;
 }
 
-/* Full-screen game frame */
 .room-frame.room-frame--fullscreen {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
   max-width: none;
   border: none;
   border-radius: 0;
   padding: 0;
-  gap: 0;
-  background-color: #000;
+  background-color: #05080e;
   box-shadow: none;
   backdrop-filter: none;
   z-index: 1;
 }
 
-/* Frame Accent Glow Bar (only visible in windowed mode) */
-.room-frame::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 24px;
-  right: 24px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-amber-primary),
-    transparent
-  );
-  opacity: 0.7;
-}
-.room-frame--fullscreen::before {
-  display: none;
-}
-
 /* ===========================================================
-   Floating Header Overlay (during gameplay)
+   Floating Gameplay HUD Overlays
+   Minimal, non-intrusive, zero clutter
    =========================================================== */
 
-.room-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-border-subtle);
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-/* In fullscreen mode, the header floats on top of the 3D canvas */
-.room-frame--fullscreen .room-header {
+.gameplay-floating-hud {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 20;
-  padding: 8px 16px;
-  background: linear-gradient(180deg, rgba(10, 14, 23, 0.82) 0%, rgba(10, 14, 23, 0.5) 70%, transparent 100%);
-  border-bottom: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px;
   pointer-events: none;
+  z-index: 40;
 }
 
-.room-frame--fullscreen .room-header > * {
+.gameplay-floating-hud > * {
   pointer-events: auto;
 }
 
-.header-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.header-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.08em;
-  color: var(--color-text-primary);
-  margin: 0;
-  line-height: 1;
-}
-
-.title-accent {
-  color: var(--color-amber-primary);
-}
-
-.header-chamber-tag {
-  font-family: var(--font-family-mono);
-  font-size: 0.65rem;
-  color: var(--color-amber-muted);
-  letter-spacing: 0.1em;
-}
-
-/* Active Rule Indicator Pill */
-.rule-indicator-pill {
+.hud-corner-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: 6px 12px;
+  gap: 10px;
+  margin-left: auto;
+}
+
+/* Minimal Unobtrusive In-Game Menu Pill */
+.hud-esc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(13, 20, 32, 0.85);
+  border: 1px solid rgba(255, 196, 107, 0.3);
   border-radius: 20px;
+  padding: 6px 14px;
   font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #C0CBDA;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  max-width: 480px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
 }
 
-.pill-deceptive {
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+.hud-esc-pill:hover {
+  background: rgba(22, 34, 52, 0.95);
+  border-color: #FFC46B;
+  color: #F4F7FC;
+  transform: translateY(-1px);
 }
 
-.pill-deceptive:hover,
-.pill-deceptive:focus-visible {
-  background-color: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  outline: none;
-}
-
-.pill-stable {
-  background-color: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #6ee7b7;
-}
-
-.pill-stable:hover,
-.pill-stable:focus-visible {
-  background-color: rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
-  outline: none;
-}
-
-.pill-icon-warn {
-  color: #f87171;
-  flex-shrink: 0;
-}
-
-.pill-icon-ok {
-  color: #34d399;
-  flex-shrink: 0;
-}
-
-.pill-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: 0.02em;
-}
-
-.pill-hint {
+.hud-esc-key {
+  background: rgba(255, 196, 107, 0.18);
+  border: 1px solid rgba(255, 196, 107, 0.4);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: #FFC46B;
+  font-weight: 800;
   font-size: 0.65rem;
-  color: var(--color-text-muted);
-  flex-shrink: 0;
 }
 
-/* Header Action Buttons */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.btn-header-action {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-xs);
-  padding: 6px 12px;
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  letter-spacing: 0.05em;
-  transition: all var(--transition-fast);
-}
-
-.btn-header-action:hover,
-.btn-header-action:focus-visible {
-  border-color: var(--color-amber-primary);
-  color: var(--color-amber-bright);
-  background-color: var(--color-bg-surface-elevated);
-  outline: none;
-}
-
-/* ===========================================================
-   Viewport Section — fills remaining space in fullscreen
-   =========================================================== */
-
+/* Viewport Section */
 .room-viewport-section {
-  width: 100%;
-}
-
-.room-frame--fullscreen .room-viewport-section {
   position: absolute;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 1;
 }
 
-/* ===========================================================
-   Footer HUD Bar — floats at bottom in fullscreen
-   =========================================================== */
-
-.game-hud-bar {
-  display: flex;
-  flex-direction: column;
-}
-
-.room-frame--fullscreen .game-hud-bar {
+/* Screen reader & test automated accessibility elements */
+.hud-accessible-only {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
-  padding: 8px 16px;
-  background: linear-gradient(0deg, rgba(10, 14, 23, 0.82) 0%, rgba(10, 14, 23, 0.5) 70%, transparent 100%);
-  pointer-events: none;
-}
-
-.room-frame--fullscreen .game-hud-bar > * {
-  pointer-events: auto;
-}
-
-/* In 3D Fullscreen, hide auxiliary toolbar buttons visually to keep viewport clean */
-.room-frame--fullscreen .hud-accessible-only {
-  position: absolute;
+  left: -9999px;
+  top: auto;
   width: 1px;
   height: 1px;
-  padding: 0;
-  margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }
 
 /* ===========================================================
@@ -306,57 +170,24 @@
 .chamber-transition-overlay {
   position: fixed;
   inset: 0;
-  background: #020617;
-  z-index: 890;
+  background: #04060a;
+  z-index: 990;
   pointer-events: auto;
   opacity: 1;
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  animation: transitionFadeInOut 0.8s ease-in-out forwards;
+  animation: transitionFadeInOut 0.6s ease-in-out forwards;
 }
 
 @keyframes transitionFadeInOut {
   0% {
     opacity: 0;
   }
-  35% {
+  40% {
     opacity: 1;
   }
-  75% {
+  70% {
     opacity: 1;
   }
   100% {
     opacity: 0;
   }
-}
-
-/* Minimal In-Game HUD Controls */
-.hud-esc-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-family: var(--font-family-mono);
-  font-size: 0.7rem;
-  color: #94a3b8;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.15s ease;
-}
-
-.hud-esc-pill:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
-}
-
-.hud-esc-key {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  padding: 1px 5px;
-  color: #f8fafc;
-  font-weight: 700;
 }

@@ -47,6 +47,17 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
 
   const effectivePaused = isForcePaused || isPaused;
 
+  // Reset internal pause state when room changes (e.g. after cinematic transition)
+  // This prevents the player from being stuck in a paused state after a chamber transition
+  const prevRoomRef = React.useRef(state.currentRoomId);
+  React.useEffect(() => {
+    if (prevRoomRef.current !== state.currentRoomId) {
+      prevRoomRef.current = state.currentRoomId;
+      setIsPaused(false);
+      onTogglePause?.(false);
+    }
+  }, [state.currentRoomId, onTogglePause]);
+
   const activeRule = state.rules['RULE_01'];
   const hasBrassKey = state.inventory.some((item) => item.id === 'brass_key');
   const activeObjective = getActiveObjective(state);
@@ -63,12 +74,17 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isExternalModalOpen, state.terminalOpen, effectivePaused, onTogglePause]);
 
+  const hasLockedRef = React.useRef(false);
+
   const handleLockChange = (locked: boolean) => {
     setIsLocked(locked);
     if (!locked) {
-      setIsPaused(true);
-      onTogglePause?.(true);
+      if (hasLockedRef.current) {
+        setIsPaused(true);
+        onTogglePause?.(true);
+      }
     } else {
+      hasLockedRef.current = true;
       setIsPaused(false);
       onTogglePause?.(false);
     }

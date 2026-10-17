@@ -1,0 +1,358 @@
+/* ===========================================================
+   ROOM S A — Main Menu Redesign
+   Sci-Fi Forensic Mystery Aesthetic
+   =========================================================== */
+
+.main-menu-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #070a0f;
+  overflow: hidden;
+  user-select: none;
+  padding: 32px 20px;
+}
+
+.main-menu-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(32, 45, 64, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(32, 45, 64, 0.15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 35%, transparent 80%);
+  pointer-events: none;
+}
+
+.main-menu-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(3, 5, 8, 0.85) 100%);
+  pointer-events: none;
+}
+
+.main-menu-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  animation: menuContentFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Header */
+.main-menu-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.main-menu-wordmark-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-menu-wordmark {
+  font-family: var(--font-family-display, 'Space Grotesk', 'Inter', sans-serif);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #F4F7FC;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.main-menu-wordmark-accent {
+  color: #FFC46B;
+}
+
+.main-menu-tagline-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.main-menu-line-left,
+.main-menu-line-right {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(140, 158, 181, 0.25));
+}
+
+.main-menu-line-right {
+  background: linear-gradient(90deg, rgba(140, 158, 181, 0.25), transparent);
+}
+
+.main-menu-tagline {
+  font-family: var(--font-family-sans, 'Inter', sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: #8C9EB5;
+  text-transform: uppercase;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.main-menu-dossier-intro {
+  font-family: var(--font-family-mono);
+  font-size: 0.68rem;
+  color: #556B85;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+/* Navigation List */
+.main-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-menu-primary,
+.btn-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.16s ease;
+  position: relative;
+  background: #0f1624;
+  border: 1px solid #1c2a3e;
+}
+
+.btn-menu-primary {
+  background: #152236;
+  border: 1px solid #FFC46B;
+  box-shadow: 0 4px 18px rgba(255, 196, 107, 0.12);
+}
+
+.btn-menu-primary .btn-menu-icon-box {
+  color: #070a0f;
+  background: #FFC46B;
+}
+
+.btn-menu-primary:hover:not(:disabled),
+.btn-menu-primary:focus-visible:not(:disabled) {
+  background: #1a2a44;
+  border-color: #ffd28c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(255, 196, 107, 0.22);
+}
+
+.btn-menu-primary.disabled,
+.btn-menu-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #223247;
+  box-shadow: none;
+}
+
+.btn-menu-primary.disabled .btn-menu-icon-box,
+.btn-menu-primary:disabled .btn-menu-icon-box {
+  background: #253549;
+  color: #6a7c93;
+}
+
+.btn-menu-item:hover,
+.btn-menu-item:focus-visible {
+  background: #162235;
+  border-color: #385072;
+  transform: translateY(-1px);
+}
+
+.btn-menu-item:focus-visible,
+.btn-menu-primary:focus-visible {
+  outline: 2px solid #52D9F2;
+  outline-offset: 2px;
+}
+
+.btn-menu-muted {
+  opacity: 0.75;
+}
+
+.btn-menu-muted:hover {
+  opacity: 1;
+}
+
+.btn-menu-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #172436;
+  color: #8C9EB5;
+  flex-shrink: 0;
+  transition: all 0.16s ease;
+}
+
+.btn-menu-item:hover .btn-menu-icon-box {
+  background: #22354e;
+  color: #52D9F2;
+}
+
+.btn-menu-text-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.btn-menu-label {
+  font-family: var(--font-family-display, 'Space Grotesk', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #F4F7FC;
+  line-height: 1.2;
+}
+
+.btn-menu-sublabel {
+  font-family: var(--font-family-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #7A8FA6;
+}
+
+/* Footer */
+.main-menu-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: #435469;
+}
+
+/* Overwrite Confirmation Dialog */
+.menu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 7, 12, 0.88);
+  backdrop-filter: blur(12px);
+  padding: 20px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.menu-confirm-card {
+  width: 100%;
+  max-width: 440px;
+  background: #0f1624;
+  border: 1px solid #FFC46B;
+  border-radius: 10px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+.confirm-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirm-warn-icon {
+  color: #FFC46B;
+  flex-shrink: 0;
+}
+
+.confirm-title {
+  font-family: var(--font-family-display, 'Space Grotesk', sans-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #F4F7FC;
+  margin: 0;
+}
+
+.confirm-message {
+  font-family: var(--font-family-sans);
+  font-size: 0.85rem;
+  color: #C0CBDA;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.confirm-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.btn-confirm-cancel {
+  background: #172436;
+  border: 1px solid #273b54;
+  color: #C0CBDA;
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-confirm-cancel:hover {
+  background: #22354e;
+  color: #F4F7FC;
+}
+
+.btn-confirm-overwrite {
+  background: #FFC46B;
+  border: 1px solid #FFC46B;
+  color: #070a0f;
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-confirm-overwrite:hover {
+  background: #ffd28c;
+}
+
+@keyframes menuContentFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

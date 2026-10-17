@@ -1330,7 +1330,6 @@ export function engineReducer(
         chamber_103: 'Chamber 103: The Gravity Archive',
         chamber_104: 'Chamber 104: The Zero-Day Vault',
         chamber_105: 'Chamber 105: The Last Witness',
-        chamber_106: 'Chamber 106: The Rule Engine',
       };
       const roomTitle = chamberNames[targetRoomId] ?? targetRoomId;
       const evt = createEvent('ROOM_TRANSITION', `Subject navigated to ${roomTitle}.`);
@@ -1364,7 +1363,6 @@ export function engineReducer(
         chamber_103: 'Chamber 103: The Gravity Archive',
         chamber_104: 'Chamber 104: The Zero-Day Vault',
         chamber_105: 'Chamber 105: The Last Witness',
-        chamber_106: 'Chamber 106: The Rule Engine',
       };
       const roomTitle = chamberNames[chamberId] ?? chamberId;
       const evt = createEvent('CHAMBER_SELECTED', `Navigation routed to ${roomTitle}.`);
@@ -1391,39 +1389,7 @@ export function engineReducer(
     }
 
     case 'ATTEMPT_EXIT': {
-      // Chamber 106 (Legacy support):
-      if (state.currentRoomId === 'chamber_106') {
-        if (!state.chamber106?.primeDirectiveOverridden) {
-          const failEvt = createEvent(
-            'CHAMBER_106_EXIT_FAILED',
-            'Master compiler locked. All 4 matrices must be synthesized and the Prime Directive overridden.'
-          );
-          return {
-            success: false,
-            message: 'Simulation quarantine is locked. Override the Architect\'s Prime Directive to dissolve the simulation.',
-            nextState: {
-              ...state,
-              eventLog: [...state.eventLog, failEvt],
-            },
-            emittedEvents: [failEvt],
-          };
-        }
-
-        const victoryEvt = createEvent(
-          'CAMPAIGN_ESCAPED',
-          'Quarantine dissolved! The investigator has broken the recursive loop and escaped into reality!'
-        );
-        return {
-          success: true,
-          message: 'Simulation dissolved! You have shattered the room that lies!',
-          nextState: {
-            ...state,
-            status: 'escaped',
-            eventLog: [...state.eventLog, victoryEvt],
-          },
-          emittedEvents: [victoryEvt],
-        };
-      }
+      // Campaign contains exactly Chambers 101-105. No Chamber 106.
 
       // Chamber 105 (Grand Finale — The Last Witness):
       if (state.currentRoomId === 'chamber_105') {

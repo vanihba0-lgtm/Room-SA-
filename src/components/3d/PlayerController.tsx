@@ -257,7 +257,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           id: 'core_heavy',
           name: 'Heavy Flux Core #A',
           actionText: 'Pick Up Heavy Flux Core #A (25kg)',
-          inspectText: 'Inspect Heavy Core Specifications',
+          inspectText: '',
           pos: new Vector3(posArr[0], posArr[1], posArr[2]),
         });
       }
@@ -271,7 +271,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           id: 'core_resonance',
           name: 'Harmonic Cell #B',
           actionText: 'Pick Up Harmonic Cell #B (8kg)',
-          inspectText: 'Inspect Harmonic Cell Specifications',
+          inspectText: '',
           pos: new Vector3(posArr[0], posArr[1], posArr[2]),
         });
       }
@@ -285,7 +285,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           : c102.pressurePlates.plate_mass?.currentObjectId
           ? 'Examine Load Cell [Occupied]'
           : 'Examine Load Cell [Empty]',
-        inspectText: 'Inspect Kinetic Inductor Mechanics',
+        inspectText: '',
         pos: new Vector3(-2.2, 0.2, -3.2),
       });
 
@@ -298,7 +298,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           : c102.pressurePlates.plate_harmonic?.currentObjectId
           ? 'Examine Transceiver [Occupied]'
           : 'Examine Transceiver [Empty]',
-        inspectText: 'Inspect Substrate Transceiver Mechanics',
+        inspectText: '',
         pos: new Vector3(2.2, 0.2, -3.2),
       });
 
@@ -307,7 +307,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
         id: 'circuit_console',
         name: 'Signal Routing Console',
         actionText: `Tune Circuit [Chan ${c102.circuit.routingChannel} @ ${c102.circuit.selectedFrequency}kHz]`,
-        inspectText: 'Inspect Signal Console Oscilloscope',
+        inspectText: '',
         pos: new Vector3(6.4, 1.6, 0),
       });
 
@@ -316,7 +316,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
         id: 'diagnostic_slate_102',
         name: 'Maintenance Advisory Slate',
         actionText: 'Read Maintenance Advisory',
-        inspectText: 'Inspect Deception Audit Details',
+        inspectText: '',
         pos: new Vector3(-6.4, 1.8, 0),
       });
 
@@ -326,8 +326,8 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
         name: 'Foundry Exit Blast Door',
         actionText: c102.exitDoorLocked
           ? 'Operate Blast Door [Interlocked]'
-          : 'Step Through Blast Door [Clear]',
-        inspectText: 'Inspect Dual Hydraulic Clamp Locks',
+          : 'Open Blast Door & Advance',
+        inspectText: '',
         pos: new Vector3(0, 2.0, -6.5),
       });
     } else if (currentRoom === 'chamber_103' && state) {
@@ -337,28 +337,28 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           id: 'c103_core',
           name: 'Magnetic Aerogel Core',
           actionText: c103?.surveyed ? 'Survey Active Core Telemetry' : 'Survey Archive Core Specimen',
-          inspectText: 'Inspect Aerogel Buoyancy Data',
+          inspectText: '',
           pos: new Vector3(0, c103?.sensorActivated ? 3.5 : c103?.ballastInverted ? 2.0 : 0.8, 0),
         },
         {
           id: 'c103_ballast',
           name: 'Buoyancy Ballast Coil',
           actionText: c103?.ballastInverted ? 'Reset Gravity Ballast' : 'Invert Ballast Polarity [-9.81 m/s²]',
-          inspectText: 'Inspect Anti-Gravity Coil Matrix',
+          inspectText: '',
           pos: new Vector3(0, 0.4, 0),
         },
         {
           id: 'c103_log',
           name: 'Archive Telemetry Datapad',
           actionText: 'Read Gravity Telemetry Log',
-          inspectText: 'Inspect Archival Record #33',
+          inspectText: '',
           pos: new Vector3(-6.4, 1.8, 0),
         },
         {
           id: 'c103_terminal',
           name: 'Archive Rule Terminal',
           actionText: 'Rewrite Rule #03 (Buoyant Elevation)',
-          inspectText: 'Access Terminal Logic Matrix',
+          inspectText: '',
           pos: new Vector3(6.4, 1.6, 0),
         },
         {
@@ -367,14 +367,14 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: c103?.sensorActivated
             ? 'Optical Sensor [Signal Locked // Vault Unsealed]'
             : 'Optical Sensor [Awaiting Elevated Core]',
-          inspectText: 'Inspect Photodiode Circuit',
+          inspectText: '',
           pos: new Vector3(0, 4.4, 0),
         },
         {
           id: 'exit_door_103',
           name: 'Archive Vault Door',
-          actionText: c103?.exitUnlocked ? 'Step Through to Sector 104' : 'Operate Vault Door [Sealed]',
-          inspectText: 'Inspect Ceiling Optical Receiver',
+          actionText: c103?.exitUnlocked ? 'Open Vault Door & Advance' : 'Operate Vault Door [Sealed]',
+          inspectText: '',
           pos: new Vector3(0, 2.0, -6.5),
         }
       );
@@ -385,7 +385,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           id: 'c104_monitor',
           name: 'Security Telemetry Monitor',
           actionText: 'Audit Security Clearance',
-          inspectText: 'Inspect Access Control Policy #04',
+          inspectText: '',
           pos: new Vector3(-6.4, 1.8, 0),
         },
         {
@@ -396,7 +396,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
             : c104?.telemetryAudited
             ? 'Dispense Guest Token #404'
             : 'Dispenser Unit [Audit Required]',
-          inspectText: 'Inspect Emergency Release Lever',
+          inspectText: '',
           pos: new Vector3(6.4, 1.6, 0),
         },
         {
@@ -407,18 +407,18 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
             : c104?.hasGuestToken
             ? 'Inject Token #404 & Align Parity'
             : 'Parity Console [Insert Token #404]',
-          inspectText: 'Inspect Checksum Verification Laser',
+          inspectText: '',
           pos: new Vector3(0, 1.2, 0),
         },
         {
           id: 'exit_door_104',
           name: 'Cryptographic Vault Blast Door',
           actionText: c104?.exitUnlocked
-            ? 'Advance to Sector 105'
+            ? 'Open Vault Door & Advance'
             : c104?.checksumMatched
             ? 'Authorize & Open Vault Door'
             : 'Audit Vault Door [Root-4 Locked]',
-          inspectText: 'Inspect Heavy Hydraulic Deadbolts',
+          inspectText: '',
           pos: new Vector3(0, 2.0, -6.5),
         }
       );
@@ -433,7 +433,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: c105?.stationMaterialSolved
             ? 'Station 1: Optical Gate Verified'
             : 'Audit Optical Gate Bypass',
-          inspectText: 'Inspect Optical Bypass Diagnostics',
+          inspectText: '',
           pos: new Vector3(-5.5, 1.4, -2.5),
         },
         {
@@ -442,7 +442,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: c105?.stationSignalSolved
             ? 'Station 2: 868 kHz Carrier Locked'
             : 'Tune 868 kHz / BETA Resonance',
-          inspectText: 'Inspect Harmonic Signal Carrier',
+          inspectText: '',
           pos: new Vector3(-5.5, 1.4, 2.5),
         },
         {
@@ -451,7 +451,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: c105?.stationArchiveSolved
             ? 'Station 3: Polarity Calibrated'
             : 'Invert Aerogel Ballast Polarity',
-          inspectText: 'Inspect Voss Incident Logs',
+          inspectText: '',
           pos: new Vector3(5.5, 1.4, -2.5),
         },
         {
@@ -460,7 +460,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: c105?.stationSecuritySolved
             ? 'Station 4: Checksum 0x404 Verified'
             : 'Authorize 0x404 Parity Checksum',
-          inspectText: 'Inspect Root-4 Authorization Matrix',
+          inspectText: '',
           pos: new Vector3(5.5, 1.4, 2.5),
         },
         {
@@ -471,7 +471,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
             : c105?.masterCompilerUnlocked
             ? 'Execute Master Compilation'
             : 'Engage Master Compiler [4 Stations Required]',
-          inspectText: 'Inspect Central Ontological Matrix',
+          inspectText: '',
           pos: new Vector3(0, 1.6, 0),
         },
         {
@@ -480,7 +480,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: isTruth
             ? 'Execute Ending A: Terminate WARDEN'
             : 'Terminal Locked [Compile Truth First]',
-          inspectText: 'Inspect Power Overload Protocol',
+          inspectText: '',
           pos: new Vector3(-2.2, 1.4, -5.5),
         },
         {
@@ -489,7 +489,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: isTruth
             ? 'Execute Ending B: Rewrite Rules'
             : 'Terminal Locked [Compile Truth First]',
-          inspectText: 'Inspect Rule Recompilation Protocol',
+          inspectText: '',
           pos: new Vector3(0, 1.4, -5.5),
         },
         {
@@ -498,7 +498,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: isTruth
             ? 'Execute Ending C: Take Control'
             : 'Terminal Locked [Compile Truth First]',
-          inspectText: 'Inspect Root Administrator Protocol',
+          inspectText: '',
           pos: new Vector3(2.2, 1.4, -5.5),
         },
         {
@@ -507,7 +507,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           actionText: isTruth
             ? 'Review 3 Operational Paths'
             : 'Console Locked [Master Compilation Required]',
-          inspectText: 'Inspect Decision Matrix',
+          inspectText: '',
           pos: new Vector3(0, 1.4, -5.0),
         },
         // Legacy backwards-compatibility targets
@@ -515,74 +515,74 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           id: 'c105_chronometer',
           name: 'Station 1: Material Axiom [Chronometer]',
           actionText: 'Audit Material Telemetry',
-          inspectText: 'Inspect Record',
+          inspectText: '',
           pos: new Vector3(-6.4, 1.8, 0),
         },
         {
           id: 'c105_relay_alpha',
           name: 'Quantum Relay ALPHA',
           actionText: 'Flip Relay ALPHA',
-          inspectText: 'Inspect Relay Contacts',
+          inspectText: '',
           pos: new Vector3(-2.5, 1.0, 0),
         },
         {
           id: 'c105_relay_omega',
           name: 'Quantum Relay OMEGA',
           actionText: 'Flip Relay OMEGA',
-          inspectText: 'Inspect Relay Contacts',
+          inspectText: '',
           pos: new Vector3(0, 1.0, 0),
         },
         {
           id: 'c105_relay_beta',
           name: 'Quantum Relay BETA',
           actionText: 'Flip Relay BETA',
-          inspectText: 'Inspect Relay Contacts',
+          inspectText: '',
           pos: new Vector3(2.5, 1.0, 0),
         },
         {
           id: 'c105_terminal',
           name: 'Timeline State Terminal',
           actionText: 'Synchronize Master Compiler',
-          inspectText: 'Access Causal State Machine',
+          inspectText: '',
           pos: new Vector3(6.4, 1.6, 0),
         },
         {
           id: 'exit_door_105',
           name: 'Master Simulation Exit Gateway',
           actionText: isTruth ? 'Escape Simulation' : 'Gateway Locked',
-          inspectText: 'Inspect Containment Barrier',
+          inspectText: '',
           pos: new Vector3(0, 2.0, -6.5),
         }
       );
     } else {
-      // Chamber 101 Objects
+      // Chamber 101 Objects — One concise contextual action prompt
       interactionObjects.push(
         {
           id: 'pedestal',
           name: 'Specimen Pedestal',
-          actionText: hasKey ? 'Inspect Empty Cradle' : 'Retrieve Brass Key #101',
-          inspectText: 'Inspect Specimen Pedestal',
+          actionText: hasKey ? 'Examine Empty Cradle' : 'Retrieve Brass Key #101',
+          inspectText: '',
           pos: new Vector3(0, 1.2, 0),
         },
         {
           id: 'exit_door',
           name: 'Reinforced Blast Door',
-          actionText: doorLocked ? 'Operate Blast Door' : 'Enter Chamber 102',
-          inspectText: 'Inspect Plaque & Lock',
+          actionText: doorLocked ? 'Operate Blast Door' : 'Open Blast Door & Advance',
+          inspectText: '',
           pos: new Vector3(0, 2.0, -5.8),
         },
         {
           id: 'terminal',
           name: 'Anomaly Logic Terminal',
           actionText: 'Access Logic Terminal',
-          inspectText: 'Inspect Console',
+          inspectText: '',
           pos: new Vector3(5.7, 1.8, 0),
         },
         {
           id: 'observation_slate',
           name: 'Observation Slate',
           actionText: 'Read Observation Slate',
-          inspectText: 'Inspect Handwriting',
+          inspectText: '',
           pos: new Vector3(-5.7, 1.8, -1.5),
         },
         {
@@ -592,7 +592,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
             regulatorState === 'transformed'
               ? 'Disengage Power Regulator'
               : 'Engage Power Regulator',
-          inspectText: 'Inspect Breaker Circuit',
+          inspectText: '',
           pos: new Vector3(-5.7, 1.8, 1.5),
         }
       );

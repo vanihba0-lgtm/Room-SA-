@@ -1,0 +1,140 @@
+/* ===========================================================
+   One-time Controls Tutorial Overlay
+   Tasteful, subtle, dismissible, disappears after 8s
+   =========================================================== */
+
+.controls-tutorial-overlay {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 80;
+  max-width: 320px;
+  width: calc(100vw - 48px);
+  pointer-events: auto;
+  animation: tutorialSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.controls-tutorial-overlay.fade-out {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+.controls-tutorial-card {
+  background: rgba(11, 17, 28, 0.94);
+  border: 1px solid rgba(82, 217, 242, 0.35);
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls-tutorial-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.controls-tutorial-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #52D9F2;
+}
+
+.tutorial-badge-icon {
+  color: #52D9F2;
+}
+
+.btn-tutorial-dismiss {
+  background: transparent;
+  border: none;
+  color: #7A8FA6;
+  cursor: pointer;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.btn-tutorial-dismiss:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #F4F7FC;
+}
+
+.controls-tutorial-entries {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.tutorial-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tutorial-kbd-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  background: #172436;
+  border: 1px solid #283e58;
+  border-radius: 3px;
+  font-family: var(--font-family-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #F4F7FC;
+  box-shadow: 0 1px 0 #0d1522;
+}
+
+.tut-key.wide {
+  min-width: 44px;
+}
+
+.tut-label {
+  font-family: var(--font-family-sans);
+  font-size: 0.78rem;
+  color: #CBD5E1;
+}
+
+.controls-tutorial-footer {
+  font-family: var(--font-family-mono);
+  font-size: 0.62rem;
+  color: #657D99;
+  letter-spacing: 0.04em;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 8px;
+}
+
+@keyframes tutorialSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

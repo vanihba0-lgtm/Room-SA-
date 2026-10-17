@@ -1,0 +1,164 @@
+/* ===========================================================
+   Cinematic Opening Screen — Full-viewport Restrained Sci-Fi
+   =========================================================== */
+
+.cinematic-opening-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #06090e;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  animation: cinematicFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinematic-opening-container.fade-out {
+  opacity: 0;
+  transform: scale(1.02);
+  pointer-events: none;
+}
+
+/* Subtle architectural grid pattern */
+.cinematic-backdrop-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(40, 55, 78, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(40, 55, 78, 0.12) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.8) 30%, transparent 80%);
+  pointer-events: none;
+}
+
+/* Deep blue-black & graphite atmospheric illumination */
+.cinematic-radial-atmosphere {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(18, 30, 48, 0.55) 0%, rgba(9, 14, 23, 0.3) 50%, transparent 75%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Central typography composition */
+.cinematic-title-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  z-index: 2;
+}
+
+.cinematic-main-wordmark {
+  font-family: var(--font-family-display, 'Space Grotesk', 'Inter', sans-serif);
+  font-size: clamp(2.8rem, 7vw, 5.2rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #F4F7FC;
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+  animation: wordmarkReveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.cinematic-wordmark-accent {
+  color: #FFC46B;
+  text-shadow: 0 0 24px rgba(255, 196, 107, 0.35);
+}
+
+.cinematic-divider-line {
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 196, 107, 0.6), transparent);
+  animation: dividerExpand 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+
+.cinematic-tagline {
+  font-family: var(--font-family-sans, 'Inter', sans-serif);
+  font-size: clamp(0.75rem, 1.6vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: 0.38em;
+  color: #8C9EB5;
+  text-transform: uppercase;
+  margin: 0;
+  opacity: 0;
+  animation: taglineFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+}
+
+.cinematic-skip-hint {
+  position: absolute;
+  bottom: 36px;
+  font-family: var(--font-family-sans, 'Inter', sans-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: #4A5B70;
+  opacity: 0;
+  animation: hintPulse 2s ease-in-out 1.5s infinite;
+  z-index: 2;
+}
+
+@keyframes cinematicFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes wordmarkReveal {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(10px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dividerExpand {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    width: clamp(140px, 28vw, 300px);
+    opacity: 1;
+  }
+}
+
+@keyframes taglineFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hintPulse {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}

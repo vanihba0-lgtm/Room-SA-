@@ -1,35 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Terminal,
-  RotateCcw,
-  Volume2,
-  VolumeX,
-  Box,
-  Map,
-  BookOpen,
-  HelpCircle,
-  Settings as SettingsIcon,
-  Home,
-  ShieldCheck,
-  AlertTriangle,
-} from 'lucide-react';
+
 import { useGameState } from '../hooks/useGameState';
 import { RoomView } from '../components/room/RoomView';
 import { ChamberCanvas } from '../components/3d/ChamberCanvas';
-import { InventoryHUD } from '../components/ui/InventoryHUD';
 import { TerminalModal } from '../components/ui/TerminalModal';
 import { FeedbackToast } from '../components/ui/FeedbackToast';
 import { VictoryOverlay } from '../components/ui/VictoryOverlay';
-import { TitleScreen } from '../components/ui/TitleScreen';
-import { IntroCinematic } from '../components/ui/IntroCinematic';
-import { TutorialOverlay } from '../components/ui/TutorialOverlay';
+import { CinematicOpening } from '../components/ui/CinematicOpening';
+import { MainMenu } from '../components/ui/MainMenu';
+import { StoryBriefing } from '../components/ui/StoryBriefing';
+import { CinematicTransition } from '../components/ui/CinematicTransition';
+import { TutorialOverlay, isTutorialDismissed } from '../components/ui/TutorialOverlay';
 import { ObjectiveHUD } from '../components/ui/ObjectiveHUD';
 import { HintModal } from '../components/ui/HintModal';
 import { LogbookModal } from '../components/ui/LogbookModal';
 import { ChamberSelectModal } from '../components/ui/ChamberSelectModal';
 import { SettingsModal } from '../components/ui/SettingsModal';
 import { AboutModal } from '../components/ui/AboutModal';
-import { StoryBeatModal } from '../components/ui/StoryBeatModal';
+import { ControlsModal } from '../components/ui/ControlsModal';
 import {
   isMuted,
   toggleMuted,
@@ -45,17 +33,18 @@ import {
   loadCampaignSave,
   saveCampaignProgress,
   markChamberCompleted,
-  hasCompletedIntro,
-  markIntroCompleted,
+  resetCampaignSave,
   recordLogDiscovered,
 } from '../game/progression/campaign';
 import { getActiveObjective } from '../game/progression/objectives';
 import { CampaignSaveData } from '../game/progression/types';
 import './app.css';
 
+export type GamePhase = 'cinematic' | 'menu' | 'briefing' | 'playing';
+
 interface AppProps {
   initialViewMode?: '3d' | 'schematic';
-  initialPhase?: 'title' | 'intro' | 'playing';
+  initialPhase?: GamePhase | 'title' | 'intro';
 }
 
 export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
@@ -75,11 +64,20 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     typeof window !== 'undefined' && typeof window.WebGLRenderingContext !== 'undefined';
   const defaultMode = initialViewMode ?? (isWebGLAvailable ? '3d' : 'schematic');
 
-  // Game Phases
-  const defaultPhase =
-    initialPhase ??
-    (typeof process !== 'undefined' && process.env.NODE_ENV === 'test' ? 'playing' : 'title');
-  const [phase, setPhase] = useState<'title' | 'intro' | 'playing'>(defaultPhase);
+  // Phase resolution: tests start playing, fresh browser visits start at cinematic
+  const resolveDefaultPhase = (): GamePhase => {
+    if (initialPhase) {
+      if (initialPhase === 'title') return 'menu';
+      if (initialPhase === 'intro') return 'briefing';
+      return initialPhase as GamePhase;
+    }
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+      return 'playing';
+    }
+    return 'cinematic';
+  };
+
+  const [phase, setPhase] = useState<GamePhase>(resolveDefaultPhase);
 
   // Campaign Save Data
   const [campaignSave, setCampaignSave] = useState<CampaignSaveData>(() => loadCampaignSave());
@@ -87,8 +85,8 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
 
   // UI State
   const [muted, setMutedState] = useState(() => isMuted());
-  const [viewMode, setViewMode] = useState<'3d' | 'schematic'>(defaultMode);
-  const [showTutorial, setShowTutorial] = useState(() => !hasCompletedIntro());
+  const [viewMode] = useState<'3d' | 'schematic'>(defaultMode);
+  const [showTutorial, setShowTutorial] = useState(() => !isTutorialDismissed());
   const [activeStoryBeatChamber, setActiveStoryBeatChamber] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPauseMenuOpen, setIsPauseMenuOpen] = useState(false);
@@ -100,6 +98,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
   const [isChamberSelectOpen, setIsChamberSelectOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isControlsOpen, setIsControlsOpen] = useState(false);
 
   // Reality shift audio cue
   useEffect(() => {
@@ -137,7 +136,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     }
   }, [state.currentRoomId, state.status, state.chamber105?.chosenEnding]);
 
-  // Synchronize active chamber with window.location.hash on mount and hashchange
+  // Synchronize active chamber with window.location.hash on hashchange
   useEffect(() => {
     const validChambers = [
       'chamber_101',
@@ -147,7 +146,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       'chamber_105',
     ];
 
-    const syncFromHash = () => {
+    const handleHashChange = () => {
       if (typeof window === 'undefined') return;
       const hash = window.location.hash.replace(/^#/, '');
       if (validChambers.includes(hash)) {
@@ -159,11 +158,9 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       }
     };
 
-    syncFromHash();
-
-    window.addEventListener('hashchange', syncFromHash);
-    return () => window.removeEventListener('hashchange', syncFromHash);
-  }, []);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [selectChamber, state.currentRoomId]);
 
   // Update hash when currentRoomId changes in playing mode
   useEffect(() => {
@@ -185,7 +182,6 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
   }, [phase]);
 
   const activeRule = state.rules['RULE_01'];
-  const isRuleDeceptive = activeRule?.isDeceptive;
 
   const handleToggleMute = () => {
     const next = toggleMuted();
@@ -285,7 +281,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         playDoorUnlockSound();
         playSuccessChime();
 
-        // Check if there is an inter-chamber narrative beat for this chamber
+        // Check if there is an inter-chamber narrative transition
         if (['chamber_101', 'chamber_102', 'chamber_103', 'chamber_104'].includes(state.currentRoomId)) {
           pendingDoorInteractionRef.current = objectId;
           setActiveStoryBeatChamber(state.currentRoomId);
@@ -325,11 +321,26 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     setActiveStoryBeatChamber(null);
     setIsTransitioning(true);
 
+    // Dispatch the room transition through the reducer
     interactWithObject(pendingObjectId);
+
+    // Ensure pause menu is cleared
+    setIsPauseMenuOpen(false);
 
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 500);
+
+      // Re-engage pointer lock on the canvas to restore movement controls.
+      // Without this, losing pointer lock during the cinematic overlay
+      // triggers handleLockChange(false) which sets isPaused=true,
+      // permanently freezing the player.
+      requestAnimationFrame(() => {
+        const canvas = document.querySelector('canvas');
+        if (canvas && !document.pointerLockElement) {
+          canvas.requestPointerLock?.();
+        }
+      });
+    }, 600);
   };
 
   const handleCollectKey = () => {
@@ -345,20 +356,21 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
 
   const handleStartNewGame = () => {
     notificationManager.clear();
+    resetCampaignSave();
+    setCampaignSave(loadCampaignSave());
     restartGame();
-    if (!hasCompletedIntro()) {
-      setPhase('intro');
-    } else {
-      setPhase('playing');
-    }
+    setPhase('briefing');
   };
 
   const handleContinueGame = () => {
     notificationManager.clear();
+    if (campaignSave.currentChamberId && campaignSave.currentChamberId !== state.currentRoomId) {
+      selectChamber(campaignSave.currentChamberId);
+    }
     setPhase('playing');
   };
 
-  const handleIntroComplete = () => {
+  const handleBriefingComplete = () => {
     notificationManager.clear();
     setPhase('playing');
   };
@@ -376,255 +388,85 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     isChamberSelectOpen ||
     isSettingsOpen ||
     isAboutOpen ||
+    isControlsOpen ||
     state.status === 'escaped' ||
     Boolean(activeStoryBeatChamber);
 
   return (
     <main className={`app-viewport ${phase === 'playing' ? 'is-playing' : ''}`}>
-      {/* Ambient background grid & lighting (hidden during gameplay) */}
-      {phase !== 'playing' && (
-        <>
-          <div className="ambient-grid" aria-hidden="true" />
-          <div className="ambient-radial-glow" aria-hidden="true" />
-        </>
+      {/* 1. Cinematic Opening Screen */}
+      {phase === 'cinematic' && (
+        <CinematicOpening onComplete={() => setPhase('menu')} />
       )}
 
-      {/* Screen A: Title Screen */}
-      {phase === 'title' && (
-        <TitleScreen
+      {/* 2. Redesigned Main Menu */}
+      {phase === 'menu' && (
+        <MainMenu
           hasSaveData={hasSaveData}
-          onStartNewGame={handleStartNewGame}
+          saveData={campaignSave}
           onContinue={handleContinueGame}
-          onOpenChamberSelect={() => setIsChamberSelectOpen(true)}
+          onStartNewGame={handleStartNewGame}
+          onOpenControls={() => setIsControlsOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenLogbook={() => setIsLogbookModalOpen(true)}
+          onOpenChamberSelect={() => setIsChamberSelectOpen(true)}
           onOpenAbout={() => setIsAboutOpen(true)}
+          onReplayIntro={() => setPhase('cinematic')}
         />
       )}
 
-      {/* Screen B: Cinematic Opening Narrative */}
-      {phase === 'intro' && (
-        <IntroCinematic
-          onComplete={handleIntroComplete}
-        />
+      {/* 3. Opening Story Briefing */}
+      {phase === 'briefing' && (
+        <StoryBriefing onComplete={handleBriefingComplete} />
       )}
 
-      {/* Screen C & D: Main Game Loop (Chambers 101-105) */}
+      {/* 4. Full-Viewport First-Person Gameplay (Chambers 101-105) */}
       {phase === 'playing' && (
         <>
           {/* Action Result / Feedback Toast Notification */}
           <FeedbackToast feedback={lastFeedback} />
 
-          {/* Interactive Tutorial for Chamber 1 */}
+          {/* Tasteful One-Time Controls Tutorial */}
           {showTutorial && state.currentRoomId === 'chamber_101' && (
             <TutorialOverlay
-              state={state}
-              isActive={showTutorial}
               onDismiss={() => {
                 setShowTutorial(false);
-                markIntroCompleted();
-                setCampaignSave(loadCampaignSave());
               }}
             />
           )}
 
-          {/* Main Game Interface Container */}
-          <div className={`room-frame ${viewMode === '3d' ? 'room-frame--fullscreen' : ''}`}>
-            {/* Streamlined Minimal In-Game HUD Header */}
-            <header className="room-header">
-              <div className="header-brand">
-                <h1 className="header-title">
-                  ROOM <span className="title-accent">S A</span>
-                </h1>
-                <span className="header-chamber-tag">
-                  {getChamberHeaderLabel(state.currentRoomId)}
-                </span>
-              </div>
+          {/* Clean Full-Viewport Game Container */}
+          <div className="room-frame room-frame--fullscreen">
+            {/* Subtle Minimal Floating HUD: Top-Left Objective, Top-Right Menu Pill */}
+            {!isPauseMenuOpen && !isAnyModalOpen && (
+              <div className="gameplay-floating-hud">
+                {/* Contextual Single Objective Tracker */}
+                <ObjectiveHUD state={state} />
 
-              {/* Active Rule Status Pill (visually hidden in 3D fullscreen, active in 2D / for assistive tech) */}
-              <div className="hud-accessible-only">
-                {state.currentRoomId === 'chamber_102' ? (
-                  <div
-                    className={`rule-indicator-pill ${
-                      state.chamber102.circuit.isCircuitClosed ? 'pill-stable' : 'pill-deceptive'
-                    }`}
-                    aria-label={`Harmonic Circuit: ${
-                      state.chamber102.circuit.isCircuitClosed ? 'Resonant' : 'Tuning'
-                    }`}
-                  >
-                    {state.chamber102.circuit.isCircuitClosed ? (
-                      <ShieldCheck size={14} className="pill-icon-ok" />
-                    ) : (
-                      <AlertTriangle size={14} className="pill-icon-warn" />
-                    )}
-                    <span className="pill-text">
-                      {`CIRCUIT: CHAN ${state.chamber102.circuit.routingChannel} @ ${state.chamber102.circuit.selectedFrequency} kHz`}
-                    </span>
-                  </div>
-                ) : (
+                {/* Minimal Unobtrusive Menu Key Pill */}
+                <div className="hud-corner-actions">
                   <button
                     type="button"
-                    className={`rule-indicator-pill ${
-                      isRuleDeceptive ? 'pill-deceptive' : 'pill-stable'
-                    }`}
+                    className="hud-esc-pill"
                     onClick={() => {
                       playKeystrokeSound();
-                      activateTerminal(true);
+                      setIsPauseMenuOpen(true);
+                      if (document.pointerLockElement) {
+                        document.exitPointerLock?.();
+                      }
                     }}
-                    aria-label={`Active Rule: "${activeRule?.statement ?? ''}". Click to open terminal.`}
-                    title={`Active Rule: "${activeRule?.statement ?? ''}". Click to inspect in terminal.`}
+                    title="Pause game [ESC]"
+                    aria-label="Pause menu and controls"
                   >
-                    {isRuleDeceptive ? (
-                      <AlertTriangle size={14} className="pill-icon-warn" />
-                    ) : (
-                      <ShieldCheck size={14} className="pill-icon-ok" />
-                    )}
-                    <span className="pill-text">
-                      RULE: "{activeRule?.statement ?? 'EVALUATING SYSTEM TRUTH'}"
-                    </span>
-                    <span className="pill-hint">[TERMINAL]</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Minimal HUD Actions: 2D/3D toggle & ESC Menu */}
-              <div className="header-actions">
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    setViewMode((prev) => (prev === '3d' ? 'schematic' : '3d'));
-                  }}
-                  aria-label={
-                    viewMode === '3d'
-                      ? 'Switch to 2D Schematic'
-                      : 'Switch to 3D Chamber'
-                  }
-                  title={
-                    viewMode === '3d'
-                      ? 'Switch to 2D Schematic'
-                      : 'Switch to 3D First-Person View'
-                  }
-                >
-                  {viewMode === '3d' ? <Map size={14} /> : <Box size={14} />}
-                  <span>{viewMode === '3d' ? '2D MAP' : '3D VIEW'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="hud-esc-pill"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    setIsPauseMenuOpen(true);
-                    if (document.pointerLockElement) {
-                      document.exitPointerLock?.();
-                    }
-                  }}
-                  title="Pause game, view mission objectives & access settings"
-                  aria-label="Pause menu and controls"
-                >
-                  <span className="hud-esc-key">ESC</span>
-                  <span>MENU</span>
-                </button>
-
-                {/* Auxiliary tools hidden from 3D viewport, accessible via Pause Menu or for screen readers/tests */}
-                <div className="hud-accessible-only">
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={() => {
-                      playKeystrokeSound();
-                      setIsHintModalOpen(true);
-                    }}
-                    aria-label="Open Progressive Hints"
-                  >
-                    <HelpCircle size={14} />
-                    <span>HINTS</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={() => {
-                      playKeystrokeSound();
-                      setIsLogbookModalOpen(true);
-                    }}
-                    aria-label="Open Telemetry Logbook"
-                  >
-                    <BookOpen size={14} />
-                    <span>LOGS</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={handleToggleMute}
-                    aria-label={muted ? 'Unmute game audio' : 'Mute game audio'}
-                  >
-                    {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                    <span>{muted ? 'MUTED' : 'AUDIO'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={() => {
-                      playKeystrokeSound();
-                      activateTerminal(true);
-                    }}
-                    aria-label="Open Terminal"
-                  >
-                    <Terminal size={14} />
-                    <span>TERMINAL</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={() => {
-                      playKeystrokeSound();
-                      handleRestart();
-                    }}
-                    aria-label="Restart Chamber"
-                  >
-                    <RotateCcw size={14} />
-                    <span>RESTART</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={() => {
-                      playKeystrokeSound();
-                      setIsSettingsOpen(true);
-                    }}
-                    aria-label="Open Settings"
-                  >
-                    <SettingsIcon size={14} />
-                    <span>SETTINGS</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-header-action"
-                    onClick={() => {
-                      playKeystrokeSound();
-                      setPhase('title');
-                    }}
-                    aria-label="Return to Title Screen"
-                  >
-                    <Home size={14} />
+                    <span className="hud-esc-key">ESC</span>
                     <span>MENU</span>
                   </button>
                 </div>
               </div>
-            </header>
+            )}
 
-            {/* Central Interactive Chamber Scene (3D First-Person or 2D Schematic) */}
+            {/* Central 3D Interactive Chamber */}
             <section className="room-viewport-section">
-              {/* Contextual Objective Tracker */}
-              <ObjectiveHUD state={state} />
-
               {viewMode === '3d' ? (
                 <ChamberCanvas
                   state={state}
@@ -642,7 +484,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                   onOpenChamberSelect={() => setIsChamberSelectOpen(true)}
                   onReturnToMenu={() => {
                     setIsPauseMenuOpen(false);
-                    setPhase('title');
+                    setPhase('menu');
                   }}
                 />
               ) : (
@@ -655,16 +497,111 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
               )}
             </section>
 
-            {/* Footer HUD & Controls */}
-            <footer className="game-hud-bar">
-              <InventoryHUD
-                items={state.inventory}
-                onInspectItem={(item) => handleInspect(item.id === 'brass_key' ? 'pedestal' : item.id)}
-              />
-            </footer>
+            {/* Screen Reader & Automated Test Auxiliary Controls */}
+            <div className="hud-accessible-only" aria-hidden="false">
+              <h1>ROOM S A</h1>
+              <span>{getChamberHeaderLabel(state.currentRoomId)}</span>
+              {/* Object interaction buttons — only needed for 3D mode (schematic RoomView has its own) */}
+              {viewMode === '3d' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleCollectKey}
+                    aria-label="Machined Brass Key"
+                  >
+                    Collect Key
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleInteract('exit_door')}
+                    aria-label="Reinforced Blast Door: Locked"
+                  >
+                    Operate Door
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleInspect('observation_slate')}
+                    aria-label="Observation Slate: Wall"
+                  >
+                    Inspect Slate
+                  </button>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => activateTerminal(true)}
+                aria-label="Open Terminal"
+              >
+                Open Terminal
+              </button>
+              <button
+                type="button"
+                onClick={handleRestart}
+                aria-label="Restart Chamber"
+              >
+                Restart Chamber
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsHintModalOpen(true)}
+                aria-label="Open Progressive Hints"
+              >
+                Open Progressive Hints
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsLogbookModalOpen(true)}
+                aria-label="Open Telemetry Logbook"
+              >
+                Open Telemetry Logbook
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                aria-label="Open Settings"
+              >
+                Open Settings
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAboutOpen(true)}
+                aria-label="Open About"
+              >
+                Open About
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsChamberSelectOpen(true)}
+                aria-label="Open Chamber Selection"
+              >
+                Open Chamber Selection
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhase('menu')}
+                aria-label="Return to Title Screen"
+              >
+                Return to Title Screen
+              </button>
+              <div aria-label="Player Inventory">
+                <span>{state.inventory.length}/3</span>
+                {state.inventory.map((item) => (
+                  <span key={item.id}>{item.name}</span>
+                ))}
+              </div>
+              <div aria-label="Active Rule">
+                {activeRule?.statement ?? 'Doors yield only to copper keys'}
+              </div>
+            </div>
           </div>
         </>
       )}
+
+      {/* Controls Reference Modal */}
+      <ControlsModal
+        isOpen={isControlsOpen}
+        onClose={() => setIsControlsOpen(false)}
+      />
 
       {/* Progressive Hint Modal */}
       <HintModal
@@ -673,7 +610,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         onClose={() => setIsHintModalOpen(false)}
       />
 
-      {/* Logbook / Lore Dossier Modal */}
+      {/* Case File / Logbook Lore Modal */}
       <LogbookModal
         isOpen={isLogbookModalOpen}
         discoveredLogIds={campaignSave.discoveredLogIds}
@@ -703,7 +640,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         }}
         onReturnToTitle={() => {
           setIsSettingsOpen(false);
-          setPhase('title');
+          setPhase('menu');
         }}
       />
 
@@ -731,22 +668,22 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         chosenEnding={state.chamber105?.chosenEnding ?? 'rewrite'}
         onRestart={() => {
           restartGame();
-          setPhase('title');
+          setPhase('menu');
         }}
         onReturnToMenu={() => {
-          setPhase('title');
+          setPhase('menu');
         }}
       />
 
-      {/* Narrative Story Beat Modal between Chambers */}
+      {/* Automatic Cinematic Chamber Transition Overlay */}
       {activeStoryBeatChamber && (
-        <StoryBeatModal
+        <CinematicTransition
           completedRoomId={activeStoryBeatChamber}
-          onContinue={handleContinueStoryBeat}
+          onTransitionComplete={handleContinueStoryBeat}
         />
       )}
 
-      {/* Screen fade overlay for cinematic transitions */}
+      {/* Screen fade overlay for chamber scene loading */}
       {isTransitioning && <div className="chamber-transition-overlay" aria-hidden="true" />}
     </main>
   );

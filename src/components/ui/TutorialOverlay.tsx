@@ -1,98 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import { Compass, X } from 'lucide-react';
-import { GameState } from '../../game/types';
+import React, { useEffect, useState } from 'react';
+import { X, Compass } from 'lucide-react';
 import { soundManager } from '../../services/audio/soundManager';
-import { markIntroCompleted } from '../../game/progression/campaign';
-import './title.css';
+import './tutorialOverlay.css';
 
 interface TutorialOverlayProps {
-  state: GameState;
-  isActive: boolean;
   onDismiss: () => void;
 }
 
-export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
-  state,
-  isActive,
-  onDismiss,
-}) => {
-  const [step, setStep] = useState<number>(1);
-  const [hasMoved, setHasMoved] = useState(false);
+const STORAGE_KEY = 'room_sa_tutorial_dismissed_v2';
+
+export function isTutorialDismissed(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return localStorage.getItem(STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setTutorialDismissed(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, 'true');
+  } catch {
+    // Ignore
+  }
+}
+
+export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onDismiss }) => {
+  const [fading, setFading] = useState(false);
+
+  const handleClose = () => {
+    setTutorialDismissed();
+    setFading(true);
+    setTimeout(() => {
+      onDismiss();
+    }, 250);
+  };
 
   useEffect(() => {
+    // Disappears automatically after 8 seconds of gameplay
+    const autoDismissTimer = setTimeout(() => {
+      handleClose();
+    }, 8000);
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
-        setHasMoved(true);
+      // Dismisses on Escape or X
+      if (e.code === 'Escape' || e.code === 'KeyX') {
+        soundManager.playKeystroke();
+        handleClose();
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(autoDismissTimer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
-  const handleDismiss = () => {
-    markIntroCompleted();
-    onDismiss();
-  };
-
-  // Progression logic based on real state
-  useEffect(() => {
-    if (step === 1 && hasMoved) {
-      const timer = setTimeout(() => setStep(2), 1200);
-      return () => clearTimeout(timer);
-    }
-    if (step === 2 && state.inspectedObjectIds.length > 0) {
-      setStep(3);
-    }
-    if (step === 3 && state.inventory.some((i) => i.id === 'brass_key')) {
-      setStep(4);
-    }
-    if (step === 4 && state.rules['RULE_01']?.predicateKey === 'RULE_BRASS_KEY_ALLOWED') {
-      setStep(5);
-    }
-    if (step === 5 && !state.exit.isLocked) {
-      handleDismiss();
-    }
-  }, [step, hasMoved, state.inspectedObjectIds, state.inventory, state.rules, state.exit.isLocked]);
-
-  if (!isActive) return null;
-
-  const renderInstruction = () => {
-    switch (step) {
-      case 1:
-        return 'WASD / Arrows to move. Shift to sprint.';
-      case 2:
-        return 'Approach wall slate & press R to inspect.';
-      case 3:
-        return 'Approach pedestal & press E to collect key.';
-      case 4:
-        return 'Approach terminal & rewrite Rule #01.';
-      case 5:
-        return 'Walk to blast door & press E to unlock.';
-      default:
-        return 'Investigate the room and escape.';
-    }
-  };
-
   return (
-    <div className="tutorial-banner" role="complementary" aria-label="Training Guide">
-      <div className="tutorial-header">
-        <div className="tutorial-step-label">
-          <Compass size={12} color="#52D9F2" />
-          <span>INVESTIGATION BRIEF // STEP {step}/5</span>
+    <aside
+      className={`controls-tutorial-overlay ${fading ? 'fade-out' : ''}`}
+      role="complementary"
+      aria-label="Training Guide"
+    >
+      <div className="controls-tutorial-card">
+        <div className="controls-tutorial-header">
+          <div className="controls-tutorial-badge">
+            <Compass size={13} className="tutorial-badge-icon" />
+            <span>OPERATIONAL CONTROLS</span>
+          </div>
+          <button
+            type="button"
+            className="btn-tutorial-dismiss"
+            onClick={() => {
+              soundManager.playKeystroke();
+              handleClose();
+            }}
+            aria-label="Dismiss controls tutorial"
+            title="Dismiss guide [ESC]"
+          >
+            <X size={13} />
+          </button>
         </div>
-        <button
-          type="button"
-          className="tutorial-close-btn"
-          onClick={() => {
-            soundManager.playKeystroke();
-            handleDismiss();
-          }}
-          aria-label="Dismiss training guide"
-        >
-          <X size={12} />
-        </button>
+
+        <div className="controls-tutorial-entries">
+          <div className="tutorial-entry">
+            <div className="tutorial-kbd-group">
+              <kbd className="tut-key">W</kbd>
+              <kbd className="tut-key">A</kbd>
+              <kbd className="tut-key">S</kbd>
+              <kbd className="tut-key">D</kbd>
+            </div>
+            <span className="tut-label">Move / Walk</span>
+          </div>
+
+          <div className="tutorial-entry">
+            <div className="tutorial-kbd-group">
+              <kbd className="tut-key wide">MOUSE</kbd>
+            </div>
+            <span className="tut-label">Look (Click to lock)</span>
+          </div>
+
+          <div className="tutorial-entry">
+            <div className="tutorial-kbd-group">
+              <kbd className="tut-key">E</kbd>
+            </div>
+            <span className="tut-label">Interact / Collect</span>
+          </div>
+
+          <div className="tutorial-entry">
+            <div className="tutorial-kbd-group">
+              <kbd className="tut-key wide">ESC</kbd>
+            </div>
+            <span className="tut-label">Pause Menu</span>
+          </div>
+        </div>
+
+        <div className="controls-tutorial-footer">
+          <span>HINT: Full controls & logs in Pause Menu [ESC]</span>
+        </div>
       </div>
-      <p className="tutorial-instruction">{renderInstruction()}</p>
-    </div>
+    </aside>
   );
 };

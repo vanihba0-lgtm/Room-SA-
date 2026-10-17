@@ -1,0 +1,137 @@
+/* ===========================================================
+   Story Briefing Screen — Narrative Briefing before Chamber 101
+   =========================================================== */
+
+.story-briefing-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 8, 13, 0.94);
+  backdrop-filter: blur(16px);
+  padding: 24px;
+  animation: briefingFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.story-briefing-card {
+  width: 100%;
+  max-width: 580px;
+  background: #0d1522;
+  border: 1px solid #1f3048;
+  border-radius: 12px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+.story-briefing-top-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #182638;
+  padding-bottom: 12px;
+}
+
+.story-briefing-counter {
+  font-family: var(--font-family-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: #52D9F2;
+  font-weight: 600;
+}
+
+.story-briefing-speaker {
+  font-family: var(--font-family-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: #FFC46B;
+}
+
+.story-briefing-heading {
+  font-family: var(--font-family-display, 'Space Grotesk', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #F4F7FC;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.story-briefing-text {
+  font-family: var(--font-family-sans, 'Inter', sans-serif);
+  font-size: 0.96rem;
+  color: #CBD5E1;
+  line-height: 1.65;
+  margin: 0;
+  min-height: 80px;
+}
+
+.story-briefing-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #182638;
+  padding-top: 20px;
+  margin-top: 4px;
+}
+
+.btn-briefing-skip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #23344b;
+  color: #8C9EB5;
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-briefing-skip:hover {
+  background: #172436;
+  color: #F4F7FC;
+  border-color: #3d567a;
+}
+
+.btn-briefing-next {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFC46B;
+  border: 1px solid #FFC46B;
+  color: #070a0f;
+  font-family: var(--font-family-display, 'Space Grotesk', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-briefing-next:hover {
+  background: #ffd28c;
+  transform: translateY(-1px);
+}
+
+@keyframes briefingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

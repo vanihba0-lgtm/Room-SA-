@@ -29,7 +29,7 @@
    * Monospace: JetBrains Mono for limited technical content
    * ========================================== */
   --font-family-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-family-display: var(--font-family-sans);
+  --font-family-display: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Typographic Scale */
@@ -128,8 +128,8 @@
   --z-bg: 0;
   --z-scene: 10;
   --z-hud: 40;
-  --z-modal-backdrop: 60;
-  --z-modal: 70;
-  --z-toast: 90;
-  --z-tutorial: 100;
+  --z-modal-backdrop: 1000;
+  --z-modal: 1050;
+  --z-toast: 1100;
+  --z-tutorial: 1150;
 }

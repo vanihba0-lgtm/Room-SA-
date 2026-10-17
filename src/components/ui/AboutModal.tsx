@@ -44,7 +44,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             Trapped in an unmonitored diagnostic facility run by the Architect, you discover that the official world rules governing reality are incomplete and deliberately falsified.
           </p>
           <p>
-            By examining physical evidence, correlating anomalies, and accessing logic terminals, you deduce the hidden truth and rewrite the simulation's rules to escape through six increasingly intricate chambers.
+            By examining physical evidence, correlating anomalies, and accessing logic terminals, you deduce the hidden truth and rewrite the simulation's rules to escape through five increasingly intricate chambers.
           </p>
 
           <div style={{ background: 'var(--color-bg-surface)', padding: '12px 14px', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--color-cyan-primary)' }}>
@@ -55,7 +55,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               • Deterministic Rule Engine with pure state transitions.<br />
               • Low-latency synthesized Web Audio soundscapes.<br />
               • Authentic 3D FPS interaction with pointer lock controls and tactical 2D map fallback.<br />
-              • Six unique chambers culminating in the Rule Engine finale.
+              • Five unique chambers culminating in the Rule Engine finale.
             </div>
           </div>
 

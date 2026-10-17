@@ -161,3 +161,9 @@ export function recordLogDiscovered(save: CampaignSaveData, logId: string): Camp
   return updated;
 }
 
+export function resetCampaignSave(): CampaignSaveData {
+  const fresh = getInitialCampaignSave();
+  saveCampaignProgress(fresh);
+  return fresh;
+}
+

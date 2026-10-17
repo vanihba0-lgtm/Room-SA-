@@ -7,7 +7,11 @@ interface CrosshairHUDProps {
   isLocked: boolean;
 }
 
-export const CrosshairHUD: React.FC<CrosshairHUDProps> = ({ target }) => {
+export const CrosshairHUD: React.FC<CrosshairHUDProps> = ({ target, isLocked }) => {
+  if (!isLocked) {
+    return null;
+  }
+
   return (
     <div className="crosshair-hud-container" aria-hidden="true">
       {/* Central Reticle */}
@@ -16,22 +20,17 @@ export const CrosshairHUD: React.FC<CrosshairHUDProps> = ({ target }) => {
         <div className="reticle-ring" />
       </div>
 
-      {/* Minimal Sleek Target Prompt Pill */}
+      {/* Single, Stable Contextual Prompt */}
       {target && (
-        <div className="interaction-prompt-pill">
-          <span className="prompt-target-name">{target.name}</span>
-          <div className="prompt-actions-inline">
-            <span className="prompt-action-item">
-              <kbd className="prompt-key">E</kbd>
-              <span className="prompt-verb">{target.actionText}</span>
+        <div className="interaction-prompt-pill" key={target.id}>
+          <kbd className="prompt-key">E</kbd>
+          <span className="prompt-verb">{target.actionText}</span>
+          {target.inspectText && (
+            <span className="prompt-secondary-action">
+              <kbd className="prompt-key secondary">R</kbd>
+              <span className="prompt-verb-sec">{target.inspectText}</span>
             </span>
-            {target.inspectText && (
-              <span className="prompt-action-item inspect">
-                <kbd className="prompt-key key-inspect">R</kbd>
-                <span className="prompt-verb">Inspect</span>
-              </span>
-            )}
-          </div>
+          )}
         </div>
       )}
     </div>
