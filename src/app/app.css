@@ -131,12 +131,6 @@
   transition: all 0.15s ease;
 }
 
-@media (pointer: coarse) {
-  .hud-esc-pill {
-    display: none;
-  }
-}
-
 .hud-esc-pill:hover {
   background: rgba(22, 34, 52, 0.95);
   border-color: #FFC46B;

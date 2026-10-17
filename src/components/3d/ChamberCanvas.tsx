@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber';
 import { ChamberScene } from './ChamberScene';
 import { CrosshairHUD } from './CrosshairHUD';
 import { PauseControlsModal } from './PauseControlsModal';
-import { TouchControlsOverlay, TouchInputState } from './TouchControlsOverlay';
 import { InteractionTargetInfo } from './PlayerController';
 import { GameState } from '../../game/types';
 import { getActiveObjective } from '../../game/progression/objectives';
@@ -46,36 +45,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const [hoverTarget, setHoverTarget] = useState<InteractionTargetInfo | null>(null);
 
-  // Device & input detection: check touch capability without breaking hybrid laptops
-  const [isTouchDevice, setIsTouchDevice] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return (
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0 ||
-      (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
-    );
-  });
-
-  useEffect(() => {
-    const handleTouchDetect = () => {
-      setIsTouchDevice(true);
-    };
-    window.addEventListener('touchstart', handleTouchDetect, { passive: true, once: true });
-    return () => window.removeEventListener('touchstart', handleTouchDetect);
-  }, []);
-
   const effectivePaused = isForcePaused || isPaused;
-
-  // Shared semantic touch input state passed to R3F frame loop via ref to avoid re-renders
-  const touchInputRef = useRef<TouchInputState>({
-    move: { x: 0, y: 0 },
-    look: { deltaX: 0, deltaY: 0 },
-    jumpRequested: false,
-  });
-
-  const handleTouchInputUpdate = (input: TouchInputState) => {
-    touchInputRef.current = input;
-  };
 
   // Reset internal pause state when room changes (e.g. after cinematic transition)
   // This prevents the player from being stuck in a paused state after a chamber transition
@@ -109,8 +79,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   const handleLockChange = (locked: boolean) => {
     setIsLocked(locked);
     if (!locked) {
-      // Only pause on lock loss if pointer lock was actively engaged in desktop mouse mode
-      if (hasLockedRef.current && !isTouchDevice) {
+      if (hasLockedRef.current) {
         setIsPaused(true);
         onTogglePause?.(true);
       }
@@ -125,16 +94,11 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
     setIsPaused(false);
     onTogglePause?.(false);
     // Request pointer lock on the canvas element on desktop
-    if (!isTouchDevice) {
-      const canvas = document.querySelector('canvas');
-      if (canvas) {
-        canvas.requestPointerLock?.();
-      }
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      canvas.requestPointerLock?.();
     }
   };
-
-  // Performance Phase 4: Cap DPR conservatively on mobile to prevent GPU thermal throttling
-  const dprCap: [number, number] = [1, isTouchDevice ? 1.5 : 2];
 
   return (
     <div className="chamber-3d-viewport">
@@ -151,7 +115,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
           style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
           camera={{ position: [0, 1.7, 3.5], fov: 65, near: 0.1, far: 50 }}
           shadows
-          dpr={dprCap}
+          dpr={[1, 2]}
           gl={{
             antialias: true,
             powerPreference: 'default',
@@ -165,33 +129,15 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
             onInteract={onInteract}
             onInspect={onInspect}
             onHoverTarget={setHoverTarget}
-            touchInputRef={touchInputRef}
-            isTouchDevice={isTouchDevice}
           />
         </Canvas>
       </Suspense>
 
-      {/* Crosshair & Contextual Target Prompts (visible on desktop locked, or active mobile play) */}
+      {/* Crosshair & Contextual Target Prompts (visible when mouse is locked during desktop play) */}
       <CrosshairHUD
         target={hoverTarget}
-        isLocked={!effectivePaused && !isExternalModalOpen && (isLocked || isTouchDevice)}
+        isLocked={isLocked && !effectivePaused && !isExternalModalOpen}
       />
-
-      {/* Touch Control Overlay for Mobile / Touchscreen Devices */}
-      {isTouchDevice && !effectivePaused && !state.terminalOpen && state.status !== 'escaped' && !isExternalModalOpen && (
-        <TouchControlsOverlay
-          onInputUpdate={handleTouchInputUpdate}
-          hoverTarget={hoverTarget}
-          onInteract={onInteract}
-          onInspect={onInspect}
-          onOpenMenu={() => {
-            setIsPaused(true);
-            onTogglePause?.(true);
-          }}
-          isPaused={effectivePaused || isExternalModalOpen}
-          carriedObjectId={state.carriedObjectId}
-        />
-      )}
 
       {/* Full Pause Menu */}
       <PauseControlsModal

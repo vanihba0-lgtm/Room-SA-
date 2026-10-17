@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { PointerLockControls } from '@react-three/drei';
-import { Vector3, Euler } from 'three';
+import { Vector3 } from 'three';
 import { GameState } from '../../game/types';
 import { playFootstepSound } from '../../services/audio/sound';
-import { TouchInputState } from './TouchControlsOverlay';
 
 export interface InteractionTargetInfo {
   id: string;
@@ -24,8 +23,6 @@ interface PlayerControllerProps {
   hasKey: boolean;
   regulatorState: string;
   state?: GameState;
-  touchInputRef?: React.MutableRefObject<TouchInputState>;
-  isTouchDevice?: boolean;
 }
 
 export const PlayerController: React.FC<PlayerControllerProps> = ({
@@ -38,8 +35,6 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
   hasKey,
   regulatorState,
   state,
-  touchInputRef,
-  isTouchDevice = false,
 }) => {
   const { camera } = useThree();
 
@@ -190,15 +185,8 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
     if (keys.current.right) moveDir.add(right);
     if (keys.current.left) moveDir.sub(right);
 
-    // Shared Semantic Input: Incorporate mobile virtual joystick vector
-    if (touchInputRef?.current) {
-      const touchMove = touchInputRef.current.move;
-      if (touchMove.y !== 0) moveDir.addScaledVector(forward, touchMove.y);
-      if (touchMove.x !== 0) moveDir.addScaledVector(right, touchMove.x);
-    }
-
     if (moveDir.lengthSq() > 0) {
-      if (moveDir.lengthSq() > 1) moveDir.normalize();
+      moveDir.normalize();
       const speed = keys.current.sprint ? 5.8 : 3.8;
       pos.current.addScaledVector(moveDir, speed * delta);
       if (isGrounded.current) {
@@ -206,30 +194,7 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
       }
     }
 
-    // Touch look camera rotation
-    if (touchInputRef?.current) {
-      const { deltaX, deltaY } = touchInputRef.current.look;
-      if (deltaX !== 0 || deltaY !== 0) {
-        const sensitivity = 0.0035;
-        const euler = new Euler(0, 0, 0, 'YXZ');
-        euler.setFromQuaternion(camera.quaternion);
-        euler.y -= deltaX * sensitivity;
-        euler.x -= deltaY * sensitivity;
-        const maxPitch = Math.PI / 2 - 0.06;
-        euler.x = Math.max(-maxPitch, Math.min(maxPitch, euler.x));
-        camera.quaternion.setFromEuler(euler);
-        touchInputRef.current.look.deltaX = 0;
-        touchInputRef.current.look.deltaY = 0;
-      }
-    }
-
-    // 2. Vertical gravity & jumping (keyboard space or touch jump button)
-    if (touchInputRef?.current?.jumpRequested && isGrounded.current) {
-      velocityY.current = 6.0;
-      isGrounded.current = false;
-      touchInputRef.current.jumpRequested = false;
-    }
-
+    // 2. Vertical gravity & jumping
     velocityY.current -= 18.0 * delta; // Gravity
     pos.current.y += velocityY.current * delta;
 
@@ -671,13 +636,9 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
   });
 
   return (
-    <>
-      {!isTouchDevice && (
-        <PointerLockControls
-          onLock={() => onLockChange(true)}
-          onUnlock={() => onLockChange(false)}
-        />
-      )}
-    </>
+    <PointerLockControls
+      onLock={() => onLockChange(true)}
+      onUnlock={() => onLockChange(false)}
+    />
   );
 };

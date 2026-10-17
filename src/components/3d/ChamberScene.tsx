@@ -12,7 +12,6 @@ import { Chamber104Scene } from './chambers/Chamber104Scene';
 import { Chamber105Scene } from './chambers/Chamber105Scene';
 import { Chamber106Scene } from './chambers/Chamber106Scene';
 import { PlayerController, InteractionTargetInfo } from './PlayerController';
-import { TouchInputState } from './TouchControlsOverlay';
 import { GameState } from '../../game/types';
 
 interface ChamberSceneProps {
@@ -22,8 +21,6 @@ interface ChamberSceneProps {
   onInteract: (targetId: string) => void;
   onInspect: (targetId: string) => void;
   onHoverTarget: (target: InteractionTargetInfo | null) => void;
-  touchInputRef?: React.MutableRefObject<TouchInputState>;
-  isTouchDevice?: boolean;
 }
 
 export const ChamberScene: React.FC<ChamberSceneProps> = ({
@@ -33,8 +30,6 @@ export const ChamberScene: React.FC<ChamberSceneProps> = ({
   onInteract,
   onInspect,
   onHoverTarget,
-  touchInputRef,
-  isTouchDevice = false,
 }) => {
   const currentRoom = state.currentRoomId;
   const hasBrassKey = state.inventory.some((item) => item.id === 'brass_key');
@@ -95,8 +90,6 @@ export const ChamberScene: React.FC<ChamberSceneProps> = ({
           hasKey={hasBrassKey}
           regulatorState={powerRegulatorState}
           state={state}
-          touchInputRef={touchInputRef}
-          isTouchDevice={isTouchDevice}
         />
       </Physics>
     </>
