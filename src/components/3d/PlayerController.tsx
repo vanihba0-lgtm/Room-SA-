@@ -70,6 +70,20 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
     jump: false,
   });
 
+  // Clear keys when paused
+  useEffect(() => {
+    if (isPaused) {
+      keys.current = {
+        forward: false,
+        backward: false,
+        left: false,
+        right: false,
+        sprint: false,
+        jump: false,
+      };
+    }
+  }, [isPaused]);
+
   const currentHoverRef = useRef<InteractionTargetInfo | null>(null);
 
   useEffect(() => {

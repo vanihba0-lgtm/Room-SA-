@@ -243,6 +243,9 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       objectId === 'c105_terminal'
     ) {
       playKeystrokeSound();
+      if (document.pointerLockElement) {
+        document.exitPointerLock?.();
+      }
       activateTerminal(true);
       return;
     }
@@ -658,6 +661,11 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         onClose={() => {
           playKeystrokeSound();
           activateTerminal(false);
+          setIsPauseMenuOpen(false);
+          const canvas = document.querySelector('canvas');
+          if (canvas) {
+            canvas.requestPointerLock?.();
+          }
         }}
         onSubmitProposal={submitRuleProposal}
       />

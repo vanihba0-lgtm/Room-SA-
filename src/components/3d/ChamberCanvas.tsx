@@ -79,7 +79,8 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   const handleLockChange = (locked: boolean) => {
     setIsLocked(locked);
     if (!locked) {
-      if (hasLockedRef.current) {
+      // Only trigger pause if pointer lock was released manually without any modal opening
+      if (hasLockedRef.current && !state.terminalOpen && !isExternalModalOpen && !isForcePaused) {
         setIsPaused(true);
         onTogglePause?.(true);
       }
@@ -89,6 +90,13 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
       onTogglePause?.(false);
     }
   };
+
+  // Automatically clear local pause when modals close
+  useEffect(() => {
+    if (!state.terminalOpen && !isExternalModalOpen && !isForcePaused) {
+      setIsPaused(false);
+    }
+  }, [state.terminalOpen, isExternalModalOpen, isForcePaused]);
 
   const handleResume = () => {
     setIsPaused(false);

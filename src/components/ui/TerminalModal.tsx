@@ -63,6 +63,9 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
   useEffect(() => {
     let isSubscribed = true;
     if (isOpen) {
+      if (document.pointerLockElement) {
+        document.exitPointerLock?.();
+      }
       if (typeof logEndRef.current?.scrollIntoView === 'function') {
         logEndRef.current.scrollIntoView({ behavior: 'smooth' });
       }
@@ -76,6 +79,33 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({
       isSubscribed = false;
     };
   }, [isOpen, logs]);
+
+  // Keyboard navigation inside Terminal Modal (Escape to close, E to execute quick override)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleModalKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      } else if (e.code === 'KeyE') {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag !== 'input' && activeTag !== 'textarea') {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!isRuleRewritten) {
+            handleExecuteQuickOverride();
+          } else {
+            onClose();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleModalKeyDown);
+    return () => window.removeEventListener('keydown', handleModalKeyDown);
+  }, [isOpen, isRuleRewritten, onClose]);
 
   if (!isOpen) return null;
 

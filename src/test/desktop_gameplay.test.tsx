@@ -157,4 +157,88 @@ describe('ROOM S A — Desktop Gameplay, Campaign Scope & System Integrity', () 
       expect(winResult.nextState.exit.isLocked).toBe(false);
     });
   });
+
+  describe('4. Chamber 101 Terminal Interaction & Movement State Regression', () => {
+    it('traces terminal interaction from E key targeting through contradiction detection and rule rewriting', () => {
+      let state = createChamber101InitialState();
+
+      // Initial state: Rule 01 is deceptive
+      expect(state.rules['RULE_01'].isDeceptive).toBe(true);
+      expect(state.rules['RULE_01'].predicateKey).toBe('RULE_COPPER_KEY_ONLY');
+      expect(state.terminalOpen).toBe(false);
+
+      // Player interacts with the terminal (via pressing E or clicking interactable)
+      const openResult = engineReducer(state, {
+        type: 'INTERACT_WITH_OBJECT',
+        payload: { objectId: 'terminal' },
+      });
+      expect(openResult.success).toBe(true);
+      expect(openResult.nextState.terminalOpen).toBe(true);
+      state = openResult.nextState;
+
+      // Rule proposal submission (e.g. Quick Override or CLI)
+      const rewriteResult = engineReducer(state, {
+        type: 'SUBMIT_RULE_PROPOSAL',
+        payload: {
+          proposal: {
+            targetRuleId: 'RULE_01',
+            proposedStatement: 'Doors yield to brass keys.',
+            newPredicateKey: 'RULE_BRASS_KEY_ALLOWED',
+            operation: 'OVERRIDE_PREDICATE',
+            explanation: 'Contradiction: specimen key is brass, not copper.',
+          },
+        },
+      });
+      expect(rewriteResult.success).toBe(true);
+      expect(rewriteResult.nextState.rules['RULE_01'].isDeceptive).toBe(false);
+      expect(rewriteResult.nextState.rules['RULE_01'].predicateKey).toBe('RULE_BRASS_KEY_ALLOWED');
+      state = rewriteResult.nextState;
+
+      // Close the terminal console (via ESC, [X], or close handler)
+      const closeResult = engineReducer(state, {
+        type: 'ACTIVATE_TERMINAL',
+        payload: { open: false },
+      });
+      expect(closeResult.success).toBe(true);
+      expect(closeResult.nextState.terminalOpen).toBe(false);
+      state = closeResult.nextState;
+
+      // Verify that after terminal closes, the game is NOT left in an escaped or paused state
+      expect(state.terminalOpen).toBe(false);
+      expect(state.status).toBe('playing');
+    });
+
+    it('rejects invalid or nonsense terminal input gracefully without locking the terminal', () => {
+      let state = createChamber101InitialState();
+
+      // Open terminal
+      state = engineReducer(state, {
+        type: 'ACTIVATE_TERMINAL',
+        payload: { open: true },
+      }).nextState;
+      expect(state.terminalOpen).toBe(true);
+
+      // Submit invalid proposal
+      const invalidResult = engineReducer(state, {
+        type: 'SUBMIT_RULE_PROPOSAL',
+        payload: {
+          proposal: {
+            targetRuleId: 'RULE_01',
+            proposedStatement: 'gibberish',
+            newPredicateKey: 'RULE_UNKNOWN_INPUT',
+          },
+        },
+      });
+      expect(invalidResult.success).toBe(false);
+      expect(invalidResult.nextState.rules['RULE_01'].isDeceptive).toBe(true); // Still deceptive
+      expect(invalidResult.nextState.terminalLog.some((l) => l.includes('[ERROR]'))).toBe(true);
+
+      // Can still close terminal cleanly
+      const closeResult = engineReducer(invalidResult.nextState, {
+        type: 'ACTIVATE_TERMINAL',
+        payload: { open: false },
+      });
+      expect(closeResult.nextState.terminalOpen).toBe(false);
+    });
+  });
 });
