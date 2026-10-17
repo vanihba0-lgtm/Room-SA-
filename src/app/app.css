@@ -285,3 +285,78 @@
 .room-frame--fullscreen .game-hud-bar > * {
   pointer-events: auto;
 }
+
+/* In 3D Fullscreen, hide auxiliary toolbar buttons visually to keep viewport clean */
+.room-frame--fullscreen .hud-accessible-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===========================================================
+   Cinematic Chamber Transition Overlay
+   =========================================================== */
+
+.chamber-transition-overlay {
+  position: fixed;
+  inset: 0;
+  background: #020617;
+  z-index: 890;
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: transitionFadeInOut 0.8s ease-in-out forwards;
+}
+
+@keyframes transitionFadeInOut {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Minimal In-Game HUD Controls */
+.hud-esc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-family: var(--font-family-mono);
+  font-size: 0.7rem;
+  color: #94a3b8;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.15s ease;
+}
+
+.hud-esc-pill:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.hud-esc-key {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: #f8fafc;
+  font-weight: 700;
+}

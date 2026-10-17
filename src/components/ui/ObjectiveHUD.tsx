@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Target, HelpCircle, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { Target, ChevronDown, ChevronUp } from 'lucide-react';
 import { GameState } from '../../game/types';
 import { getActiveObjective } from '../../game/progression/objectives';
 import { soundManager } from '../../services/audio/soundManager';
@@ -8,15 +8,9 @@ import './objective.css';
 
 interface ObjectiveHUDProps {
   state: GameState;
-  onOpenHints: () => void;
-  onOpenLogbook: () => void;
 }
 
-export const ObjectiveHUD: React.FC<ObjectiveHUDProps> = ({
-  state,
-  onOpenHints,
-  onOpenLogbook,
-}) => {
+export const ObjectiveHUD: React.FC<ObjectiveHUDProps> = ({ state }) => {
   const currentObj = getActiveObjective(state);
   const lastCompletedIdRef = useRef<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -40,46 +34,18 @@ export const ObjectiveHUD: React.FC<ObjectiveHUDProps> = ({
         <div className="objective-header-row">
           <div className="objective-badge">
             <Target size={12} className="objective-target-icon" />
-            <span>OBJECTIVE</span>
+            <span>ACTIVE TASK</span>
           </div>
 
-          <div className="objective-actions-row">
-            <button
-              type="button"
-              className="btn-hud-pill"
-              onClick={() => {
-                soundManager.playKeystroke();
-                onOpenHints();
-              }}
-              aria-label="Open puzzle hints"
-              title="Request progressive hint"
-            >
-              <HelpCircle size={11} />
-              <span>HINT</span>
-            </button>
-            <button
-              type="button"
-              className="btn-hud-pill"
-              onClick={() => {
-                soundManager.playKeystroke();
-                onOpenLogbook();
-              }}
-              aria-label="Open investigator logbook"
-              title="View discovered logs"
-            >
-              <BookOpen size={11} />
-              <span>LOGS</span>
-            </button>
-            <button
-              type="button"
-              className="btn-hud-toggle"
-              onClick={() => setIsExpanded((prev) => !prev)}
-              aria-label={isExpanded ? 'Collapse objective details' : 'Expand objective details'}
-              title={isExpanded ? 'Collapse details' : 'Expand details'}
-            >
-              {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn-hud-toggle"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            aria-label={isExpanded ? 'Collapse objective details' : 'Expand objective details'}
+            title={isExpanded ? 'Collapse details' : 'Expand details'}
+          >
+            {isExpanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
         </div>
 
         <h3 className="objective-title">{currentObj.title}</h3>

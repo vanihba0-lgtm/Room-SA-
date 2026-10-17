@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Terminal,
   RotateCcw,
@@ -29,6 +29,7 @@ import { LogbookModal } from '../components/ui/LogbookModal';
 import { ChamberSelectModal } from '../components/ui/ChamberSelectModal';
 import { SettingsModal } from '../components/ui/SettingsModal';
 import { AboutModal } from '../components/ui/AboutModal';
+import { StoryBeatModal } from '../components/ui/StoryBeatModal';
 import {
   isMuted,
   toggleMuted,
@@ -87,7 +88,11 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
   // UI State
   const [muted, setMutedState] = useState(() => isMuted());
   const [viewMode, setViewMode] = useState<'3d' | 'schematic'>(defaultMode);
-  const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(() => !hasCompletedIntro());
+  const [activeStoryBeatChamber, setActiveStoryBeatChamber] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isPauseMenuOpen, setIsPauseMenuOpen] = useState(false);
+  const pendingDoorInteractionRef = useRef<string | null>(null);
 
   // Modals
   const [isHintModalOpen, setIsHintModalOpen] = useState(false);
@@ -239,8 +244,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     // 2. Anomaly Rule Terminal
     if (
       objectId === 'terminal' ||
-      objectId === 'c105_terminal' ||
-      objectId === 'c106_master_terminal'
+      objectId === 'c105_terminal'
     ) {
       playKeystrokeSound();
       activateTerminal(true);
@@ -253,8 +257,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       objectId === 'diagnostic_slate_102' ||
       objectId === 'c103_log' ||
       objectId === 'c104_monitor' ||
-      objectId === 'c105_chronometer' ||
-      objectId === 'c106_prime_axiom'
+      objectId === 'c105_chronometer'
     ) {
       handleInspect(objectId);
       return;
@@ -276,13 +279,18 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         isUnlocked = Boolean(state.chamber104?.exitUnlocked);
       } else if (objectId === 'exit_door_105') {
         isUnlocked = Boolean(state.chamber105?.exitUnlocked);
-      } else if (objectId === 'exit_door_106') {
-        isUnlocked = Boolean(state.chamber106?.primeDirectiveOverridden);
       }
 
       if (isUnlocked) {
         playDoorUnlockSound();
         playSuccessChime();
+
+        // Check if there is an inter-chamber narrative beat for this chamber
+        if (['chamber_101', 'chamber_102', 'chamber_103', 'chamber_104'].includes(state.currentRoomId)) {
+          pendingDoorInteractionRef.current = objectId;
+          setActiveStoryBeatChamber(state.currentRoomId);
+          return;
+        }
       } else {
         playDoorLockedSound();
       }
@@ -301,8 +309,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
       objectId === 'c103_sensor' ||
       objectId === 'c104_dispenser' ||
       objectId === 'c104_crypto' ||
-      objectId.startsWith('c105_relay') ||
-      objectId.startsWith('c106_console')
+      objectId.startsWith('c105_relay')
     ) {
       playSuccessChime();
     } else {
@@ -310,6 +317,19 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     }
 
     interactWithObject(objectId);
+  };
+
+  const handleContinueStoryBeat = () => {
+    const pendingObjectId = pendingDoorInteractionRef.current || 'exit_door';
+    pendingDoorInteractionRef.current = null;
+    setActiveStoryBeatChamber(null);
+    setIsTransitioning(true);
+
+    interactWithObject(pendingObjectId);
+
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 500);
   };
 
   const handleCollectKey = () => {
@@ -340,8 +360,6 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
 
   const handleIntroComplete = () => {
     notificationManager.clear();
-    markIntroCompleted();
-    setCampaignSave(loadCampaignSave());
     setPhase('playing');
   };
 
@@ -358,7 +376,8 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
     isChamberSelectOpen ||
     isSettingsOpen ||
     isAboutOpen ||
-    state.status === 'escaped';
+    state.status === 'escaped' ||
+    Boolean(activeStoryBeatChamber);
 
   return (
     <main className={`app-viewport ${phase === 'playing' ? 'is-playing' : ''}`}>
@@ -389,7 +408,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
         />
       )}
 
-      {/* Screen C & D: Main Game Loop (Chambers 101-106) */}
+      {/* Screen C & D: Main Game Loop (Chambers 101-105) */}
       {phase === 'playing' && (
         <>
           {/* Action Result / Feedback Toast Notification */}
@@ -410,7 +429,7 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
 
           {/* Main Game Interface Container */}
           <div className={`room-frame ${viewMode === '3d' ? 'room-frame--fullscreen' : ''}`}>
-            {/* Navigation & Status Header */}
+            {/* Streamlined Minimal In-Game HUD Header */}
             <header className="room-header">
               <div className="header-brand">
                 <h1 className="header-title">
@@ -421,53 +440,53 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                 </span>
               </div>
 
-              {/* Active Rule Status Pill */}
-              {state.currentRoomId === 'chamber_102' ? (
-                <div
-                  className={`rule-indicator-pill ${
-                    state.chamber102.circuit.isCircuitClosed
-                      ? 'pill-stable'
-                      : 'pill-deceptive'
-                  }`}
-                  aria-label={`Harmonic Circuit: ${
-                    state.chamber102.circuit.isCircuitClosed ? 'Resonant' : 'Tuning'
-                  }`}
-                >
-                  {state.chamber102.circuit.isCircuitClosed ? (
-                    <ShieldCheck size={14} className="pill-icon-ok" />
-                  ) : (
-                    <AlertTriangle size={14} className="pill-icon-warn" />
-                  )}
-                  <span className="pill-text">
-                    {`CIRCUIT: CHAN ${state.chamber102.circuit.routingChannel} @ ${state.chamber102.circuit.selectedFrequency} kHz`}
-                  </span>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className={`rule-indicator-pill ${
-                    isRuleDeceptive ? 'pill-deceptive' : 'pill-stable'
-                  }`}
-                  onClick={() => {
-                    playKeystrokeSound();
-                    activateTerminal(true);
-                  }}
-                  aria-label={`Active Rule: "${activeRule?.statement ?? ''}". Click to open terminal.`}
-                  title={`Active Rule: "${activeRule?.statement ?? ''}". Click to inspect in terminal.`}
-                >
-                  {isRuleDeceptive ? (
-                    <AlertTriangle size={14} className="pill-icon-warn" />
-                  ) : (
-                    <ShieldCheck size={14} className="pill-icon-ok" />
-                  )}
-                  <span className="pill-text">
-                    RULE: "{activeRule?.statement ?? 'EVALUATING SYSTEM TRUTH'}"
-                  </span>
-                  <span className="pill-hint">[TERMINAL]</span>
-                </button>
-              )}
+              {/* Active Rule Status Pill (visually hidden in 3D fullscreen, active in 2D / for assistive tech) */}
+              <div className="hud-accessible-only">
+                {state.currentRoomId === 'chamber_102' ? (
+                  <div
+                    className={`rule-indicator-pill ${
+                      state.chamber102.circuit.isCircuitClosed ? 'pill-stable' : 'pill-deceptive'
+                    }`}
+                    aria-label={`Harmonic Circuit: ${
+                      state.chamber102.circuit.isCircuitClosed ? 'Resonant' : 'Tuning'
+                    }`}
+                  >
+                    {state.chamber102.circuit.isCircuitClosed ? (
+                      <ShieldCheck size={14} className="pill-icon-ok" />
+                    ) : (
+                      <AlertTriangle size={14} className="pill-icon-warn" />
+                    )}
+                    <span className="pill-text">
+                      {`CIRCUIT: CHAN ${state.chamber102.circuit.routingChannel} @ ${state.chamber102.circuit.selectedFrequency} kHz`}
+                    </span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className={`rule-indicator-pill ${
+                      isRuleDeceptive ? 'pill-deceptive' : 'pill-stable'
+                    }`}
+                    onClick={() => {
+                      playKeystrokeSound();
+                      activateTerminal(true);
+                    }}
+                    aria-label={`Active Rule: "${activeRule?.statement ?? ''}". Click to open terminal.`}
+                    title={`Active Rule: "${activeRule?.statement ?? ''}". Click to inspect in terminal.`}
+                  >
+                    {isRuleDeceptive ? (
+                      <AlertTriangle size={14} className="pill-icon-warn" />
+                    ) : (
+                      <ShieldCheck size={14} className="pill-icon-ok" />
+                    )}
+                    <span className="pill-text">
+                      RULE: "{activeRule?.statement ?? 'EVALUATING SYSTEM TRUTH'}"
+                    </span>
+                    <span className="pill-hint">[TERMINAL]</span>
+                  </button>
+                )}
+              </div>
 
-              {/* Quick Header Actions */}
+              {/* Minimal HUD Actions: 2D/3D toggle & ESC Menu */}
               <div className="header-actions">
                 <button
                   type="button"
@@ -493,108 +512,118 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
 
                 <button
                   type="button"
-                  className="btn-header-action"
+                  className="hud-esc-pill"
                   onClick={() => {
                     playKeystrokeSound();
-                    setIsHintModalOpen(true);
+                    setIsPauseMenuOpen(true);
+                    if (document.pointerLockElement) {
+                      document.exitPointerLock?.();
+                    }
                   }}
-                  aria-label="Open Progressive Hints"
-                  title="Progressive Hint System"
+                  title="Pause game, view mission objectives & access settings"
+                  aria-label="Pause menu and controls"
                 >
-                  <HelpCircle size={14} />
-                  <span>HINTS</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    setIsLogbookModalOpen(true);
-                  }}
-                  aria-label="Open Telemetry Logbook"
-                  title="Evidence & Telemetry Archive"
-                >
-                  <BookOpen size={14} />
-                  <span>LOGS</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={handleToggleMute}
-                  aria-label={muted ? 'Unmute game audio' : 'Mute game audio'}
-                  title={muted ? 'Audio Muted' : 'Audio Enabled'}
-                >
-                  {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                  <span>{muted ? 'MUTED' : 'AUDIO'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    activateTerminal(true);
-                  }}
-                  aria-label="Open Terminal"
-                >
-                  <Terminal size={14} />
-                  <span>TERMINAL</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    handleRestart();
-                  }}
-                  aria-label="Restart Chamber"
-                  title="Restart Current Chamber"
-                >
-                  <RotateCcw size={14} />
-                  <span>RESTART</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    setIsSettingsOpen(true);
-                  }}
-                  aria-label="Open Settings"
-                  title="Settings & Audio Sliders"
-                >
-                  <SettingsIcon size={14} />
-                  <span>SETTINGS</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="btn-header-action"
-                  onClick={() => {
-                    playKeystrokeSound();
-                    setPhase('title');
-                  }}
-                  aria-label="Return to Title Screen"
-                  title="Return to Main Menu"
-                >
-                  <Home size={14} />
+                  <span className="hud-esc-key">ESC</span>
                   <span>MENU</span>
                 </button>
+
+                {/* Auxiliary tools hidden from 3D viewport, accessible via Pause Menu or for screen readers/tests */}
+                <div className="hud-accessible-only">
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={() => {
+                      playKeystrokeSound();
+                      setIsHintModalOpen(true);
+                    }}
+                    aria-label="Open Progressive Hints"
+                  >
+                    <HelpCircle size={14} />
+                    <span>HINTS</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={() => {
+                      playKeystrokeSound();
+                      setIsLogbookModalOpen(true);
+                    }}
+                    aria-label="Open Telemetry Logbook"
+                  >
+                    <BookOpen size={14} />
+                    <span>LOGS</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={handleToggleMute}
+                    aria-label={muted ? 'Unmute game audio' : 'Mute game audio'}
+                  >
+                    {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                    <span>{muted ? 'MUTED' : 'AUDIO'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={() => {
+                      playKeystrokeSound();
+                      activateTerminal(true);
+                    }}
+                    aria-label="Open Terminal"
+                  >
+                    <Terminal size={14} />
+                    <span>TERMINAL</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={() => {
+                      playKeystrokeSound();
+                      handleRestart();
+                    }}
+                    aria-label="Restart Chamber"
+                  >
+                    <RotateCcw size={14} />
+                    <span>RESTART</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={() => {
+                      playKeystrokeSound();
+                      setIsSettingsOpen(true);
+                    }}
+                    aria-label="Open Settings"
+                  >
+                    <SettingsIcon size={14} />
+                    <span>SETTINGS</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-header-action"
+                    onClick={() => {
+                      playKeystrokeSound();
+                      setPhase('title');
+                    }}
+                    aria-label="Return to Title Screen"
+                  >
+                    <Home size={14} />
+                    <span>MENU</span>
+                  </button>
+                </div>
               </div>
             </header>
 
             {/* Central Interactive Chamber Scene (3D First-Person or 2D Schematic) */}
             <section className="room-viewport-section">
               {/* Contextual Objective Tracker */}
-              <ObjectiveHUD
-                state={state}
-                onOpenHints={() => setIsHintModalOpen(true)}
-                onOpenLogbook={() => setIsLogbookModalOpen(true)}
-              />
+              <ObjectiveHUD state={state} />
 
               {viewMode === '3d' ? (
                 <ChamberCanvas
@@ -605,11 +634,16 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
                   muted={muted}
                   onToggleMute={handleToggleMute}
                   isExternalModalOpen={isAnyModalOpen}
+                  isForcePaused={isPauseMenuOpen}
+                  onTogglePause={setIsPauseMenuOpen}
                   onOpenHints={() => setIsHintModalOpen(true)}
                   onOpenLogbook={() => setIsLogbookModalOpen(true)}
                   onOpenSettings={() => setIsSettingsOpen(true)}
                   onOpenChamberSelect={() => setIsChamberSelectOpen(true)}
-                  onReturnToMenu={() => setPhase('title')}
+                  onReturnToMenu={() => {
+                    setIsPauseMenuOpen(false);
+                    setPhase('title');
+                  }}
                 />
               ) : (
                 <RoomView
@@ -703,6 +737,17 @@ export const App: React.FC<AppProps> = ({ initialViewMode, initialPhase }) => {
           setPhase('title');
         }}
       />
+
+      {/* Narrative Story Beat Modal between Chambers */}
+      {activeStoryBeatChamber && (
+        <StoryBeatModal
+          completedRoomId={activeStoryBeatChamber}
+          onContinue={handleContinueStoryBeat}
+        />
+      )}
+
+      {/* Screen fade overlay for cinematic transitions */}
+      {isTransitioning && <div className="chamber-transition-overlay" aria-hidden="true" />}
     </main>
   );
 };

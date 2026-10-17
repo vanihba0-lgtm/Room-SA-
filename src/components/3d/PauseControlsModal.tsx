@@ -42,7 +42,6 @@ const getChamberLabel = (roomId?: string): string => {
     case 'chamber_103': return 'CHAMBER 103 // THE GRAVITY ARCHIVE';
     case 'chamber_104': return 'CHAMBER 104 // THE ZERO-DAY VAULT';
     case 'chamber_105': return 'CHAMBER 105 // THE LAST WITNESS (FINALE)';
-    case 'chamber_106': return 'CHAMBER 106 // THE RULE ENGINE';
     default: return 'SIMULATION PAUSED';
   }
 };
@@ -151,12 +150,6 @@ export const PauseControlsModal: React.FC<PauseControlsModalProps> = ({
             <div className="status-item">
               <span className="status-label">MASTER COMPILER:</span>
               <span className="status-value">4-Axiom Evidence Synthesis & ROOM S A Disclosure</span>
-            </div>
-          )}
-          {currentRoomId === 'chamber_106' && (
-            <div className="status-item">
-              <span className="status-label">ENGINE ARCHITECTURE:</span>
-              <span className="status-value">Rule Compiler & Ontological Core</span>
             </div>
           )}
         </div>

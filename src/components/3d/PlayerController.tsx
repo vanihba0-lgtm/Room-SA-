@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { PointerLockControls } from '@react-three/drei';
 import { Vector3 } from 'three';
 import { GameState } from '../../game/types';
-import { playFootstepSound, playHoverCue } from '../../services/audio/sound';
+import { playFootstepSound } from '../../services/audio/sound';
 
 export interface InteractionTargetInfo {
   id: string;
@@ -554,63 +554,6 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
           pos: new Vector3(0, 2.0, -6.5),
         }
       );
-    } else if (currentRoom === 'chamber_106' && state) {
-      const c106 = state.chamber106;
-      interactionObjects.push(
-        {
-          id: 'c106_prime_axiom',
-          name: 'The Architect\'s Prime Axiom',
-          actionText: 'Inspect Prime Axiom Core',
-          inspectText: 'Examine Floating Core Matrix',
-          pos: new Vector3(0, 2.0, 0),
-        },
-        {
-          id: 'c106_console_spectrometry',
-          name: 'Console 1: Spectrometry',
-          actionText: 'Synthesize Spectrometry Matrix',
-          inspectText: 'Inspect Spectrometric Sensor',
-          pos: new Vector3(-3.8, 1.2, -3.8),
-        },
-        {
-          id: 'c106_console_resonance',
-          name: 'Console 2: Resonance',
-          actionText: 'Synthesize Resonance Matrix',
-          inspectText: 'Inspect Harmonic Antenna',
-          pos: new Vector3(3.8, 1.2, -3.8),
-        },
-        {
-          id: 'c106_console_parity',
-          name: 'Console 3: Parity',
-          actionText: 'Synthesize Parity Matrix',
-          inspectText: 'Inspect Cryptographic Node',
-          pos: new Vector3(-3.8, 1.2, 3.8),
-        },
-        {
-          id: 'c106_console_chronology',
-          name: 'Console 4: Chronology',
-          actionText: 'Synthesize Chronology Matrix',
-          inspectText: 'Inspect Temporal Sequencer',
-          pos: new Vector3(3.8, 1.2, 3.8),
-        },
-        {
-          id: 'c106_master_terminal',
-          name: 'Master Compiler Terminal',
-          actionText: c106?.primeDirectiveOverridden
-            ? 'Prime Directive Overridden'
-            : c106?.matricesSynthesized
-            ? 'Rewrite Prime Directive (Dissolve Quarantine)'
-            : 'Access Compiler [Synthesize Matrices First]',
-          inspectText: 'Access Master Compiler',
-          pos: new Vector3(7.0, 1.6, 0),
-        },
-        {
-          id: 'exit_door_106',
-          name: 'The Reality Liberation Portal',
-          actionText: c106?.primeDirectiveOverridden ? 'Step Into Reality (Dissolve Simulation)' : 'Quarantine Portal [Sealed]',
-          inspectText: 'Inspect Liberation Threshold',
-          pos: new Vector3(0, 2.0, -7.0),
-        }
-      );
     } else {
       // Chamber 101 Objects
       interactionObjects.push(
@@ -687,9 +630,6 @@ export const PlayerController: React.FC<PlayerControllerProps> = ({
       bestTarget?.id !== currentHoverRef.current?.id ||
       bestTarget?.actionText !== currentHoverRef.current?.actionText
     ) {
-      if (bestTarget && bestTarget.id !== currentHoverRef.current?.id) {
-        playHoverCue(bestTarget.id);
-      }
       currentHoverRef.current = bestTarget;
       onHoverTarget(bestTarget);
     }

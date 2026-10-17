@@ -25,7 +25,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
       <div className="title-card">
         <div className="title-badge-pill">
           <ShieldAlert size={13} />
-          <span>SIMULATION INTEGRITY AUDIT // VER 4.09</span>
+          <span>DECEPTION INTEGRITY AUDIT // 5 SECTORS</span>
         </div>
 
         <div>
@@ -36,8 +36,8 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
         </div>
 
         <p className="title-teaser">
-          The simulation says everything is working. The evidence says otherwise.
-          Investigate anomalies, expose contradictions, and rewrite the rules to escape.
+          The simulation claims nominal stability. The physical instruments prove otherwise.
+          Expose contradictions, rewrite authoritative axioms, and break the recursive loop.
         </p>
 
         <div className="title-menu-actions">
@@ -49,6 +49,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                 soundManager.playKeystroke();
                 onContinue();
               }}
+              autoFocus
             >
               <Play size={16} />
               <span>CONTINUE INVESTIGATION</span>
@@ -61,6 +62,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                 soundManager.playKeystroke();
                 onStartNewGame();
               }}
+              autoFocus
             >
               <Play size={16} />
               <span>START NEW GAME</span>
@@ -90,7 +92,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
             }}
           >
             <Grid size={16} />
-            <span>CHAMBER SELECT (6 TOTAL)</span>
+            <span>CHAMBER SELECT (5 CHAMBERS)</span>
           </button>
 
           <button

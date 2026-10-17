@@ -16,6 +16,8 @@ interface ChamberCanvasProps {
   muted: boolean;
   onToggleMute: () => void;
   isExternalModalOpen?: boolean;
+  isForcePaused?: boolean;
+  onTogglePause?: (paused: boolean) => void;
   onOpenHints?: () => void;
   onOpenLogbook?: () => void;
   onOpenSettings?: () => void;
@@ -31,6 +33,8 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   muted,
   onToggleMute,
   isExternalModalOpen = false,
+  isForcePaused = false,
+  onTogglePause,
   onOpenHints,
   onOpenLogbook,
   onOpenSettings,
@@ -38,25 +42,41 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
   onReturnToMenu,
 }) => {
   const [isLocked, setIsLocked] = useState(false);
-  const [isPaused, setIsPaused] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const [hoverTarget, setHoverTarget] = useState<InteractionTargetInfo | null>(null);
+
+  const effectivePaused = isForcePaused || isPaused;
 
   const activeRule = state.rules['RULE_01'];
   const hasBrassKey = state.inventory.some((item) => item.id === 'brass_key');
   const activeObjective = getActiveObjective(state);
 
+  // Global Escape key listener to toggle pause
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Escape' && !isExternalModalOpen && !state.terminalOpen) {
+        setIsPaused((prev) => !prev);
+        onTogglePause?.(!effectivePaused);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isExternalModalOpen, state.terminalOpen, effectivePaused, onTogglePause]);
+
   const handleLockChange = (locked: boolean) => {
     setIsLocked(locked);
     if (!locked) {
-      // Released pointer lock = pause menu accessible
       setIsPaused(true);
+      onTogglePause?.(true);
     } else {
       setIsPaused(false);
+      onTogglePause?.(false);
     }
   };
 
   const handleResume = () => {
     setIsPaused(false);
+    onTogglePause?.(false);
     // Request pointer lock on the canvas element
     const canvas = document.querySelector('canvas');
     if (canvas) {
@@ -87,7 +107,7 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
         >
           <ChamberScene
             state={state}
-            isPaused={isPaused || state.terminalOpen || state.status === 'escaped' || isExternalModalOpen}
+            isPaused={effectivePaused || state.terminalOpen || state.status === 'escaped' || isExternalModalOpen}
             onLockChange={handleLockChange}
             onInteract={onInteract}
             onInspect={onInspect}
@@ -97,11 +117,11 @@ export const ChamberCanvas: React.FC<ChamberCanvasProps> = ({
       </Suspense>
 
       {/* Crosshair & Contextual Target Prompts */}
-      <CrosshairHUD target={hoverTarget} isLocked={isLocked && !isPaused && !isExternalModalOpen} />
+      <CrosshairHUD target={hoverTarget} isLocked={isLocked && !effectivePaused && !isExternalModalOpen} />
 
       {/* Full Pause Menu */}
       <PauseControlsModal
-        isOpen={isPaused && !state.terminalOpen && state.status !== 'escaped' && !isExternalModalOpen}
+        isOpen={effectivePaused && !state.terminalOpen && state.status !== 'escaped' && !isExternalModalOpen}
         onResume={handleResume}
         onRestart={onRestart}
         muted={muted}

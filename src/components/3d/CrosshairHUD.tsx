@@ -7,7 +7,7 @@ interface CrosshairHUDProps {
   isLocked: boolean;
 }
 
-export const CrosshairHUD: React.FC<CrosshairHUDProps> = ({ target, isLocked }) => {
+export const CrosshairHUD: React.FC<CrosshairHUDProps> = ({ target }) => {
   return (
     <div className="crosshair-hud-container" aria-hidden="true">
       {/* Central Reticle */}
@@ -16,35 +16,22 @@ export const CrosshairHUD: React.FC<CrosshairHUDProps> = ({ target, isLocked }) 
         <div className="reticle-ring" />
       </div>
 
-      {/* Target Interaction Prompt Card */}
+      {/* Minimal Sleek Target Prompt Pill */}
       {target && (
-        <div className="interaction-prompt-card">
-          <div className="prompt-header">
-            <span className="prompt-object-name">{target.name}</span>
-            <span className="prompt-distance">{target.distance.toFixed(1)}m</span>
+        <div className="interaction-prompt-pill">
+          <span className="prompt-target-name">{target.name}</span>
+          <div className="prompt-actions-inline">
+            <span className="prompt-action-item">
+              <kbd className="prompt-key">E</kbd>
+              <span className="prompt-verb">{target.actionText}</span>
+            </span>
+            {target.inspectText && (
+              <span className="prompt-action-item inspect">
+                <kbd className="prompt-key key-inspect">R</kbd>
+                <span className="prompt-verb">Inspect</span>
+              </span>
+            )}
           </div>
-
-          <div className="prompt-actions">
-            <div className="action-pill primary-action">
-              <span className="action-key">E</span>
-              <span className="action-label">{target.actionText}</span>
-            </div>
-
-            <div className="action-pill inspect-action">
-              <span className="action-key">R</span>
-              <span className="action-label">Inspect</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Quick Nav Bar Hint when in-game */}
-      {isLocked && !target && (
-        <div className="controls-nav-hint">
-          <span className="hint-item"><span className="key-badge">WASD</span> Move</span>
-          <span className="hint-item"><span className="key-badge">SHIFT</span> Sprint</span>
-          <span className="hint-item"><span className="key-badge">SPACE</span> Jump</span>
-          <span className="hint-item"><span className="key-badge">ESC</span> Pause / Release Mouse</span>
         </div>
       )}
     </div>

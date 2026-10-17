@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Compass, X } from 'lucide-react';
 import { GameState } from '../../game/types';
 import { soundManager } from '../../services/audio/soundManager';
+import { markIntroCompleted } from '../../game/progression/campaign';
 import './title.css';
 
 interface TutorialOverlayProps {
@@ -28,6 +29,11 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleDismiss = () => {
+    markIntroCompleted();
+    onDismiss();
+  };
+
   // Progression logic based on real state
   useEffect(() => {
     if (step === 1 && hasMoved) {
@@ -44,9 +50,9 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       setStep(5);
     }
     if (step === 5 && !state.exit.isLocked) {
-      onDismiss();
+      handleDismiss();
     }
-  }, [step, hasMoved, state.inspectedObjectIds, state.inventory, state.rules, state.exit.isLocked, onDismiss]);
+  }, [step, hasMoved, state.inspectedObjectIds, state.inventory, state.rules, state.exit.isLocked]);
 
   if (!isActive) return null;
 
@@ -72,14 +78,14 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       <div className="tutorial-header">
         <div className="tutorial-step-label">
           <Compass size={12} color="#52D9F2" />
-          <span>GUIDE // STEP {step}/5</span>
+          <span>INVESTIGATION BRIEF // STEP {step}/5</span>
         </div>
         <button
           type="button"
           className="tutorial-close-btn"
           onClick={() => {
             soundManager.playKeystroke();
-            onDismiss();
+            handleDismiss();
           }}
           aria-label="Dismiss training guide"
         >
